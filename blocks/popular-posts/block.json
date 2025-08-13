@@ -9,6 +9,14 @@
     "number": {
       "type": "number",
       "default": 5
+    },
+    "title": {
+      "type": "string",
+      "default": "Some Favorites To Get You Started"
+    },
+    "emoji": {
+      "type": "string",
+      "default": "✨"
     }
   },
   "supports": {

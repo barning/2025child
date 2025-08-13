@@ -5,8 +5,5 @@ Description: Child theme for TwentyTwentyFive.
 Author: Your Name
 Author URI: https://example.com/
 Template: twentytwentyfive
-Version: 1.0.0
+Version: 1.0.1
 */
-
-/* Import parent theme styles */
-@import url('../twentytwentyfive/style.css');
