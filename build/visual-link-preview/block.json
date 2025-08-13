@@ -1,0 +1,20 @@
+{
+  "apiVersion": 2,
+  "name": "child/visual-link-preview",
+  "title": "Visual Link Preview",
+  "category": "embed",
+  "icon": "admin-links",
+  "description": "Display a rich preview for a given URL.",
+  "attributes": {
+    "url": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "supports": {
+    "html": false
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./editor.css",
+  "style": "file:./style.css"
+}

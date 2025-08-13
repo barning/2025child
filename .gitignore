@@ -1,0 +1,21 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Package output
+/dist/
+*.zip
+*.tar.gz
+
+# macOS
+.DS_Store
+
+# Editor/IDE
+.vscode/
+.idea/
+
+# WordPress
+wp-content/uploads/
+
+# Logs
+*.log

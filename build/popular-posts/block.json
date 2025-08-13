@@ -1,0 +1,20 @@
+{
+  "apiVersion": 2,
+  "name": "child/popular-posts",
+  "title": "Popular Posts",
+  "category": "widgets",
+  "icon": "star-filled",
+  "description": "Display the most viewed posts.",
+  "attributes": {
+    "number": {
+      "type": "number",
+      "default": 5
+    }
+  },
+  "supports": {
+    "html": false
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./editor.css",
+  "style": "file:./style.css"
+}
