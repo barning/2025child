@@ -1,18 +1,87 @@
 @media (prefers-color-scheme: dark){
-  :root{ color-scheme: light dark; }
-  body{ background:#181a1b; color:#e8e6e3; }
-  a{ color:#8ecae6; }
-  input, textarea, select{ background:#23272a; color:#e8e6e3; border-color:#444; }
-}
-body.dark-mode{ background:#181a1b !important; color:#e8e6e3 !important; }
-body.dark-mode a{ color:#8ecae6 !important; }
-body.dark-mode input, body.dark-mode textarea, body.dark-mode select{ background:#23272a !important; color:#e8e6e3 !important; border-color:#444 !important; }
+  /* Dark-Mode-Variante der TwentyTwentyFive-Color-Palette */
+  :root,
+  body.dark-mode {
+    --wp--preset--color--background: #181a1b;
+    --wp--preset--color--foreground: #e8e6e3;
 
-.child-dark-toggle{
-  position:fixed; right:1rem; bottom:1rem; z-index:9999;
-  background:rgba(0,0,0,.65); color:#fff;
-  border:none; border-radius:999px; padding:.5rem .7rem; font-size:18px; line-height:1;
-  backdrop-filter:saturate(140%) blur(8px); box-shadow:0 6px 20px rgba(0,0,0,.25);
+    /* =========================
+       Dark Mode für TwentyTwentyFive Child Theme
+       ========================= */
+
+    @media (prefers-color-scheme: dark) {
+      :root,
+      body.dark-mode {
+        /* Farbpalette für Dark Mode */
+        --wp--preset--color--background: #181a1b;
+        --wp--preset--color--foreground: #e8e6e3;
+        --wp--preset--color--primary: #8ecae6;
+        --wp--preset--color--secondary: #23272a;
+        --wp--preset--color--tertiary: #23272a;
+        --wp--preset--color--accent: #ffd166;
+        color-scheme: light dark;
+      }
+
+      /* Zentrale Container und Blöcke */
+      body,
+      .wp-site-blocks,
+      .wp-block-group,
+      .wp-block-cover,
+      .wp-block-columns,
+      .is-style-section-1,
+      .is-style-section-1--2 {
+        background: var(--wp--preset--color--background) !important;
+        color: var(--wp--preset--color--foreground) !important;
+      }
+
+      /* Links */
+      a {
+        color: var(--wp--preset--color--primary) !important;
+      }
+
+      /* Formulare */
+      input,
+      textarea,
+      select {
+        background: var(--wp--preset--color--secondary) !important;
+        color: var(--wp--preset--color--foreground) !important;
+        border-color: #444 !important;
+      }
+    }
+
+    body.dark-mode {
+      /* Fallback für manuell gesetzten Dark Mode */
+      --wp--preset--color--background: #181a1b;
+      --wp--preset--color--foreground: #e8e6e3;
+      --wp--preset--color--primary: #8ecae6;
+      --wp--preset--color--secondary: #23272a;
+      --wp--preset--color--tertiary: #23272a;
+      --wp--preset--color--accent: #ffd166;
+    }
+
+    body.dark-mode,
+    body.dark-mode .wp-site-blocks,
+    body.dark-mode .wp-block-group,
+    body.dark-mode .wp-block-cover,
+    body.dark-mode .wp-block-columns,
+    body.dark-mode .is-style-section-1,
+    body.dark-mode .is-style-section-1--2 {
+      background: var(--wp--preset--color--background) !important;
+      color: var(--wp--preset--color--foreground) !important;
+    }
+
+    body.dark-mode a {
+      color: var(--wp--preset--color--primary) !important;
+    }
+
+    body.dark-mode input,
+    body.dark-mode textarea,
+    body.dark-mode select {
+      background: var(--wp--preset--color--secondary) !important;
+      color: var(--wp--preset--color--foreground) !important;
+      border-color: #444 !important;
+    }
+
   cursor:pointer;
 }
 .child-dark-toggle:hover{ background:rgba(0,0,0,.8); }

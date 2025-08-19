@@ -7,3 +7,14 @@ Author URI: https://example.com/
 Template: twentytwentyfive
 Version: 1.0.1
 */
+
+.overflow-image {
+	overflow: hidden;
+}
+.is-clickable {
+	transition: all .2s;
+}
+.is-clickable:hover {
+	box-shadow: var(--wp--preset--shadow--deep);
+	translate: 0 -2px 0;
+}
