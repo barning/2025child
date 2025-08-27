@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*' # Wird bei jedem Tag ausgeführt, der mit v beginnt (z.B. v1.0.0)
 
+# Explizite Permissions für den GITHUB_TOKEN
+permissions:
+  contents: write
+  
 jobs:
   build:
     runs-on: ubuntu-latest
