@@ -1,6 +1,6 @@
 {
   "name": "twentytwentyfive-child-blocks",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Custom blocks for the TwentyTwentyFive child theme.",
   "scripts": {
     "build": "wp-scripts build --webpack-src-dir=blocks",
