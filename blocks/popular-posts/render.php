@@ -3,16 +3,18 @@
  * Server-side render for Popular Posts block (styled card)
  */
 return function( $attributes ) {
-    $number = isset( $attributes['number'] ) ? max( 1, intval( $attributes['number'] ) ) : 5;
-    $title  = isset( $attributes['title'] ) ? wp_strip_all_tags( $attributes['title'] ) : __( 'Some Favorites To Get You Started', 'child' );
-    $emoji  = isset( $attributes['emoji'] ) ? wp_strip_all_tags( $attributes['emoji'] ) : '✨';
+    $selected_posts = isset( $attributes['selectedPosts'] ) ? $attributes['selectedPosts'] : [];
+    $title = isset( $attributes['title'] ) ? wp_strip_all_tags( $attributes['title'] ) : __( 'Some Favorites To Get You Started', 'child' );
+    $emoji = isset( $attributes['emoji'] ) ? wp_strip_all_tags( $attributes['emoji'] ) : '✨';
+
+    if (empty($selected_posts)) {
+        return '<div class="wp-block-child-popular-posts"><div class="child-popular-card"><p>' . esc_html__( 'Please select some posts.', 'child' ) . '</p></div></div>';
+    }
 
     $query = new WP_Query([
         'post_type'      => 'post',
-        'posts_per_page' => $number,
-        'meta_key'       => '_child_post_views',
-        'orderby'        => 'meta_value_num',
-        'order'          => 'DESC',
+        'post__in'       => $selected_posts,
+        'orderby'        => 'post__in',
         'no_found_rows'  => true,
         'post_status'    => 'publish',
     ]);

@@ -4,11 +4,11 @@
   "title": "Popular Posts",
   "category": "widgets",
   "icon": "star-filled",
-  "description": "Display the most viewed posts.",
+  "description": "Display selected posts.",
   "attributes": {
-    "number": {
-      "type": "number",
-      "default": 5
+    "selectedPosts": {
+      "type": "array",
+      "default": []
     },
     "title": {
       "type": "string",
