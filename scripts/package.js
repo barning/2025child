@@ -55,8 +55,6 @@ async function main(){
   await safeCopy(path.join(root, 'functions.php'), path.join(outDir, 'functions.php'));
 
   // Runtime assets
-  await copyIfExists(path.join(root, 'dark-mode.css'), path.join(outDir, 'dark-mode.css'));
-  await copyIfExists(path.join(root, 'dark-mode.js'), path.join(outDir, 'dark-mode.js'));
   await copyIfExists(path.join(root, 'placeholder.png'), path.join(outDir, 'placeholder.png'));
   await copyIfExists(path.join(root, 'screenshot.png'), path.join(outDir, 'screenshot.png'));
 

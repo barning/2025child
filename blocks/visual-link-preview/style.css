@@ -51,9 +51,4 @@
   margin-top:6px;
 }
 
-/* Dark mode */
-@media (prefers-color-scheme: dark){
-  .wp-block-child-visual-link-preview .child-url-card{ background:#111827; border-color:#1f2937; box-shadow:none; }
-  .wp-block-child-visual-link-preview .child-url-card__desc{ color:#d1d5db; }
-  .wp-block-child-visual-link-preview .child-url-card__host{ color:#9ca3af; }
-}
+

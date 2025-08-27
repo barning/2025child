@@ -4,10 +4,7 @@ This child theme replaces the following WordPress plugins with native theme modu
 
 ## Replaced Plugins
 
-1. **WP Dark Mode**
-   - Replaced with a native dark mode toggle (CSS/JS) in the theme footer. User preference is saved and applied automatically.
-
-2. **Head, Footer and Post Injections**
+1. **Head, Footer and Post Injections**
    - Replaced for the Mastodon journalism feature: Customizer field for `fediverse:creator` meta tag output in `<head>`.
 
 3. **WordPress Popular Posts**
