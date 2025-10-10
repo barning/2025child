@@ -2,6 +2,9 @@
   "name": "twentytwentyfive-child-blocks",
   "version": "1.0.0",
   "description": "Custom blocks for the TwentyTwentyFive child theme.",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "build": "wp-scripts build --webpack-src-dir=blocks",
     "start": "wp-scripts start --webpack-src-dir=blocks",
@@ -10,6 +13,6 @@
     "dist": "npm run build && npm run package"
   },
   "devDependencies": {
-    "@wordpress/scripts": "^27.1.0"
+    "@wordpress/scripts": "^30.25.0"
   }
 }

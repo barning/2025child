@@ -55,7 +55,6 @@ async function main(){
   await safeCopy(path.join(root, 'functions.php'), path.join(outDir, 'functions.php'));
 
   // Runtime assets
-  await copyIfExists(path.join(root, 'placeholder.png'), path.join(outDir, 'placeholder.png'));
   await copyIfExists(path.join(root, 'screenshot.png'), path.join(outDir, 'screenshot.png'));
 
   // PHP modules and built blocks

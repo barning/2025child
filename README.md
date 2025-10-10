@@ -32,7 +32,7 @@ The distributable theme will be generated in `dist/twentytwentyfive-child/` and 
 
 ## GitHub / Development
 
-- Ensure Node 18+ is installed.
+- Ensure Node 20+ is installed (required for build processes)
 - Build: `npm run build`
 - Package: `npm run package` (runs build automatically)
 - Combined: `npm run dist`
