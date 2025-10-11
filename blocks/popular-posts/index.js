@@ -1,7 +1,8 @@
 import { __ } from '@wordpress/i18n';
+import { decodeEntities } from '@wordpress/html-entities';
 import { registerBlockType } from '@wordpress/blocks';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, TextControl, SelectControl, Button } from '@wordpress/components';
+import { PanelBody, TextControl, ComboboxControl, Button } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import metadata from './block.json';
@@ -115,19 +116,16 @@ const PostSelector = ({ selectedPosts, allPosts, onUpdatePost, onRemovePost, onA
   <div className="child-post-selector">
     {selectedPosts.map((selectedId, index) => (
       <div key={index} className="child-post-selector__row" style={styles.selectorRow}>
-        <SelectControl
-          label={index === 0 ? __('Select Post', 'child') : ''}
+        <ComboboxControl
+          label={index === 0 ? __('Select or Search Post', 'child') : ''}
           value={selectedId || ''}
-          options={[
-            { label: __('Choose a post...', 'child'), value: '0' },
-            ...allPosts
-              .filter(post => !selectedPosts.includes(post.id) || post.id === selectedId)
-              .map(post => ({
-                label: post.title.rendered,
-                value: post.id.toString()
-              }))
-          ]}
+          options={allPosts.map(post => ({
+            label: decodeEntities(post.title.rendered),
+            value: post.id.toString()
+          }))}
+          onFilterValueChange={() => {}}
           onChange={(value) => onUpdatePost(value, index)}
+          allowReset={true}
         />
         {index > 0 && (
           <Button
@@ -162,12 +160,12 @@ const Preview = ({ title, emoji, posts }) => (
       <div className="child-popular-card__emoji" aria-hidden="true">{emoji}</div>
       <h3 className="child-popular-card__title">{title}</h3>
     </div>
-    <ol className="child-popular-card__list">
+    <ul className="child-popular-card__list">
       {posts?.length ? (
         posts.map((post) => (
           <li key={post.id} className="child-popular-card__item">
             <span className="child-popular-card__link">
-              {wp_strip_all_tags(post.title.rendered)}
+              {decodeEntities(post.title.rendered)}
             </span>
           </li>
         ))
@@ -178,7 +176,7 @@ const Preview = ({ title, emoji, posts }) => (
           </span>
         </li>
       )}
-    </ol>
+    </ul>
   </div>
 );
 

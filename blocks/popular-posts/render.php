@@ -52,7 +52,7 @@ function render_posts_list(\WP_Query $query): string {
         );
     }, $query->posts);
 
-    return sprintf('<ol class="child-popular-card__list">%s</ol>', implode('', $items));
+    return sprintf('<ul class="child-popular-card__list">%s</ul>', implode('', $items));
 }
 
 /**
