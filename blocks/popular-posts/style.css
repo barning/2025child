@@ -23,8 +23,22 @@
 .child-popular-card__list{ list-style: none; margin:0; padding:0; }
 .child-popular-card__item{ padding: 16px 0; border-top: 1px solid color-mix(in srgb, currentColor 10%, transparent); }
 .child-popular-card__item:first-child{ border-top: 0; }
-.child-popular-card__link{ text-decoration: none; color: inherit; display: block; }
-.child-popular-card__link:hover{ text-decoration: underline; }
+.child-popular-card__link { 
+  text-decoration: none; 
+  color: var(--wp--preset--color--contrast);
+  display: block;
+  transition: color 0.2s ease;
+}
+
+.child-popular-card__link:hover { 
+  color: var(--wp--preset--color--primary);
+  text-decoration: underline; 
+}
+
+.child-popular-card__link--placeholder {
+  color: #757575;
+  font-style: italic;
+}
 
 @media (prefers-color-scheme: dark){
   .wp-block-child-popular-posts .child-popular-card{ border-color: color-mix(in srgb, currentColor 20%, transparent); }

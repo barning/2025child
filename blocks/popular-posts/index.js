@@ -117,7 +117,7 @@ const PostSelector = ({ selectedPosts, allPosts, onUpdatePost, onRemovePost, onA
     {selectedPosts.map((selectedId, index) => (
       <div key={index} className="child-post-selector__row" style={styles.selectorRow}>
         <ComboboxControl
-          label={index === 0 ? __('Select or Search Post', 'child') : ''}
+          label={__('Select or Search Post', 'child')}
           value={selectedId || ''}
           options={allPosts.map(post => ({
             label: decodeEntities(post.title.rendered),
@@ -125,7 +125,7 @@ const PostSelector = ({ selectedPosts, allPosts, onUpdatePost, onRemovePost, onA
           }))}
           onFilterValueChange={() => {}}
           onChange={(value) => onUpdatePost(value, index)}
-          allowReset={true}
+          allowReset={false}
         />
         {index > 0 && (
           <Button
@@ -133,9 +133,10 @@ const PostSelector = ({ selectedPosts, allPosts, onUpdatePost, onRemovePost, onA
             style={styles.removeButton(index === 0)}
             isSmall
             isDestructive
-          >
-            ×
-          </Button>
+            icon="trash"
+            label={__('Remove this post', 'child')}
+            tooltipPosition="top"
+          />
         )}
       </div>
     ))}
@@ -164,14 +165,18 @@ const Preview = ({ title, emoji, posts }) => (
       {posts?.length ? (
         posts.map((post) => (
           <li key={post.id} className="child-popular-card__item">
-            <span className="child-popular-card__link">
+            <a 
+              href="#" 
+              onClick={(e) => e.preventDefault()} 
+              className="child-popular-card__link"
+            >
               {decodeEntities(post.title.rendered)}
-            </span>
+            </a>
           </li>
         ))
       ) : (
         <li className="child-popular-card__item">
-          <span className="child-popular-card__link">
+          <span className="child-popular-card__link child-popular-card__link--placeholder">
             {__('Please select some posts', 'child')}
           </span>
         </li>
