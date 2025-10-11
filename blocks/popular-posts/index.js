@@ -47,15 +47,8 @@ const usePostSelection = (selectedPosts, setAttributes) => {
 
   const updatePostSelection = (value, index) => {
     const newSelectedPosts = [...selectedPosts];
-    newSelectedPosts[index] = parseInt(value);
-    
-    if (newSelectedPosts.length > 1) {
-      setAttributes({ 
-        selectedPosts: newSelectedPosts.filter(id => id !== DEFAULTS.EMPTY_POST_ID) 
-      });
-    } else {
-      setAttributes({ selectedPosts: newSelectedPosts });
-    }
+    newSelectedPosts[index] = value ? parseInt(value) : DEFAULTS.EMPTY_POST_ID;
+    setAttributes({ selectedPosts: newSelectedPosts });
   };
 
   return { addNewPostSelector, removePostSelector, updatePostSelection };
@@ -118,14 +111,15 @@ const PostSelector = ({ selectedPosts, allPosts, onUpdatePost, onRemovePost, onA
       <div key={index} className="child-post-selector__row" style={styles.selectorRow}>
         <ComboboxControl
           label={__('Select or Search Post', 'child')}
-          value={selectedId || ''}
+          value={selectedId.toString()}
           options={allPosts.map(post => ({
             label: decodeEntities(post.title.rendered),
             value: post.id.toString()
           }))}
-          onFilterValueChange={() => {}}
           onChange={(value) => onUpdatePost(value, index)}
           allowReset={false}
+          placeholder={__('Search for a post...', 'child')}
+          __experimentalShowSelectedSuggestion={true}
         />
         {index > 0 && (
           <Button
@@ -155,35 +149,43 @@ const PostSelector = ({ selectedPosts, allPosts, onUpdatePost, onRemovePost, onA
 /**
  * Preview Component
  */
-const Preview = ({ title, emoji, posts }) => (
-  <div {...useBlockProps({ className: 'child-popular-card' })}>
-    <div className="child-popular-card__header">
-      <div className="child-popular-card__emoji" aria-hidden="true">{emoji}</div>
-      <h3 className="child-popular-card__title">{title}</h3>
+const Preview = ({ title, emoji, posts }) => {
+  const blockProps = useBlockProps({
+    className: 'wp-block-child-popular-posts'
+  });
+  
+  return (
+    <div {...blockProps}>
+      <div className="child-popular-card">
+        <div className="child-popular-card__header">
+          <div className="child-popular-card__emoji" aria-hidden="true">{emoji}</div>
+          <h3 className="child-popular-card__title">{title}</h3>
+        </div>
+        <ul className="child-popular-card__list">
+          {posts?.length ? (
+            posts.map((post) => (
+              <li key={post.id} className="child-popular-card__item">
+                <a 
+                  href="#" 
+                  onClick={(e) => e.preventDefault()} 
+                  className="child-popular-card__link"
+                >
+                  {decodeEntities(post.title.rendered)}
+                </a>
+              </li>
+            ))
+          ) : (
+            <li className="child-popular-card__item">
+              <span className="child-popular-card__link child-popular-card__link--placeholder">
+                {__('Please select some posts', 'child')}
+              </span>
+            </li>
+          )}
+        </ul>
+      </div>
     </div>
-    <ul className="child-popular-card__list">
-      {posts?.length ? (
-        posts.map((post) => (
-          <li key={post.id} className="child-popular-card__item">
-            <a 
-              href="#" 
-              onClick={(e) => e.preventDefault()} 
-              className="child-popular-card__link"
-            >
-              {decodeEntities(post.title.rendered)}
-            </a>
-          </li>
-        ))
-      ) : (
-        <li className="child-popular-card__item">
-          <span className="child-popular-card__link child-popular-card__link--placeholder">
-            {__('Please select some posts', 'child')}
-          </span>
-        </li>
-      )}
-    </ul>
-  </div>
-);
+  );
+};
 
 /**
  * Main Edit Component
@@ -200,8 +202,15 @@ function Edit({ attributes, setAttributes }) {
     setAttributes({ selectedPosts: [DEFAULTS.EMPTY_POST_ID] });
   }
 
-  const { posts, allPosts } = usePosts(selectedPosts);
+  const { posts, allPosts } = usePosts(selectedPosts.filter(id => id !== DEFAULTS.EMPTY_POST_ID));
   const { addNewPostSelector, removePostSelector, updatePostSelection } = usePostSelection(selectedPosts, setAttributes);
+
+  // Finde die ausgewählten Posts im allPosts Array
+  const selectedPostsData = allPosts
+    ? selectedPosts
+        .map(id => allPosts.find(post => post.id === id))
+        .filter(Boolean)
+    : [];
 
   return (
     <>
@@ -218,7 +227,7 @@ function Edit({ attributes, setAttributes }) {
       <Preview
         title={title}
         emoji={emoji}
-        posts={posts}
+        posts={selectedPostsData}
       />
     </>
   );
