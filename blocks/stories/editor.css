@@ -1,0 +1,16 @@
+.wp-block-twentytwentyfivechild-stories {
+    border: 1px dashed #ccc;
+    padding: 1rem;
+}
+
+.stories-preview-container {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.story-preview-item {
+    background: #f0f0f0;
+    padding: 0.5rem;
+    border-radius: 4px;
+}

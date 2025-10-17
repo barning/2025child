@@ -1,6 +1,19 @@
 # TwentyTwentyFive Child Theme — Plugin Replacements
 
-This child theme replaces the following WordPress plugins with native theme modules or blocks:
+This child theme replaces the following WordPress plugins with native theme modules or blocks and adds additional features:
+
+## Features
+
+### Stories
+Instagram-style stories feature that supports both images and videos. Implements the [OpenStories specification](https://github.com/dddddddddzzzz/OpenStories).
+- Supports images and videos in 9:16 format
+- Story duration and expiration settings
+- Content warnings
+- Touch and keyboard navigation
+- Progress indicators
+- OpenStories-compatible REST API endpoint
+
+[Read the Stories documentation](docs/stories.md)
 
 ## Replaced Plugins
 
