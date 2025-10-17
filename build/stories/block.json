@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "twentytwentyfivechild/stories",
+  "version": "0.1.0",
+  "title": "Stories",
+  "category": "widgets",
+  "icon": "format-gallery",
+  "description": "Display Instagram-style stories with images and videos",
+  "supports": {
+    "html": false
+  },
+  "textdomain": "twentytwentyfivechild",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./editor.css",
+  "style": "file:./style.css"
+}
