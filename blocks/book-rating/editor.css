@@ -1,0 +1,85 @@
+.wp-block-child-book-rating {
+    margin: 2rem 0;
+}
+
+/* Editor-specific styles */
+.book-rating-control {
+    margin: 1rem 0;
+}
+
+.book-rating-control label {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.star-rating {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.star-button {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: #ddd;
+    padding: 0.25rem;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
+
+.star-button:hover {
+    transform: scale(1.1);
+}
+
+.star-button.active {
+    color: #ffd700;
+}
+
+.book-cover {
+    width: 150px;
+    height: auto;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.book-info {
+    flex: 1;
+}
+
+.book-title {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.book-author {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.1em;
+}
+
+.book-genre {
+    display: inline-block;
+    margin: 0.5rem 0;
+    padding: 0.25rem 0.75rem;
+    background-color: var(--wp--preset--color--primary);
+    color: white;
+    border-radius: 15px;
+    font-size: 0.9em;
+}
+
+.book-rating {
+    margin-top: 1rem;
+}
+
+.star {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #ccc;
+    cursor: pointer;
+    padding: 0 2px;
+}
+
+.star.active {
+    color: #ffd700;
+}
