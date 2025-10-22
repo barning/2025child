@@ -1,0 +1,70 @@
+.wp-block-child-book-rating {
+    margin: 2rem 0;
+}
+
+.wp-block-child-book-rating .book-display {
+    display: flex;
+    gap: 2rem;
+    padding: 2rem;
+    background-color: var(--wp--preset--color--background);
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.wp-block-child-book-rating .book-cover {
+    width: 200px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    object-fit: cover;
+}
+
+.wp-block-child-book-rating .book-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.wp-block-child-book-rating .book-title {
+    margin: 0 0 0.5rem 0;
+    font-size: 2em;
+    font-weight: bold;
+    line-height: 1.2;
+}
+
+.wp-block-child-book-rating .book-author {
+    margin: 0 0 1rem 0;
+    font-size: 1.2em;
+    color: #666;
+}
+
+.wp-block-child-book-rating .book-genre {
+    display: inline-block;
+    margin: 0 0 1.5rem 0;
+    padding: 0.4rem 1rem;
+    background-color: #f0f0f0;
+    color: #666;
+    border-radius: 20px;
+    font-size: 0.9em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.wp-block-child-book-rating .book-rating {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.wp-block-child-book-rating .star {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: #ddd;
+    padding: 0 3px;
+    cursor: default;
+}
+
+.wp-block-child-book-rating .star.active {
+    color: #ffd700;
+}
