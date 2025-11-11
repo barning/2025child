@@ -26,35 +26,32 @@ const normalizeCoverUrl = (url) => {
 const BookPreview = ({ bookTitle, author, genre, coverUrl, rating }) => {
     if (!bookTitle?.trim()) {
         return (
-            <div className="book-preview book-preview--empty">
+            <div className="book-preview--empty">
                 {__('Bitte wähle ein Buch aus der Suche aus oder gib die Details manuell ein.', 'child')}
             </div>
         );
     }
 
     return (
-        <div className="book-preview">
+        <div className="book-display">
             {coverUrl ? (
                 <img
-                    className="book-preview__cover"
+                    className="book-cover"
                     src={coverUrl}
                     alt={bookTitle}
                 />
             ) : null}
-            <div className="book-preview__info">
-                <h3 className="book-preview__title">{bookTitle}</h3>
+            <div className="book-info">
+                <h3 className="book-title">{bookTitle}</h3>
                 {author?.trim() ? (
-                    <p className="book-preview__author">{author}</p>
+                    <p className="book-author">{author}</p>
                 ) : null}
                 {genre?.trim() ? (
-                    <p className="book-preview__genre">{genre}</p>
+                    <p className="book-genre">{genre}</p>
                 ) : null}
-                <div className="book-preview__rating">
+                <div className="book-rating">
                     {[1, 2, 3, 4, 5].map((star) => (
-                        <span
-                            key={star}
-                            className={`book-preview__star ${star <= rating ? 'is-active' : ''}`}
-                        >
+                        <span key={star} className={`star${star <= rating ? ' active' : ''}`}>
                             ★
                         </span>
                     ))}

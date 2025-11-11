@@ -63,14 +63,8 @@
     color: #ffd700;
 }
 
-.book-preview {
-    display: flex;
-    gap: 1.5rem;
-    align-items: flex-start;
-    margin-top: 1.5rem;
-}
-
 .book-preview--empty {
+    margin-top: 1.5rem;
     padding: 1.5rem;
     border: 1px dashed #c3c4c7;
     border-radius: 6px;
@@ -78,49 +72,6 @@
     font-style: italic;
 }
 
-.book-preview__cover {
-    width: 150px;
-    height: auto;
-    border-radius: 4px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.book-preview__info {
-    flex: 1;
-}
-
-.book-preview__title {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.5em;
-    font-weight: bold;
-}
-
-.book-preview__author {
-    margin: 0 0 0.25rem 0;
-    font-size: 1.1em;
-}
-
-.book-preview__genre {
-    display: inline-block;
-    margin: 0.5rem 0;
-    padding: 0.25rem 0.75rem;
-    background-color: var(--wp--preset--color--primary);
-    color: white;
-    border-radius: 15px;
-    font-size: 0.9em;
-}
-
-.book-preview__rating {
-    margin-top: 1rem;
-}
-
-.book-preview__star {
-    display: inline-block;
-    font-size: 24px;
-    color: #ccc;
-    padding: 0 2px;
-}
-
-.book-preview__star.is-active {
-    color: #ffd700;
+.wp-block-child-book-rating .book-display {
+    margin-top: 1.5rem;
 }
