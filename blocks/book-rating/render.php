@@ -30,7 +30,9 @@ return function($attributes) {
             
             <div class="book-info">
                 <h3 class="book-title"><?php echo esc_html($book_title); ?></h3>
-                <p class="book-author"><?php echo esc_html($author); ?></p>
+                <?php if (!empty($author)) : ?>
+                    <p class="book-author"><?php echo esc_html($author); ?></p>
+                <?php endif; ?>
                 <?php if (!empty($genre)) : ?>
                     <p class="book-genre"><?php echo esc_html($genre); ?></p>
                 <?php endif; ?>

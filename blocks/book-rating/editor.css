@@ -7,6 +7,34 @@
     margin: 1rem 0;
 }
 
+.book-search-loading {
+    margin-top: 0.75rem;
+}
+
+.book-search-results {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.book-search-result {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    text-align: left;
+}
+
+.book-search-result__title {
+    font-weight: 600;
+}
+
+.book-search-result__author {
+    font-size: 0.875rem;
+    color: #555d66;
+}
+
 .book-rating-control label {
     display: block;
     margin-bottom: 0.5rem;
@@ -35,29 +63,44 @@
     color: #ffd700;
 }
 
-.book-cover {
+.book-preview {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    margin-top: 1.5rem;
+}
+
+.book-preview--empty {
+    padding: 1.5rem;
+    border: 1px dashed #c3c4c7;
+    border-radius: 6px;
+    color: #6c7781;
+    font-style: italic;
+}
+
+.book-preview__cover {
     width: 150px;
     height: auto;
     border-radius: 4px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.book-info {
+.book-preview__info {
     flex: 1;
 }
 
-.book-title {
+.book-preview__title {
     margin: 0 0 0.5rem 0;
     font-size: 1.5em;
     font-weight: bold;
 }
 
-.book-author {
+.book-preview__author {
     margin: 0 0 0.25rem 0;
     font-size: 1.1em;
 }
 
-.book-genre {
+.book-preview__genre {
     display: inline-block;
     margin: 0.5rem 0;
     padding: 0.25rem 0.75rem;
@@ -67,19 +110,17 @@
     font-size: 0.9em;
 }
 
-.book-rating {
+.book-preview__rating {
     margin-top: 1rem;
 }
 
-.star {
-    background: none;
-    border: none;
+.book-preview__star {
+    display: inline-block;
     font-size: 24px;
     color: #ccc;
-    cursor: pointer;
     padding: 0 2px;
 }
 
-.star.active {
+.book-preview__star.is-active {
     color: #ffd700;
 }
