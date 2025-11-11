@@ -7,6 +7,34 @@
     margin: 1rem 0;
 }
 
+.book-search-loading {
+    margin-top: 0.75rem;
+}
+
+.book-search-results {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.book-search-result {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    text-align: left;
+}
+
+.book-search-result__title {
+    font-weight: 600;
+}
+
+.book-search-result__author {
+    font-size: 0.875rem;
+    color: #555d66;
+}
+
 .book-rating-control label {
     display: block;
     margin-bottom: 0.5rem;
