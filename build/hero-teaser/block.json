@@ -1,0 +1,53 @@
+{
+  "apiVersion": 2,
+  "name": "child/hero-teaser",
+  "title": "Hero Teaser",
+  "category": "widgets",
+  "icon": "cover-image",
+  "description": "A flexible hero teaser combining image and text for blog posts.",
+  "attributes": {
+    "title": {
+      "type": "string",
+      "source": "html",
+      "selector": ".child-hero__title",
+      "default": "Article Title"
+    },
+    "subtitle": {
+      "type": "string",
+      "source": "html",
+      "selector": ".child-hero__subtitle",
+      "default": "Category"
+    },
+    "description": {
+      "type": "string",
+      "source": "html",
+      "selector": ".child-hero__description",
+      "default": "A short intro or summary goes here."
+    },
+    "imageId": {
+      "type": "number"
+    },
+    "imageUrl": {
+      "type": "string"
+    },
+    "imageAlt": {
+      "type": "string",
+      "default": ""
+    },
+    "accentColor": {
+      "type": "string",
+      "default": "rgba(0,0,0,0.35)"
+    },
+    "layout": {
+      "type": "string",
+      "default": "text-left"
+    }
+  },
+  "supports": {
+    "html": false
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./editor.css",
+  "style": "file:./style.css",
+  "render": "file:./render.php"
+}
