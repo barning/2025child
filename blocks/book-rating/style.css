@@ -3,68 +3,106 @@
 }
 
 .wp-block-child-book-rating .book-display {
-    display: flex;
-    gap: 2rem;
-    padding: 2rem;
-    background-color: var(--wp--preset--color--background);
-    border-radius: 12px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.wp-block-child-book-rating .book-cover {
-    width: 200px;
-    height: auto;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    object-fit: cover;
-}
-
-.wp-block-child-book-rating .book-info {
-    flex: 1;
+    background: #f6f1e7;
+    border: 1px solid #e1d7c6;
+    border-radius: 18px;
+    padding: clamp(1.5rem, 4vw, 3rem);
     display: flex;
     flex-direction: column;
+    gap: 2rem;
+    max-width: 520px;
+    margin-inline: auto;
+    text-align: center;
 }
 
-.wp-block-child-book-rating .book-title {
-    margin: 0 0 0.5rem 0;
-    font-size: 2em;
-    font-weight: bold;
-    line-height: 1.2;
+.book-display__card {
+    background: #fdfbf7;
+    border: 1px solid #dcd3c4;
+    border-radius: 14px;
+    padding: clamp(1rem, 3vw, 2.5rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
 }
 
-.wp-block-child-book-rating .book-author {
-    margin: 0 0 1rem 0;
-    font-size: 1.2em;
-    color: #666;
+.book-cover-frame {
+    padding: 0.75rem;
+    border: 1px solid #dcd3c4;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 10px 25px rgba(38, 26, 16, 0.1);
 }
 
-.wp-block-child-book-rating .book-genre {
-    display: inline-block;
-    margin: 0 0 1.5rem 0;
-    padding: 0.4rem 1rem;
-    background-color: #f0f0f0;
-    color: #666;
-    border-radius: 20px;
-    font-size: 0.9em;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+.book-cover {
+    width: clamp(180px, 60vw, 260px);
+    height: auto;
+    display: block;
 }
 
-.wp-block-child-book-rating .book-rating {
-    margin-top: auto;
-    padding-top: 1rem;
-    border-top: 1px solid #eee;
+.book-cover--placeholder {
+    aspect-ratio: 2 / 3;
+    background: repeating-linear-gradient(
+        135deg,
+        rgba(220, 211, 196, 0.5),
+        rgba(220, 211, 196, 0.5) 12px,
+        rgba(255, 255, 255, 0.6) 12px,
+        rgba(255, 255, 255, 0.6) 24px
+    );
 }
 
-.wp-block-child-book-rating .star {
+.book-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.book-title {
+    margin: 0;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    color: #241f1a;
+    line-height: 1.25;
+}
+
+.book-author {
+    margin: 0;
+    font-size: 1.125rem;
+    color: #5c5245;
+    font-style: italic;
+}
+
+.book-rating {
+    display: flex;
+    justify-content: center;
+    gap: 0.35rem;
+}
+
+.book-rating .star,
+.book-rating .star-button {
+    font-size: 1.75rem;
+    color: rgba(36, 31, 26, 0.22);
+}
+
+.book-rating .star-button {
     background: none;
     border: none;
-    font-size: 28px;
-    color: #ddd;
-    padding: 0 3px;
-    cursor: default;
+    padding: 0;
+    cursor: pointer;
+    line-height: 1;
+    transition: transform 0.12s ease;
 }
 
-.wp-block-child-book-rating .star.active {
-    color: #ffd700;
+.book-rating .star-button:focus-visible {
+    outline: 2px solid #1f1b16;
+    outline-offset: 4px;
+}
+
+.book-rating .star-button:hover {
+    transform: translateY(-1px);
+}
+
+.book-rating .star.active,
+.book-rating .star-button.active {
+    color: #1f1b16;
 }

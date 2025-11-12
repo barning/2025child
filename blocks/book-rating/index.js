@@ -1,9 +1,8 @@
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { registerBlockType } from '@wordpress/blocks';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, TextControl, Button, Spinner, Notice } from '@wordpress/components';
 import { useState, useEffect } from '@wordpress/element';
-import ServerSideRender from '@wordpress/server-side-render';
 import metadata from './block.json';
 import './editor.css';
 import './style.css';
@@ -24,7 +23,7 @@ const normalizeCoverUrl = (url) => {
     return normalizedUrl;
 };
 
-const BookPreview = ({ bookTitle, author, genre, coverUrl, rating }) => {
+const BookPreview = ({ bookTitle, author, coverUrl, rating, onRatingChange }) => {
     if (!bookTitle?.trim()) {
         return (
             <div className="book-preview--empty">
@@ -33,30 +32,59 @@ const BookPreview = ({ bookTitle, author, genre, coverUrl, rating }) => {
         );
     }
 
+    const normalizedRating = Number.isFinite(rating) ? Math.max(0, Math.min(5, rating)) : 0;
+
+    const handleStarClick = (value) => {
+        if (typeof onRatingChange === 'function') {
+            onRatingChange(value);
+        }
+    };
+
     return (
-        <div className="book-display">
-            {coverUrl ? (
-                <img
-                    className="book-cover"
-                    src={coverUrl}
-                    alt={bookTitle}
-                />
-            ) : null}
+        <div className="book-display" aria-label={__('Buchbewertung', 'child')}>
+            <div className="book-display__card">
+                {coverUrl ? (
+                    <div className="book-cover-frame">
+                        <img
+                            className="book-cover"
+                            src={coverUrl}
+                            alt={bookTitle}
+                            loading="lazy"
+                        />
+                    </div>
+                ) : (
+                    <div className="book-cover book-cover--placeholder" aria-hidden="true" />
+                )}
+                <div className="book-rating" aria-label={__('Bewertung', 'child')}>
+                    {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                            key={star}
+                            type="button"
+                            className={`star-button${star <= normalizedRating ? ' active' : ''}`}
+                            onClick={() => handleStarClick(star)}
+                            aria-pressed={star <= normalizedRating}
+                            aria-label={sprintf(
+                                /* translators: %d: selected star */
+                                __('Bewertung mit %d Sternen wählen', 'child'),
+                                star
+                            )}
+                        >
+                            ★
+                        </button>
+                    ))}
+                </div>
+            </div>
             <div className="book-info">
                 <h3 className="book-title">{bookTitle}</h3>
                 {author?.trim() ? (
-                    <p className="book-author">{author}</p>
+                    <p className="book-author">
+                        {sprintf(
+                            /* translators: %s: author name */
+                            __('Von %s', 'child'),
+                            author
+                        )}
+                    </p>
                 ) : null}
-                {genre?.trim() ? (
-                    <p className="book-genre">{genre}</p>
-                ) : null}
-                <div className="book-rating">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                        <span key={star} className={`star${star <= rating ? ' active' : ''}`}>
-                            ★
-                        </span>
-                    ))}
-                </div>
             </div>
         </div>
     );
@@ -64,7 +92,7 @@ const BookPreview = ({ bookTitle, author, genre, coverUrl, rating }) => {
 
 function Edit({ attributes, setAttributes }) {
     const blockProps = useBlockProps();
-    const { bookTitle, author, genre, rating, coverUrl } = attributes;
+    const { bookTitle, author, rating, coverUrl } = attributes;
     const [searchTerm, setSearchTerm] = useState('');
     const [isSearching, setIsSearching] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
@@ -131,14 +159,12 @@ function Edit({ attributes, setAttributes }) {
 
     const handleBookSelection = (book) => {
         const resolvedAuthor = book.authors.length ? book.authors.join(', ') : author;
-        const resolvedGenre = book.categories.length ? book.categories.join(', ') : genre;
 
         setSelectedBookId(book.id);
         setSearchTerm(book.title);
         setAttributes({
             bookTitle: book.title || bookTitle,
             author: resolvedAuthor,
-            genre: resolvedGenre,
             coverUrl: book.cover || coverUrl || ''
         });
     };
@@ -208,11 +234,6 @@ function Edit({ attributes, setAttributes }) {
                         value={author}
                         onChange={(value) => setAttributes({ author: value })}
                     />
-                    <TextControl
-                        label={__('Genre', 'child')}
-                        value={genre}
-                        onChange={(value) => setAttributes({ genre: value })}
-                    />
                     <div className="book-rating-control">
                         <label>{__('Bewertung', 'child')}</label>
                         <div className="star-rating">
@@ -231,7 +252,10 @@ function Edit({ attributes, setAttributes }) {
                 </PanelBody>
             </InspectorControls>
             
-            <BookPreview {...attributes} />
+            <BookPreview
+                {...attributes}
+                onRatingChange={(value) => setAttributes({ rating: value })}
+            />
         </div>
     );
 }

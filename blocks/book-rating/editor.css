@@ -1,6 +1,4 @@
-.wp-block-child-book-rating {
-    margin: 2rem 0;
-}
+@import './style.css';
 
 /* Editor-specific styles */
 .book-rating-control {
@@ -45,31 +43,33 @@
     gap: 0.25rem;
 }
 
-.star-button {
+.book-rating-control .star-button {
     background: none;
     border: none;
-    font-size: 28px;
-    color: #ddd;
+    font-size: 1.5rem;
+    color: #c9c1b5;
     padding: 0.25rem;
     cursor: pointer;
     transition: transform 0.1s ease;
 }
 
-.star-button:hover {
+.book-rating-control .star-button:hover {
     transform: scale(1.1);
 }
 
-.star-button.active {
-    color: #ffd700;
+.book-rating-control .star-button.active {
+    color: #1f1b16;
 }
 
 .book-preview--empty {
     margin-top: 1.5rem;
-    padding: 1.5rem;
-    border: 1px dashed #c3c4c7;
-    border-radius: 6px;
-    color: #6c7781;
+    padding: 2rem;
+    border-radius: 18px;
+    background: #f6f1e7;
+    border: 1px dashed #d7cbb7;
+    color: #6c6357;
     font-style: italic;
+    text-align: center;
 }
 
 .wp-block-child-book-rating .book-display {
