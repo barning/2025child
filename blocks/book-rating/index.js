@@ -3,6 +3,7 @@ import { registerBlockType } from '@wordpress/blocks';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, TextControl, Button, Spinner, Notice } from '@wordpress/components';
 import { useState, useEffect } from '@wordpress/element';
+import ServerSideRender from '@wordpress/server-side-render';
 import metadata from './block.json';
 import './editor.css';
 import './style.css';
