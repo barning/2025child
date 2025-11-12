@@ -24,6 +24,44 @@ const normalizeCoverUrl = (url) => {
     return normalizedUrl;
 };
 
+const BookPreview = ({ bookTitle, author, genre, coverUrl, rating }) => {
+    if (!bookTitle?.trim()) {
+        return (
+            <div className="book-preview--empty">
+                {__('Bitte wähle ein Buch aus der Suche aus oder gib die Details manuell ein.', 'child')}
+            </div>
+        );
+    }
+
+    return (
+        <div className="book-display">
+            {coverUrl ? (
+                <img
+                    className="book-cover"
+                    src={coverUrl}
+                    alt={bookTitle}
+                />
+            ) : null}
+            <div className="book-info">
+                <h3 className="book-title">{bookTitle}</h3>
+                {author?.trim() ? (
+                    <p className="book-author">{author}</p>
+                ) : null}
+                {genre?.trim() ? (
+                    <p className="book-genre">{genre}</p>
+                ) : null}
+                <div className="book-rating">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                        <span key={star} className={`star${star <= rating ? ' active' : ''}`}>
+                            ★
+                        </span>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 function Edit({ attributes, setAttributes }) {
     const blockProps = useBlockProps();
     const { bookTitle, author, genre, rating, coverUrl } = attributes;
@@ -193,10 +231,7 @@ function Edit({ attributes, setAttributes }) {
                 </PanelBody>
             </InspectorControls>
             
-            <ServerSideRender
-                block="child/book-rating"
-                attributes={attributes}
-            />
+            <BookPreview {...attributes} />
         </div>
     );
 }
