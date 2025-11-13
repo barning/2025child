@@ -98,9 +98,28 @@
     margin-bottom: 0.5rem;
 }
 
-.book-rating-control__stars .child-book-card__star-btn {
+.book-rating-control__star {
+    background: none;
+    border: none;
     font-size: 1.5rem;
     padding: 0.15rem;
+    color: rgba(36, 31, 26, 0.25);
+    cursor: pointer;
+    line-height: 1;
+    transition: transform 0.12s ease, color 0.12s ease;
+}
+
+.book-rating-control__star.is-active {
+    color: #f1c40f;
+}
+
+.book-rating-control__star:focus-visible {
+    outline: 2px solid #1f1b16;
+    outline-offset: 3px;
+}
+
+.book-rating-control__star:hover {
+    transform: scale(1.08);
 }
 
 .book-preview--empty {

@@ -23,30 +23,28 @@ return function($attributes) {
     ob_start(); ?>
     <div <?php echo $wrapper_attributes; ?>>
         <div class="child-book-card" aria-label="<?php echo esc_attr__( 'Buchbewertung', 'child' ); ?>">
-            <div class="child-book-card__panel">
-                <?php if (!empty($cover_url)) : ?>
-                    <div class="child-book-card__frame">
-                        <img 
-                            src="<?php echo esc_url($cover_url); ?>" 
-                            alt="<?php echo esc_attr($book_title); ?>" 
-                            class="child-book-card__cover"
-                            loading="lazy"
-                        />
-                    </div>
+            <div class="child-book-card__media">
+                <?php if ( ! empty( $cover_url ) ) : ?>
+                    <img 
+                        src="<?php echo esc_url( $cover_url ); ?>" 
+                        alt="<?php echo esc_attr( $book_title ); ?>" 
+                        class="child-book-card__cover"
+                        loading="lazy"
+                    />
                 <?php else : ?>
-                    <div class="child-book-card__cover child-book-card__cover--placeholder" aria-hidden="true"></div>
+                    <div class="child-book-card__placeholder" aria-hidden="true"></div>
                 <?php endif; ?>
-                
-                <div class="child-book-card__stars" aria-label="<?php echo esc_attr__( 'Bewertung', 'child' ); ?>">
-                    <?php for ($i = 1; $i <= 5; $i++) : ?>
-                        <span class="child-book-card__star<?php echo $i <= $normalized_rating ? ' is-active' : ''; ?>">★</span>
-                    <?php endfor; ?>
-                </div>
             </div>
 
+            <div class="child-book-card__stars" aria-label="<?php echo esc_attr__( 'Bewertung', 'child' ); ?>">
+                <?php for ( $i = 1; $i <= 5; $i++ ) : ?>
+                    <span class="child-book-card__star<?php echo $i <= $normalized_rating ? ' is-active' : ''; ?>">★</span>
+                <?php endfor; ?>
+            </div>
+            
             <div class="child-book-card__meta">
-                <h3 class="child-book-card__title"><?php echo esc_html($book_title); ?></h3>
-                <?php if (!empty($author)) : ?>
+                <h3 class="child-book-card__title"><?php echo esc_html( $book_title ); ?></h3>
+                <?php if ( ! empty( $author ) ) : ?>
                     <p class="child-book-card__author">
                         <?php 
                             /* translators: %s: author name */

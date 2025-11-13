@@ -25,7 +25,7 @@ const normalizeCoverUrl = (url) => {
 
 const STARS = [1, 2, 3, 4, 5];
 
-const BookPreview = ({ bookTitle, author, coverUrl, rating, onRatingChange }) => {
+const BookPreview = ({ bookTitle, author, coverUrl, rating }) => {
     if (!bookTitle?.trim()) {
         return (
             <div className="book-preview--empty">
@@ -36,45 +36,37 @@ const BookPreview = ({ bookTitle, author, coverUrl, rating, onRatingChange }) =>
 
     const normalizedRating = Number.isFinite(rating) ? Math.max(0, Math.min(5, rating)) : 0;
 
-    const handleStarClick = (value) => {
-        if (typeof onRatingChange === 'function') {
-            onRatingChange(value);
-        }
-    };
-
     return (
         <div className="child-book-card" aria-label={__('Buchbewertung', 'child')}>
-            <div className="child-book-card__panel">
+            <div className="child-book-card__media">
                 {coverUrl ? (
-                    <div className="child-book-card__frame">
-                        <img
-                            className="child-book-card__cover"
-                            src={coverUrl}
-                            alt={bookTitle}
-                            loading="lazy"
-                        />
-                    </div>
+                    <img
+                        className="child-book-card__cover"
+                        src={coverUrl}
+                        alt={bookTitle}
+                        loading="lazy"
+                    />
                 ) : (
-                    <div className="child-book-card__cover child-book-card__cover--placeholder" aria-hidden="true" />
+                    <div className="child-book-card__placeholder" aria-hidden="true" />
                 )}
-                <div className="child-book-card__stars" aria-label={__('Bewertung', 'child')}>
-                    {STARS.map((star) => (
-                        <button
-                            key={star}
-                            type="button"
-                            className={`child-book-card__star-btn${star <= normalizedRating ? ' is-active' : ''}`}
-                            onClick={() => handleStarClick(star)}
-                            aria-pressed={star <= normalizedRating}
-                            aria-label={sprintf(
-                                /* translators: %d: selected star */
-                                __('Bewertung mit %d Sternen wählen', 'child'),
-                                star
-                            )}
-                        >
-                            ★
-                        </button>
-                    ))}
-                </div>
+            </div>
+            <div className="child-book-card__stars" aria-label={__('Bewertung', 'child')}>
+                {STARS.map((star) => (
+                    <span
+                        key={star}
+                        className={`child-book-card__star${star <= normalizedRating ? ' is-active' : ''}`}
+                        aria-hidden="true"
+                    >
+                        ★
+                    </span>
+                ))}
+                <span className="screen-reader-text">
+                    {sprintf(
+                        /* translators: %d: selected star */
+                        __('Bewertet mit %d von 5 Sternen', 'child'),
+                        normalizedRating
+                    )}
+                </span>
             </div>
             <div className="child-book-card__meta">
                 <h3 className="child-book-card__title">{bookTitle}</h3>
@@ -106,24 +98,6 @@ const RatingControl = ({ value = 0, onChange }) => {
             <div className="book-rating-control__label">
                 <span>{__('Bewertung', 'child')}</span>
                 <span className="book-rating-control__value">{normalizedRating}/5</span>
-            </div>
-            <div className="book-rating-control__stars" aria-label={__('Bewertung auswählen', 'child')}>
-                {STARS.map((star) => (
-                    <button
-                        key={star}
-                        type="button"
-                        className={`child-book-card__star-btn${star <= normalizedRating ? ' is-active' : ''}`}
-                        onClick={() => handleSelect(star)}
-                        aria-pressed={star <= normalizedRating}
-                        aria-label={sprintf(
-                            /* translators: %d: selected star */
-                            __('Bewertung mit %d Sternen wählen', 'child'),
-                            star
-                        )}
-                    >
-                        ★
-                    </button>
-                ))}
             </div>
             <RangeControl
                 value={normalizedRating}
@@ -327,10 +301,7 @@ function Edit({ attributes, setAttributes }) {
                 </PanelBody>
             </InspectorControls>
 
-            <BookPreview
-                {...attributes}
-                onRatingChange={(value) => setAttributes({ rating: value })}
-            />
+            <BookPreview {...attributes} />
         </div>
     );
 }
