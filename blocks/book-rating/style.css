@@ -1,0 +1,89 @@
+.wp-block-child-book-rating {
+    margin: clamp(1.5rem, 4vw, 3rem) 0;
+}
+
+.child-book-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .5rem;
+}
+
+.child-book-card__media {
+    width: clamp(180px, 60vw, 260px);
+    border-radius: 12px;
+    background: #fff;
+    display: flex;
+    justify-content: center;
+}
+
+.child-book-card__cover {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    display: block;
+}
+
+.child-book-card__placeholder {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    border-radius: 10px;
+    background: repeating-linear-gradient(
+        135deg,
+        rgba(220, 211, 196, 0.55),
+        rgba(220, 211, 196, 0.55) 12px,
+        rgba(255, 255, 255, 0.55) 12px,
+        rgba(255, 255, 255, 0.55) 24px
+    );
+}
+
+.child-book-card__stars {
+    display: inline-flex;
+    justify-content: center;
+    gap: 0.35rem;
+}
+
+.child-book-card__star {
+    display: none;
+    font-size: 1.75rem;
+    color: #f1c40f;
+}
+
+.child-book-card__star.is-active {
+    display: inline-block;
+}
+
+.child-book-card__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: .5rem;
+}
+
+.child-book-card__title {
+    margin: 0;
+    font-size: clamp(1.5rem, 2vw, 2rem);
+    font-weight: 700;
+    color: var(--wp--preset--color--contrast, #241f1a);
+    line-height: 1.2;
+}
+
+.child-book-card__author {
+    margin: 0;
+    font-size: 1.1rem;
+    font-style: italic;
+    color: color-mix(in srgb, var(--wp--preset--color--contrast, #241f1a) 65%, transparent);
+}
+
+@media (prefers-color-scheme: dark) {
+    .wp-block-child-book-rating .child-book-card {
+        border-color: color-mix(in srgb, currentColor 25%, transparent);
+        background: color-mix(in srgb, currentColor 8%, transparent);
+    }
+
+    .child-book-card__media {
+        background: color-mix(in srgb, currentColor 8%, transparent);
+        border-color: color-mix(in srgb, currentColor 25%, transparent);
+    }
+}
