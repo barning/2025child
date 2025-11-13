@@ -75,15 +75,3 @@
     font-style: italic;
     color: color-mix(in srgb, var(--wp--preset--color--contrast, #241f1a) 65%, transparent);
 }
-
-@media (prefers-color-scheme: dark) {
-    .wp-block-child-book-rating .child-book-card {
-        border-color: color-mix(in srgb, currentColor 25%, transparent);
-        background: color-mix(in srgb, currentColor 8%, transparent);
-    }
-
-    .child-book-card__media {
-        background: color-mix(in srgb, currentColor 8%, transparent);
-        border-color: color-mix(in srgb, currentColor 25%, transparent);
-    }
-}
