@@ -1,7 +1,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { registerBlockType } from '@wordpress/blocks';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, TextControl, Button, Spinner, Notice } from '@wordpress/components';
+import { PanelBody, TextControl, Button, Spinner, Notice, RangeControl } from '@wordpress/components';
 import { useState, useEffect } from '@wordpress/element';
 import metadata from './block.json';
 import './editor.css';
@@ -23,6 +23,8 @@ const normalizeCoverUrl = (url) => {
     return normalizedUrl;
 };
 
+const STARS = [1, 2, 3, 4, 5];
+
 const BookPreview = ({ bookTitle, author, coverUrl, rating, onRatingChange }) => {
     if (!bookTitle?.trim()) {
         return (
@@ -41,26 +43,26 @@ const BookPreview = ({ bookTitle, author, coverUrl, rating, onRatingChange }) =>
     };
 
     return (
-        <div className="book-display" aria-label={__('Buchbewertung', 'child')}>
-            <div className="book-display__card">
+        <div className="child-book-card" aria-label={__('Buchbewertung', 'child')}>
+            <div className="child-book-card__panel">
                 {coverUrl ? (
-                    <div className="book-cover-frame">
+                    <div className="child-book-card__frame">
                         <img
-                            className="book-cover"
+                            className="child-book-card__cover"
                             src={coverUrl}
                             alt={bookTitle}
                             loading="lazy"
                         />
                     </div>
                 ) : (
-                    <div className="book-cover book-cover--placeholder" aria-hidden="true" />
+                    <div className="child-book-card__cover child-book-card__cover--placeholder" aria-hidden="true" />
                 )}
-                <div className="book-rating" aria-label={__('Bewertung', 'child')}>
-                    {[1, 2, 3, 4, 5].map((star) => (
+                <div className="child-book-card__stars" aria-label={__('Bewertung', 'child')}>
+                    {STARS.map((star) => (
                         <button
                             key={star}
                             type="button"
-                            className={`star-button${star <= normalizedRating ? ' active' : ''}`}
+                            className={`child-book-card__star-btn${star <= normalizedRating ? ' is-active' : ''}`}
                             onClick={() => handleStarClick(star)}
                             aria-pressed={star <= normalizedRating}
                             aria-label={sprintf(
@@ -74,10 +76,10 @@ const BookPreview = ({ bookTitle, author, coverUrl, rating, onRatingChange }) =>
                     ))}
                 </div>
             </div>
-            <div className="book-info">
-                <h3 className="book-title">{bookTitle}</h3>
+            <div className="child-book-card__meta">
+                <h3 className="child-book-card__title">{bookTitle}</h3>
                 {author?.trim() ? (
-                    <p className="book-author">
+                    <p className="child-book-card__author">
                         {sprintf(
                             /* translators: %s: author name */
                             __('Von %s', 'child'),
@@ -86,6 +88,94 @@ const BookPreview = ({ bookTitle, author, coverUrl, rating, onRatingChange }) =>
                     </p>
                 ) : null}
             </div>
+        </div>
+    );
+};
+
+const RatingControl = ({ value = 0, onChange }) => {
+    const normalizedRating = Number.isFinite(value) ? Math.max(0, Math.min(5, value)) : 0;
+
+    const handleSelect = (newValue) => {
+        if (typeof onChange === 'function') {
+            onChange(newValue);
+        }
+    };
+
+    return (
+        <div className="book-rating-control">
+            <div className="book-rating-control__label">
+                <span>{__('Bewertung', 'child')}</span>
+                <span className="book-rating-control__value">{normalizedRating}/5</span>
+            </div>
+            <div className="book-rating-control__stars" aria-label={__('Bewertung auswählen', 'child')}>
+                {STARS.map((star) => (
+                    <button
+                        key={star}
+                        type="button"
+                        className={`child-book-card__star-btn${star <= normalizedRating ? ' is-active' : ''}`}
+                        onClick={() => handleSelect(star)}
+                        aria-pressed={star <= normalizedRating}
+                        aria-label={sprintf(
+                            /* translators: %d: selected star */
+                            __('Bewertung mit %d Sternen wählen', 'child'),
+                            star
+                        )}
+                    >
+                        ★
+                    </button>
+                ))}
+            </div>
+            <RangeControl
+                value={normalizedRating}
+                min={0}
+                max={5}
+                step={1}
+                onChange={(nextValue) => handleSelect(Number(nextValue) || 0)}
+                __nextHasNoMarginBottom
+            />
+        </div>
+    );
+};
+
+const SearchResults = ({ results, selectedId, onSelect }) => {
+    if (!results.length) {
+        return null;
+    }
+
+    return (
+        <div className="book-search-results">
+            {results.map((book) => (
+                <Button
+                    key={book.id}
+                    variant={book.id === selectedId ? 'primary' : 'secondary'}
+                    onClick={() => onSelect(book)}
+                    className={`book-search-result${book.id === selectedId ? ' is-active' : ''}`}
+                >
+                    {book.cover ? (
+                        <span className="book-search-result__thumb">
+                            <img src={book.cover} alt={book.title || ''} loading="lazy" />
+                        </span>
+                    ) : (
+                        <span
+                            className="book-search-result__thumb book-search-result__thumb--placeholder"
+                            aria-hidden="true"
+                        >
+                            📘
+                        </span>
+                    )}
+                    <span className="book-search-result__details">
+                        <span className="book-search-result__title">{book.title}</span>
+                        {book.subtitle ? (
+                            <span className="book-search-result__subtitle">{book.subtitle}</span>
+                        ) : null}
+                        {book.authors.length ? (
+                            <span className="book-search-result__author">
+                                {book.authors.join(', ')}
+                            </span>
+                        ) : null}
+                    </span>
+                </Button>
+            ))}
         </div>
     );
 };
@@ -130,16 +220,17 @@ function Edit({ attributes, setAttributes }) {
             const data = await response.json();
 
             const results = (data.items || []).map((item) => {
+                const info = item.volumeInfo || {};
                 const coverImage =
-                    item.volumeInfo?.imageLinks?.thumbnail ||
-                    item.volumeInfo?.imageLinks?.smallThumbnail ||
+                    info?.imageLinks?.thumbnail ||
+                    info?.imageLinks?.smallThumbnail ||
                     '';
 
                 return {
                     id: item.id,
-                    title: item.volumeInfo?.title || '',
-                    authors: item.volumeInfo?.authors || [],
-                    categories: item.volumeInfo?.categories || [],
+                    title: info?.title || '',
+                    subtitle: info?.subtitle || '',
+                    authors: info?.authors || [],
                     cover: normalizeCoverUrl(coverImage)
                 };
             });
@@ -172,58 +263,47 @@ function Edit({ attributes, setAttributes }) {
     return (
         <div {...blockProps}>
             <InspectorControls>
-                <PanelBody title={__('Buchdetails', 'child')}>
-                    <div style={{ marginBottom: '1rem' }}>
-                        <TextControl
-                            label={__('Suche nach Titel oder Autor', 'child')}
-                            value={searchTerm}
-                            onChange={setSearchTerm}
-                            placeholder={__('Buchtitel eingeben...', 'child')}
-                            onKeyDown={(event) => {
-                                if (event.key === 'Enter') {
-                                    event.preventDefault();
-                                    searchBooks();
-                                }
-                            }}
+                <PanelBody title={__('Buch finden', 'child')} initialOpen={true}>
+                    <TextControl
+                        label={__('Suche nach Titel oder Autor', 'child')}
+                        value={searchTerm}
+                        onChange={setSearchTerm}
+                        placeholder={__('Buchtitel eingeben...', 'child')}
+                        onKeyDown={(event) => {
+                            if (event.key === 'Enter') {
+                                event.preventDefault();
+                                searchBooks();
+                            }
+                        }}
+                    />
+                    <Button
+                        variant="primary"
+                        onClick={searchBooks}
+                        disabled={isSearching}
+                        className="book-search-button"
+                    >
+                        {isSearching ? __('Suche...', 'child') : __('Suchen', 'child')}
+                    </Button>
+                    {isSearching && (
+                        <div className="book-search-loading">
+                            <Spinner />
+                        </div>
+                    )}
+                    {searchError && (
+                        <Notice status="error" isDismissible={false}>
+                            {searchError}
+                        </Notice>
+                    )}
+                    {!isSearching && hasSearched && (
+                        <SearchResults
+                            results={searchResults}
+                            selectedId={selectedBookId}
+                            onSelect={handleBookSelection}
                         />
-                        <Button
-                            isPrimary
-                            onClick={searchBooks}
-                            disabled={isSearching}
-                            style={{ marginTop: '0.5rem' }}
-                        >
-                            {isSearching ? __('Suche...', 'child') : __('Suchen', 'child')}
-                        </Button>
-                        {isSearching && (
-                            <div className="book-search-loading">
-                                <Spinner />
-                            </div>
-                        )}
-                        {searchError && (
-                            <Notice status="error" isDismissible={false}>
-                                {searchError}
-                            </Notice>
-                        )}
-                        {!isSearching && hasSearched && searchResults.length > 0 && (
-                            <div className="book-search-results">
-                                {searchResults.map((book) => (
-                                    <Button
-                                        key={book.id}
-                                        variant={book.id === selectedBookId ? 'primary' : 'secondary'}
-                                        onClick={() => handleBookSelection(book)}
-                                        className="book-search-result"
-                                    >
-                                        <span className="book-search-result__title">{book.title}</span>
-                                        {book.authors.length > 0 && (
-                                            <span className="book-search-result__author">
-                                                {book.authors.join(', ')}
-                                            </span>
-                                        )}
-                                    </Button>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                    )}
+                </PanelBody>
+
+                <PanelBody title={__('Buchdetails', 'child')} initialOpen={true}>
                     <TextControl
                         label={__('Titel', 'child')}
                         value={bookTitle}
@@ -234,24 +314,19 @@ function Edit({ attributes, setAttributes }) {
                         value={author}
                         onChange={(value) => setAttributes({ author: value })}
                     />
-                    <div className="book-rating-control">
-                        <label>{__('Bewertung', 'child')}</label>
-                        <div className="star-rating">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                                <button
-                                    key={star}
-                                    type="button"
-                                    className={`star-button ${star <= rating ? 'active' : ''}`}
-                                    onClick={() => setAttributes({ rating: star })}
-                                >
-                                    ★
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+                    <TextControl
+                        label={__('Cover-URL', 'child')}
+                        value={coverUrl}
+                        onChange={(value) => setAttributes({ coverUrl: value })}
+                        help={__('Optional: Eigene Cover-Grafik einfügen', 'child')}
+                    />
+                    <RatingControl
+                        value={rating}
+                        onChange={(nextValue) => setAttributes({ rating: nextValue })}
+                    />
                 </PanelBody>
             </InspectorControls>
-            
+
             <BookPreview
                 {...attributes}
                 onRatingChange={(value) => setAttributes({ rating: value })}

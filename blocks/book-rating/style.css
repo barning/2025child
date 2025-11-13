@@ -1,108 +1,135 @@
 .wp-block-child-book-rating {
-    margin: 2rem 0;
+    margin: clamp(1.5rem, 4vw, 3rem) 0;
+    padding: 0;
 }
 
-.wp-block-child-book-rating .book-display {
-    background: #f6f1e7;
-    border: 1px solid #e1d7c6;
+.wp-block-child-book-rating .child-book-card {
+    background: var(--wp--preset--color--accent-5, #f6f1e7);
+    border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
     border-radius: 18px;
     padding: clamp(1.5rem, 4vw, 3rem);
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    max-width: 520px;
+    max-width: 540px;
     margin-inline: auto;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1rem, 2vw, 1.75rem);
 }
 
-.book-display__card {
-    background: #fdfbf7;
-    border: 1px solid #dcd3c4;
+.child-book-card__panel {
+    background: var(--wp--preset--color--base, #fdfbf7);
+    border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
     border-radius: 14px;
     padding: clamp(1rem, 3vw, 2.5rem);
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 1.5rem;
+    box-shadow: 0 12px 28px rgba(35, 23, 13, 0.08);
 }
 
-.book-cover-frame {
+.child-book-card__frame {
     padding: 0.75rem;
-    border: 1px solid #dcd3c4;
+    border: 1px solid color-mix(in srgb, currentColor 15%, transparent);
     border-radius: 12px;
     background: #fff;
-    box-shadow: 0 10px 25px rgba(38, 26, 16, 0.1);
 }
 
-.book-cover {
+.child-book-card__cover {
     width: clamp(180px, 60vw, 260px);
     height: auto;
     display: block;
 }
 
-.book-cover--placeholder {
+.child-book-card__cover--placeholder {
     aspect-ratio: 2 / 3;
     background: repeating-linear-gradient(
         135deg,
-        rgba(220, 211, 196, 0.5),
-        rgba(220, 211, 196, 0.5) 12px,
-        rgba(255, 255, 255, 0.6) 12px,
-        rgba(255, 255, 255, 0.6) 24px
+        rgba(220, 211, 196, 0.55),
+        rgba(220, 211, 196, 0.55) 12px,
+        rgba(255, 255, 255, 0.55) 12px,
+        rgba(255, 255, 255, 0.55) 24px
     );
+    border-radius: 12px;
 }
 
-.book-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.book-title {
-    margin: 0;
-    font-size: clamp(1.5rem, 3vw, 2rem);
-    font-weight: 700;
-    color: #241f1a;
-    line-height: 1.25;
-}
-
-.book-author {
-    margin: 0;
-    font-size: 1.125rem;
-    color: #5c5245;
-    font-style: italic;
-}
-
-.book-rating {
-    display: flex;
+.child-book-card__stars {
+    display: inline-flex;
     justify-content: center;
     gap: 0.35rem;
 }
 
-.book-rating .star,
-.book-rating .star-button {
+.child-book-card__star,
+.child-book-card__star-btn {
     font-size: 1.75rem;
-    color: rgba(36, 31, 26, 0.22);
 }
 
-.book-rating .star-button {
+.child-book-card__star {
+    display: none;
+    color: #f1c40f;
+}
+
+.child-book-card__star.is-active {
+    display: inline-block;
+}
+
+.child-book-card__star-btn {
     background: none;
     border: none;
     padding: 0;
     cursor: pointer;
     line-height: 1;
-    transition: transform 0.12s ease;
+    color: rgba(36, 31, 26, 0.25);
+    transition: transform 0.12s ease, color 0.12s ease;
 }
 
-.book-rating .star-button:focus-visible {
+.child-book-card__star-btn:focus-visible {
     outline: 2px solid #1f1b16;
     outline-offset: 4px;
 }
 
-.book-rating .star-button:hover {
+.child-book-card__star-btn:hover {
     transform: translateY(-1px);
 }
 
-.book-rating .star.active,
-.book-rating .star-button.active {
-    color: #1f1b16;
+.child-book-card__star-btn.is-active {
+    color: #f1c40f;
+}
+
+.child-book-card__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.child-book-card__title {
+    margin: 0;
+    font-size: clamp(1.5rem, 2vw, 2rem);
+    font-weight: 700;
+    color: var(--wp--preset--color--contrast, #241f1a);
+    line-height: 1.2;
+}
+
+.child-book-card__author {
+    margin: 0;
+    font-size: 1.1rem;
+    font-style: italic;
+    color: color-mix(in srgb, var(--wp--preset--color--contrast, #241f1a) 65%, transparent);
+}
+
+@media (prefers-color-scheme: dark) {
+    .wp-block-child-book-rating .child-book-card {
+        border-color: color-mix(in srgb, currentColor 25%, transparent);
+        background: color-mix(in srgb, currentColor 8%, transparent);
+    }
+
+    .child-book-card__panel {
+        border-color: color-mix(in srgb, currentColor 25%, transparent);
+        background: color-mix(in srgb, currentColor 6%, transparent);
+    }
+
+    .child-book-card__frame {
+        border-color: color-mix(in srgb, currentColor 35%, transparent);
+        background: color-mix(in srgb, currentColor 8%, transparent);
+    }
 }
