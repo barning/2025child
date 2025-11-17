@@ -13,7 +13,7 @@ return static function(array $attributes = []): string {
     $image_id    = isset($attributes['imageId']) ? (int) $attributes['imageId'] : 0;
     $image_url   = $attributes['imageUrl'] ?? '';
     $image_alt   = isset($attributes['imageAlt']) ? sanitize_text_field($attributes['imageAlt']) : '';
-    $accent      = $attributes['accentColor'] ?? 'rgba(0,0,0,0.35)';
+    $accent      = $attributes['accentColor'] ?? '#ba5a3c';
     $layout      = $attributes['layout'] ?? 'text-left';
 
     $layout_class = sanitize_html_class($layout ?: 'text-left');

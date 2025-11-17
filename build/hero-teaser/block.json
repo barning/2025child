@@ -36,7 +36,7 @@
     },
     "accentColor": {
       "type": "string",
-      "default": "rgba(0,0,0,0.35)"
+      "default": "#ba5a3c"
     },
     "layout": {
       "type": "string",

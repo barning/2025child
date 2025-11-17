@@ -1,1 +1,1 @@
-.wp-block-child-hero-teaser .child-hero__media-placeholder{background-color:hsla(0,0%,100%,.04);border:1px dashed hsla(0,0%,100%,.2)}
+.wp-block-child-hero-teaser .child-hero__media-placeholder{background:repeating-linear-gradient(45deg,hsla(0,0%,5%,.08),hsla(0,0%,5%,.08) 12px,hsla(0,0%,5%,.02) 0,hsla(0,0%,5%,.02) 24px);border-color:hsla(0,0%,5%,.25);color:hsla(0,0%,5%,.65)}

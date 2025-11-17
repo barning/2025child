@@ -21,7 +21,7 @@ const LAYOUT_OPTIONS = [
 
 function Edit({ attributes, setAttributes }) {
   const { title, subtitle, description, imageUrl, imageAlt, accentColor, layout } = attributes;
-  const accent = accentColor || 'rgba(5,5,5,0.65)';
+  const accent = accentColor || '#ba5a3c';
   const blockProps = useBlockProps({
     className: `wp-block-child-hero-teaser ${layout}`,
     style: { '--child-hero-accent': accent },

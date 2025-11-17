@@ -12,7 +12,7 @@
     "imageId": { "type": "number" },
     "imageUrl": { "type": "string" },
     "imageAlt": { "type": "string", "default": "" },
-    "accentColor": { "type": "string", "default": "rgba(0,0,0,0.35)" },
+    "accentColor": { "type": "string", "default": "#ba5a3c" },
     "layout": { "type": "string", "default": "text-left" }
   },
   "supports": { "html": false },
