@@ -1,5 +1,12 @@
 import { registerBlockType } from '@wordpress/blocks';
-import { useBlockProps, InspectorControls, RichText, MediaUpload, MediaUploadCheck, PanelColorSettings } from '@wordpress/block-editor';
+import {
+  useBlockProps,
+  InspectorControls,
+  RichText,
+  MediaUpload,
+  MediaUploadCheck,
+  PanelColorSettings,
+} from '@wordpress/block-editor';
 import { PanelBody, Button, SelectControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import metadata from './block.json';
@@ -14,7 +21,11 @@ const LAYOUT_OPTIONS = [
 
 function Edit({ attributes, setAttributes }) {
   const { title, subtitle, description, imageUrl, imageAlt, accentColor, layout } = attributes;
-  const blockProps = useBlockProps({ className: `wp-block-child-hero-teaser ${layout}` });
+  const accent = accentColor || 'rgba(5,5,5,0.65)';
+  const blockProps = useBlockProps({
+    className: `wp-block-child-hero-teaser ${layout}`,
+    style: { '--child-hero-accent': accent },
+  });
 
   const onSelectImage = (media) => {
     setAttributes({ imageId: media.id, imageUrl: media.url, imageAlt: media.alt });
@@ -44,7 +55,7 @@ function Edit({ attributes, setAttributes }) {
 
       <div className="child-hero__media">
         {imageUrl ? (
-          <img src={imageUrl} alt={imageAlt} style={{ width: '100%', height: 'auto', display: 'block' }} />
+          <img className="child-hero__img" src={imageUrl} alt={imageAlt} />
         ) : (
           <MediaUploadCheck>
             <MediaUpload
@@ -52,16 +63,15 @@ function Edit({ attributes, setAttributes }) {
               allowedTypes={["image"]}
               value={attributes.imageId}
               render={({ open }) => (
-                <Button onClick={open} isSecondary>
+                <Button onClick={open} isSecondary className="child-hero__media-placeholder">
                   {__('Select background image', 'child')}
                 </Button>
               )}
             />
           </MediaUploadCheck>
         )}
+        <div className="child-hero__overlay" aria-hidden />
       </div>
-
-      <div className="child-hero__overlay" style={{ background: `linear-gradient(${accentColor}, rgba(0,0,0,0.0))` }} />
 
       <div className="child-hero__content">
         <RichText tagName="div" className="child-hero__subtitle" value={subtitle} onChange={(val) => setAttributes({ subtitle: val })} placeholder={__('Subtitle / category', 'child')} />

@@ -12,41 +12,43 @@ return static function(array $attributes = []): string {
     $description = $attributes['description'] ?? '';
     $image_id    = isset($attributes['imageId']) ? (int) $attributes['imageId'] : 0;
     $image_url   = $attributes['imageUrl'] ?? '';
-    $image_alt   = $attributes['imageAlt'] ?? '';
+    $image_alt   = isset($attributes['imageAlt']) ? sanitize_text_field($attributes['imageAlt']) : '';
     $accent      = $attributes['accentColor'] ?? 'rgba(0,0,0,0.35)';
     $layout      = $attributes['layout'] ?? 'text-left';
 
     $layout_class = sanitize_html_class($layout ?: 'text-left');
     $classes      = sprintf('wp-block-child-hero-teaser %s', $layout_class);
+    $style_attr   = $accent ? sprintf(' style="--child-hero-accent:%s;"', esc_attr($accent)) : '';
 
     $img_tag = '';
     if ($image_id > 0) {
-        $src    = wp_get_attachment_image_url($image_id, 'large');
-        $srcset = wp_get_attachment_image_srcset($image_id, 'large');
-        $sizes  = wp_get_attachment_image_sizes($image_id, 'large');
-
-        if ($src) {
-            $img_tag = sprintf(
-                '<img src="%s"%s%s alt="%s" loading="lazy" style="width:100%%;height:100%%;object-fit:cover;" />',
-                esc_url($src),
-                $srcset ? sprintf(' srcset="%s"', esc_attr($srcset)) : '',
-                $sizes ? sprintf(' sizes="%s"', esc_attr($sizes)) : '',
-                esc_attr($image_alt)
-            );
-        }
+        $img_tag = wp_get_attachment_image(
+            $image_id,
+            '2048x2048',
+            false,
+            [
+                'class'   => 'child-hero__img',
+                'loading' => 'lazy',
+                'alt'     => $image_alt,
+            ]
+        );
     } elseif (!empty($image_url)) {
         $img_tag = sprintf(
-            '<img src="%s" alt="%s" loading="lazy" style="width:100%%;height:100%%;object-fit:cover;" />',
+            '<img class="child-hero__img" src="%s" alt="%s" loading="lazy" />',
             esc_url($image_url),
             esc_attr($image_alt)
         );
     }
 
-    $overlay_style = sprintf('background: linear-gradient(%s, rgba(0,0,0,0.0));', esc_attr($accent));
-
-    $html  = '<div class="' . esc_attr($classes) . '">';
-    $html .= '<div class="child-hero__media">' . $img_tag . '</div>';
-    $html .= '<div class="child-hero__overlay" style="' . $overlay_style . '"></div>';
+    $html  = '<div class="' . esc_attr($classes) . '"' . $style_attr . '>';
+    $html .= '<div class="child-hero__media">';
+    if ($img_tag) {
+        $html .= $img_tag;
+    } else {
+        $html .= '<div class="child-hero__media-placeholder" aria-hidden="true"></div>';
+    }
+    $html .= '<div class="child-hero__overlay" aria-hidden="true"></div>';
+    $html .= '</div>';
     $html .= '<div class="child-hero__content">';
 
     if ($subtitle) {

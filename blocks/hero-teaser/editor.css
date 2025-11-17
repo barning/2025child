@@ -1,51 +1,6 @@
-.wp-block-child-hero-teaser {
-  display: block;
-  position: relative;
-  border-radius: 12px;
-  overflow: hidden;
-  min-height: 260px;
-  background: #111;
-}
+@import './style.css';
 
-.wp-block-child-hero-teaser .child-hero__media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.wp-block-child-hero-teaser .child-hero__content {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 24px;
-  color: #fff;
-  max-width: 600px;
-}
-
-.wp-block-child-hero-teaser.text-left .child-hero__content {
-  left: 0;
-  align-items: flex-start;
-}
-
-.wp-block-child-hero-teaser.text-right .child-hero__content {
-  right: 0;
-  align-items: flex-end;
-}
-
-.wp-block-child-hero-teaser.text-over .child-hero__content {
-  align-items: center;
-  text-align: center;
-}
-
-.child-hero__subtitle { font-size: 14px; opacity: 0.9; margin-bottom: 6px }
-.child-hero__title { font-size: 28px; line-height: 1.05; margin: 0 0 8px }
-.child-hero__description { font-size: 15px; opacity: 0.95 }
-
-.child-hero__overlay {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
+.wp-block-child-hero-teaser .child-hero__media-placeholder {
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.04);
 }
