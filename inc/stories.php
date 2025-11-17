@@ -56,10 +56,7 @@ add_action('init', 'twentytwentyfivechild_register_story_post_type');
  */
 function twentytwentyfivechild_register_stories_block() {
     register_block_type(
-        get_stylesheet_directory() . '/build/stories',
-        [
-            'render_callback' => require get_stylesheet_directory() . '/blocks/stories/render.php',
-        ]
+        get_stylesheet_directory() . '/build/stories'
     );
 }
 add_action('init', 'twentytwentyfivechild_register_stories_block');
