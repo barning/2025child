@@ -1,177 +1,343 @@
 /**
- * Stories Viewer Implementation
- * 
- * This script handles the story viewing experience in the frontend.
- * Features:
- * - Image and video support
- * - Touch and keyboard navigation
- * - Progress indicator
- * - Content warnings
- * - Automatic advancement
- * 
- * @package twentytwentyfivechild
+ * Front-end controller for the Stories block.
+ *
+ * Fetches the OpenStories-compatible feed and drives the interactive viewer
+ * experience (playback, navigation, accessibility helpers).
  */
 
-document.addEventListener('DOMContentLoaded', function() {
-    const storiesContainer = document.querySelector('.stories-container');
-    if (!storiesContainer) return;
+const DEFAULT_IMAGE_DURATION_MS = 5000;
+const CONTENT_WARNING_DELAY_MS = 3000;
 
-    const viewer = document.querySelector('.story-viewer');
-    const viewerContent = document.querySelector('.story-viewer-content');
-    const mediaContainer = document.querySelector('.story-media');
-    const progressContainer = document.querySelector('.story-progress');
-    const closeBtn = document.querySelector('.story-close');
-    const prevBtn = document.querySelector('.story-prev');
-    const nextBtn = document.querySelector('.story-next');
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-    let currentStoryIndex = 0;
-    let stories = [];
-    let progressBar = null;
-    let progressTimer = null;
+const getDurationMs = (story) => {
+    const raw = story?._open_stories?.duration_in_seconds;
+    const seconds = Number.isFinite(raw) ? raw : Number(raw);
+    const validSeconds = Number.isFinite(seconds) && seconds > 0 ? seconds : null;
+    return (validSeconds ?? DEFAULT_IMAGE_DURATION_MS / 1000) * 1000;
+};
 
-    // Stories aus der REST API laden
-    fetch('/wp-json/twentytwentyfivechild/v1/stories')
-        .then(response => response.json())
-        .then(data => {
-            stories = data.items;
-        });
+const shouldAutoAdvance = () => !prefersReducedMotion.matches;
 
-    // Story-Preview Click Handler
-    storiesContainer.addEventListener('click', function(e) {
-        const preview = e.target.closest('.story-preview');
-        if (!preview) return;
+const buildProgressBar = (container, duration) => {
+    container.innerHTML = '';
+    if (!shouldAutoAdvance()) {
+        return null;
+    }
+    const bar = document.createElement('div');
+    bar.className = 'story-progress-bar';
+    container.appendChild(bar);
 
-        const storyId = preview.dataset.storyId;
-        currentStoryIndex = stories.findIndex(story => story.id === storyId);
-        if (currentStoryIndex === -1) return;
-
-        showStory(currentStoryIndex);
-        viewer.style.display = 'flex';
+    // Kick off the animation on the next frame.
+    requestAnimationFrame(() => {
+        bar.style.transition = `width ${duration}ms linear`;
+        bar.style.width = '100%';
     });
 
-    // Story anzeigen
-    function showStory(index) {
-        if (index < 0 || index >= stories.length) return;
+    return bar;
+};
 
-        const story = stories[index];
-        mediaContainer.innerHTML = '';
-        
+const withContentWarning = (block, message, proceed) => {
+    const warning = document.createElement('div');
+    warning.className = 'content-warning';
+    warning.textContent = message;
+
+    if (prefersReducedMotion.matches) {
+        const action = document.createElement('button');
+        action.type = 'button';
+        action.className = 'content-warning__continue';
+        action.textContent = block.dataset.continueLabel || 'Continue';
+        action.addEventListener('click', () => {
+            warning.remove();
+            proceed();
+        });
+        warning.appendChild(action);
+    } else {
+        setTimeout(() => {
+            warning.remove();
+            proceed();
+        }, CONTENT_WARNING_DELAY_MS);
+    }
+
+    return warning;
+};
+
+const initStoriesBlock = (block) => {
+    const feedUrl = block.dataset.feed;
+    if (!feedUrl) {
+        return;
+    }
+
+    const storiesContainer = block.querySelector('.stories-container');
+    const viewer = block.querySelector('.story-viewer');
+    const viewerContent = block.querySelector('.story-viewer-content');
+    const mediaContainer = block.querySelector('.story-media');
+    const progressContainer = block.querySelector('.story-progress');
+    const closeBtn = block.querySelector('.story-close');
+    const prevBtn = block.querySelector('.story-prev');
+    const nextBtn = block.querySelector('.story-next');
+
+    if (!storiesContainer || !viewer || !viewerContent || !mediaContainer || !progressContainer) {
+        return;
+    }
+
+    let stories = [];
+    let currentIndex = -1;
+    let progressTimer = null;
+    let keydownHandler = null;
+    let previouslyFocusedElement = null;
+
+    const resetProgress = () => {
         if (progressTimer) {
             clearTimeout(progressTimer);
+            progressTimer = null;
         }
-
-        // Progress Bar zurücksetzen
         progressContainer.innerHTML = '';
-        progressBar = document.createElement('div');
-        progressBar.className = 'story-progress-bar';
-        progressContainer.appendChild(progressBar);
+    };
 
-        // Media Element erstellen
-        if (story._open_stories.mime_type.startsWith('video/')) {
-            const video = document.createElement('video');
-            video.src = story._open_stories.url;
-            video.autoplay = true;
-            video.playsInline = true;
-            video.controls = false;
-            
-            if (story._open_stories.content_warning) {
-                const warning = document.createElement('div');
-                warning.className = 'content-warning';
-                warning.textContent = story._open_stories.content_warning;
-                mediaContainer.appendChild(warning);
-                
-                setTimeout(() => {
-                    warning.remove();
-                    mediaContainer.appendChild(video);
-                    startProgress(video.duration * 1000);
-                }, 3000);
-            } else {
-                mediaContainer.appendChild(video);
-                video.play();
-                startProgress(video.duration * 1000);
-            }
-
-            video.onended = () => {
-                showNextStory();
-            };
-        } else {
-            const img = document.createElement('img');
-            img.src = story._open_stories.url;
-            img.alt = story._open_stories.alt || '';
-            
-            if (story._open_stories.content_warning) {
-                const warning = document.createElement('div');
-                warning.className = 'content-warning';
-                warning.textContent = story._open_stories.content_warning;
-                mediaContainer.appendChild(warning);
-                
-                setTimeout(() => {
-                    warning.remove();
-                    mediaContainer.appendChild(img);
-                    startProgress(story._open_stories.duration_in_seconds * 1000 || 5000);
-                }, 3000);
-            } else {
-                mediaContainer.appendChild(img);
-                startProgress(story._open_stories.duration_in_seconds * 1000 || 5000);
-            }
+    const closeViewer = () => {
+        resetProgress();
+        mediaContainer.innerHTML = '';
+        viewer.classList.remove('is-visible');
+        viewer.setAttribute('hidden', 'hidden');
+        viewerContent.setAttribute('aria-hidden', 'true');
+        if (keydownHandler) {
+            document.removeEventListener('keydown', keydownHandler);
+            keydownHandler = null;
         }
-    }
+        if (previouslyFocusedElement instanceof HTMLElement) {
+            previouslyFocusedElement.focus();
+        }
+        previouslyFocusedElement = null;
+    };
 
-    // Progress Bar Animation
-    function startProgress(duration) {
-        progressBar.style.transition = `width ${duration}ms linear`;
-        progressBar.style.width = '100%';
-        
-        progressTimer = setTimeout(() => {
-            showNextStory();
-        }, duration);
-    }
-
-    // Navigation
-    function showNextStory() {
-        if (currentStoryIndex < stories.length - 1) {
-            currentStoryIndex++;
-            showStory(currentStoryIndex);
+    const showNextStory = () => {
+        if (currentIndex < stories.length - 1) {
+            showStory(currentIndex + 1);
         } else {
             closeViewer();
         }
-    }
+    };
 
-    function showPrevStory() {
-        if (currentStoryIndex > 0) {
-            currentStoryIndex--;
-            showStory(currentStoryIndex);
+    const showPrevStory = () => {
+        if (currentIndex > 0) {
+            showStory(currentIndex - 1);
         }
-    }
+    };
 
-    // Event Listener
-    closeBtn.addEventListener('click', closeViewer);
-    nextBtn.addEventListener('click', showNextStory);
-    prevBtn.addEventListener('click', showPrevStory);
+    const updateNavigationState = () => {
+        prevBtn?.toggleAttribute('disabled', currentIndex <= 0);
+        nextBtn?.toggleAttribute('disabled', currentIndex >= stories.length - 1);
+    };
 
-    // Viewer schließen
-    function closeViewer() {
-        viewer.style.display = 'none';
-        mediaContainer.innerHTML = '';
-        if (progressTimer) {
-            clearTimeout(progressTimer);
+    const startAutoAdvance = (duration) => {
+        if (!shouldAutoAdvance()) {
+            return;
         }
-    }
+        progressTimer = setTimeout(() => {
+            showNextStory();
+        }, duration);
+    };
 
-    // Tastatur-Navigation
-    document.addEventListener('keydown', function(e) {
-        if (viewer.style.display === 'none') return;
+    const playVideo = (story) => {
+        const source = story?._open_stories?.url;
+        if (!source) {
+            return;
+        }
 
-        switch(e.key) {
-            case 'ArrowLeft':
-                showPrevStory();
-                break;
-            case 'ArrowRight':
+        const video = document.createElement('video');
+        video.src = source;
+        video.playsInline = true;
+        video.setAttribute('playsinline', '');
+        video.setAttribute('webkit-playsinline', '');
+        video.controls = false;
+        video.autoplay = true;
+        video.muted = true;
+
+        const begin = () => {
+            const duration = Number.isFinite(video.duration) && video.duration > 0
+                ? video.duration * 1000
+                : getDurationMs(story);
+            buildProgressBar(progressContainer, duration);
+            startAutoAdvance(duration);
+
+            const attemptPlay = video.play();
+            if (attemptPlay) {
+                attemptPlay.catch(() => {
+                    video.muted = true;
+                    video.play().catch(() => {});
+                });
+            }
+        };
+
+        if (video.readyState >= 1) {
+            begin();
+        } else {
+            video.addEventListener('loadedmetadata', begin, { once: true });
+        }
+
+        video.addEventListener('ended', () => {
+            if (shouldAutoAdvance()) {
                 showNextStory();
-                break;
-            case 'Escape':
-                closeViewer();
-                break;
+            }
+        });
+
+        mediaContainer.appendChild(video);
+    };
+
+    const showImage = (story) => {
+        const source = story?._open_stories?.url;
+        if (!source) {
+            return;
+        }
+
+        const image = document.createElement('img');
+        image.src = source;
+        image.alt = story?._open_stories?.alt || story?.title || '';
+        image.loading = 'lazy';
+        image.decoding = 'async';
+        mediaContainer.appendChild(image);
+
+        const duration = getDurationMs(story);
+        buildProgressBar(progressContainer, duration);
+        startAutoAdvance(duration);
+    };
+
+    const displayStoryContent = (story) => {
+        resetProgress();
+        mediaContainer.innerHTML = '';
+
+        const mimeType = story?._open_stories?.mime_type || '';
+        if (mimeType.startsWith('video/')) {
+            playVideo(story);
+        } else {
+            showImage(story);
+        }
+    };
+
+    const showStory = (index) => {
+        if (index < 0 || index >= stories.length) {
+            return;
+        }
+
+        currentIndex = index;
+        const story = stories[index];
+        const warning = story?._open_stories?.content_warning;
+
+        mediaContainer.innerHTML = '';
+        resetProgress();
+
+        const proceed = () => displayStoryContent(story);
+
+        if (warning) {
+            const warningElement = withContentWarning(block, warning, proceed);
+            mediaContainer.appendChild(warningElement);
+            progressContainer.innerHTML = '';
+        } else {
+            proceed();
+        }
+
+        previouslyFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
+        viewer.classList.add('is-visible');
+        viewer.removeAttribute('hidden');
+        viewerContent.setAttribute('aria-hidden', 'false');
+        if (typeof viewerContent.focus === 'function') {
+            try {
+                viewerContent.focus({ preventScroll: true });
+            } catch (error) {
+                viewerContent.focus();
+            }
+        }
+        updateNavigationState();
+
+        if (!keydownHandler) {
+            keydownHandler = (event) => {
+                if (!viewer.classList.contains('is-visible')) {
+                    return;
+                }
+                switch (event.key) {
+                    case 'ArrowLeft':
+                        event.preventDefault();
+                        showPrevStory();
+                        break;
+                    case 'ArrowRight':
+                        event.preventDefault();
+                        showNextStory();
+                        break;
+                    case 'Escape':
+                        event.preventDefault();
+                        closeViewer();
+                        break;
+                    default:
+                        break;
+                }
+            };
+            document.addEventListener('keydown', keydownHandler);
+        }
+    };
+
+    const handlePreviewClick = (event) => {
+        const target = event.target.closest('[data-story-id]');
+        if (!target || target.disabled) {
+            return;
+        }
+
+        const storyId = target.dataset.storyId;
+        const index = stories.findIndex((story) => String(story.id) === String(storyId));
+        if (index === -1) {
+            return;
+        }
+
+        showStory(index);
+    };
+
+    const alignPreviews = () => {
+        const previews = storiesContainer.querySelectorAll('[data-story-id]');
+        previews.forEach((preview) => {
+            const hasStory = stories.some((story) => String(story.id) === preview.dataset.storyId);
+            preview.toggleAttribute('disabled', !hasStory);
+            preview.classList.toggle('story-preview--disabled', !hasStory);
+        });
+    };
+
+    storiesContainer.addEventListener('click', handlePreviewClick);
+
+    closeBtn?.addEventListener('click', closeViewer);
+    prevBtn?.addEventListener('click', showPrevStory);
+    nextBtn?.addEventListener('click', showNextStory);
+    viewer.addEventListener('click', (event) => {
+        if (event.target === viewer) {
+            closeViewer();
         }
     });
-});
+
+    const fetchStories = async () => {
+        try {
+            const response = await fetch(feedUrl, { credentials: 'same-origin' });
+            if (!response.ok) {
+                throw new Error(`Request failed with status ${response.status}`);
+            }
+            const data = await response.json();
+            stories = Array.isArray(data?.items) ? data.items : [];
+            alignPreviews();
+            block.classList.toggle('stories--loaded', stories.length > 0);
+        } catch (error) {
+            console.error('Failed to load stories feed', error);
+            block.classList.add('stories--error');
+        }
+    };
+
+    fetchStories();
+};
+
+const mountStoriesBlocks = () => {
+    const blocks = document.querySelectorAll('.wp-block-twentytwentyfivechild-stories');
+    blocks.forEach((block) => initStoriesBlock(block));
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', mountStoriesBlocks);
+} else {
+    mountStoriesBlocks();
+}
