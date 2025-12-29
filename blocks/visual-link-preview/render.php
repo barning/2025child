@@ -27,22 +27,24 @@ return function( $attributes ) {
 		return $embed ? '<div class="wp-block-child-visual-link-preview">' . $embed . '</div>' : '<div class="wp-block-child-visual-link-preview"><a href="' . esc_url( $url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $url ) . '</a></div>';
 	}
 
-	$response = wp_safe_remote_get( $url, [
-		'timeout'      => 8,
-		'redirection'  => 5,
-		'headers'      => [ 'user-agent' => 'WordPress; VisualLinkPreview/1.0' ],
+	// We have the lock: schedule a non-blocking background fetch so the current
+	// request doesn't perform the remote HTTP call. Background handler will
+	// populate the transient and remove the lock.
+	$endpoint = admin_url( 'admin-post.php' );
+	$body = [ 'action' => 'child_vlp_fetch', 'url' => $url ];
+
+	// fire-and-forget request to our admin-post handler
+	wp_remote_post( $endpoint, [
+		'body'     => $body,
+		'timeout'  => 1,
+		'blocking' => false,
+		'headers'  => [ 'user-agent' => 'WordPress; VisualLinkPreview/1.0' ],
 	] );
 
-	if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-		// Clean up lock before returning
-		if ( function_exists( 'wp_cache_delete' ) ) {
-			wp_cache_delete( $lock_key, 'child_vlp' );
-		} else {
-			delete_option( $lock_key );
-		}
-		$embed = wp_oembed_get( $url );
-		return $embed ? '<div class="wp-block-child-visual-link-preview">' . $embed . '</div>' : '<div class="wp-block-child-visual-link-preview"><a href="' . esc_url( $url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $url ) . '</a></div>';
-	}
+	// Immediately render a safe fallback (oEmbed or simple link). Future
+	// requests will use the cached transient once the background job completes.
+	$embed = wp_oembed_get( $url );
+	return $embed ? '<div class="wp-block-child-visual-link-preview">' . $embed . '</div>' : '<div class="wp-block-child-visual-link-preview"><a href="' . esc_url( $url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $url ) . '</a></div>';
 
 	$html = wp_remote_retrieve_body( $response );
 	if ( ! $html ) {
