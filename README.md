@@ -21,8 +21,7 @@ This child theme extends a block-based parent theme with a set of small, maintai
 
 - **Popular Posts**
 	- Location: `inc/popular-posts.php`
-	- Purpose: Provides a Gutenberg block to render a curated list of posts selected by editors. (View-count tracking has been removed.)
-
+	- Purpose: Provides a Gutenberg block to render a curated list of posts selected by editors.
 - **Visual Link Preview**
 	- Location: `inc/visual-link-preview.php` (block) and `inc/visual-link-preview-async.php` (background fetch)
 	- Behavior: Fetches metadata (OG/Twitter) using `wp_safe_remote_get()`, parses HTML with `DOMDocument`/`DOMXPath`, normalizes image URLs, and caches results in a transient (`child_vlp_<md5(url)>`) for approximately 24 hours.
@@ -60,7 +59,7 @@ Note: After changes to `blocks/` always run `npm run build` to update the `build
 ## Developer Notes
 
 - Styles: Each module registers `style-index.css` as a block style and also enqueues it globally as a frontend fallback when present.
-- Popular Posts: The block renders a curated list chosen by editors; view-count logic has been removed.
+- Popular Posts: The block renders a curated list chosen by editors.
 - Visual Link Preview: Background fetch endpoint is `admin_post_child_vlp_fetch` (also available via `admin_post_nopriv_child_vlp_fetch`) and is responsible for fetch/parse/cache.
 
 ## Quick FAQ
