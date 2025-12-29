@@ -12,6 +12,21 @@ return function( $attributes ) {
 		return child_vlp_render_card( $cached['url'], $cached['title'], $cached['desc'], $cached['image'] );
 	}
 
+	// Stampede-protection: try to acquire a short-lived lock so only one
+	// process fetches remote metadata at a time. Other processes render a
+	// fallback (oEmbed or simple link) while the first one populates the cache.
+	$lock_key = 'child_vlp_lock_' . md5( $url );
+	$got_lock = false;
+	if ( function_exists( 'wp_cache_add' ) ) {
+		$got_lock = wp_cache_add( $lock_key, 1, 'child_vlp', 30 );
+	} else {
+		$got_lock = add_option( $lock_key, 1 );
+	}
+	if ( ! $got_lock ) {
+		$embed = wp_oembed_get( $url );
+		return $embed ? '<div class="wp-block-child-visual-link-preview">' . $embed . '</div>' : '<div class="wp-block-child-visual-link-preview"><a href="' . esc_url( $url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $url ) . '</a></div>';
+	}
+
 	$response = wp_safe_remote_get( $url, [
 		'timeout'      => 8,
 		'redirection'  => 5,
@@ -19,6 +34,12 @@ return function( $attributes ) {
 	] );
 
 	if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+		// Clean up lock before returning
+		if ( function_exists( 'wp_cache_delete' ) ) {
+			wp_cache_delete( $lock_key, 'child_vlp' );
+		} else {
+			delete_option( $lock_key );
+		}
 		$embed = wp_oembed_get( $url );
 		return $embed ? '<div class="wp-block-child-visual-link-preview">' . $embed . '</div>' : '<div class="wp-block-child-visual-link-preview"><a href="' . esc_url( $url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $url ) . '</a></div>';
 	}
@@ -81,7 +102,15 @@ return function( $attributes ) {
 	}
 
 	$data = [ 'url' => $url, 'title' => $title, 'desc' => $desc, 'image' => $image ];
-	set_transient( $cache_key, $data, HOUR_IN_SECONDS * 12 );
+	// Cache metadata for 24 hours by default
+	set_transient( $cache_key, $data, HOUR_IN_SECONDS * 24 );
+
+	// Remove lock after cache is populated
+	if ( function_exists( 'wp_cache_delete' ) ) {
+		wp_cache_delete( $lock_key, 'child_vlp' );
+	} else {
+		delete_option( $lock_key );
+	}
 
 	return child_vlp_render_card( $url, $title, $desc, $image );
 };
