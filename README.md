@@ -2,79 +2,68 @@
 
 This child theme implements several features as native theme modules and custom Gutenberg blocks, replacing the need for a few third-party plugins. The repository contains both source code for the blocks and the compiled build outputs used by the theme.
 
-## What this project replaces
+# TwentyTwentyFive Child Theme — Overview
 
-- Head, Footer and Post Injections: partial replacement for the Mastodon journalism feature — a Customizer field is used to output the `fediverse:creator` meta tag in the site head.
-- WordPress Popular Posts: replaced with a custom `Popular Posts` block. Note: this is a curated popular list — editors pick which posts to show using a post selector in the block inspector. The block is server-rendered (PHP) and outputs a styled card with a header (emoji + title) and a list of the selected posts in the chosen order. It currently does not automatically calculate popularity from view counts or post meta (that would be a straightforward enhancement).
-- Visual Link Preview: replaced with a `Visual Link Preview` block that performs a server-side fetch of a URL, extracts Open Graph / Twitter meta tags (title, description, image) via DOM parsing, caches the result in a transient (12h), and renders a rich link card. If remote fetching fails, the block falls back to oEmbed or a simple link. The fetch uses `wp_safe_remote_get()` with sensible timeouts and a custom user-agent.
-- Book Review / Buchbewertung: replaced with a custom `Book Rating` block that lets editors search Google Books (or enter data manually), pick a cover/title/author, and assign a 0–5 star rating rendered as an accessible card on the front-end. The block normalizes cover URLs, offers manual overrides, and renders entirely in PHP for consistent output between editor and front end.
+This child theme extends a block-based parent theme with a set of small, maintainable theme modules and custom Gutenberg blocks. It replaces certain plugin functionality with lightweight, theme-integrated code.
 
-## Current status
+## Summary
 
-- Source for custom blocks and editor assets lives under `blocks/` (for example `blocks/book-rating/`, `blocks/popular-posts/`, `blocks/visual-link-preview/`) and additional sources under `stories/src/`.
-- Each block includes a `block.json`, editor script (`index.js`), editor styles and a server-side renderer (`render.php`). Both `Popular Posts` and `Visual Link Preview` are server-rendered blocks: the PHP `render.php` files return render callbacks used by WordPress to produce the front-end HTML.
-- `Popular Posts` editor UX: the block uses Combobox selectors in the inspector to let editors pick posts. The block preview shows the card with selected post titles; the front-end output queries the selected posts via `WP_Query` and renders them in the order chosen.
-- `Book Rating` editor UX: editors can search Google Books directly from the inspector, select one of the returned volumes (cover, title, author auto-fill), override any detail manually, and assign a 0–5 star rating via a range control. The server-side renderer outputs the cover + metadata + rating stars and gracefully handles missing covers with a placeholder.
-- `Visual Link Preview` behavior: the block sends the URL to the server renderer which fetches the remote HTML, parses OG/Twitter tags using DOMDocument + DOMXPath, normalizes image URLs, stores a transient keyed by the URL (`child_vlp_{md5}`) for ~12 hours, and renders a link card. If fetching fails or the remote page does not return usable metadata, the block will attempt `wp_oembed_get()` or fallback to a plain anchor.
-- Compiled block assets and shipping-ready files are written to the `build/` directory (one subfolder per block). The `dist/` folder and a zip archive are produced by the packaging scripts (`npm run dist`).
-- PHP integration files and helpers are located in the project root and `inc/` (for example: `functions.php`, `inc/popular-posts.php`, `inc/visual-link-preview.php`, `inc/head-footer-injections.php`).
-- Testing so far is manual/visual. The blocks are included and render correctly when built, but please run the build steps below after editing to regenerate `build/` assets before packaging.
+- Child stylesheet is enqueued from `functions.php`.
+- Modular structure: PHP modules live in `inc/` and are autoloaded.
+- Block source is in `blocks/`; compiled assets live in `build/`.
 
-## Quick build & package (recommended)
+## Included Blocks & Modules
 
-Prerequisites:
+- **Book Rating**
+	- Location: `inc/book-rating.php`
+	- Registration: `build/book-rating` (block assets) and server-side renderer at `blocks/book-rating/render.php`.
+	- Purpose: Display a book rating card (cover, title, author, 0–5 stars). Rendering is done server-side in PHP.
 
-- Node.js 20+ (recommended)
-- npm (bundled with Node.js) or an equivalent package manager
+- **Popular Posts**
+	- Location: `inc/popular-posts.php`
+	- Purpose: Provides a Gutenberg block to render a curated list of posts selected by editors. (View-count tracking has been removed.)
 
-Typical workflow (run from the theme root `/Users/niklasbarning/Code/2025child`):
+- **Visual Link Preview**
+	- Location: `inc/visual-link-preview.php` (block) and `inc/visual-link-preview-async.php` (background fetch)
+	- Behavior: Fetches metadata (OG/Twitter) using `wp_safe_remote_get()`, parses HTML with `DOMDocument`/`DOMXPath`, normalizes image URLs, and caches results in a transient (`child_vlp_<md5(url)>`) for approximately 24 hours.
 
-1. Install dependencies:
+- **Head/Footer Injections (Fediverse)**
+	- Location: `inc/head-footer-injections.php`
+	- Purpose: Adds a Customizer setting `fediverse_creator_handle` and outputs the `<meta name="fediverse:creator">` tag in the page head when set.
+
+## Files & Folders (quick)
+
+- `blocks/` — block source (editor scripts, `block.json`, `render.php` where server-side rendering is required)
+- `build/` — compiled, shipped block assets (JS/CSS)
+- `inc/` — PHP modules registering blocks, render callbacks and helpers
+- `functions.php` — bootstraps the theme (loads `inc/*.php`, enqueues child stylesheet)
+
+## Development & Build
+
+Prerequisites (recommended): Node.js, npm
+
+From the theme root run:
 
 ```bash
 npm install
-```
-
-2. Build block assets for development:
-
-```bash
 npm run build
 ```
 
-3. Create a distributable package (build + zip):
+To create a distributable package:
 
 ```bash
-npm run package
-# or to run the combined production pipeline:
 npm run dist
 ```
 
-Output:
+Note: After changes to `blocks/` always run `npm run build` to update the `build/` assets — the theme registers assets from that folder.
 
-- Built block assets and compiled JS/CSS are written to `build/` (one subfolder per block). These are the files the theme actually enqueues.
-- `npm run dist` (project packaging) will create a `dist/twentytwentyfive-child/` folder and an archive suitable for distribution.
+## Developer Notes
 
-## Project layout (high level)
+- Styles: Each module registers `style-index.css` as a block style and also enqueues it globally as a frontend fallback when present.
+- Popular Posts: The block renders a curated list chosen by editors; view-count logic has been removed.
+- Visual Link Preview: Background fetch endpoint is `admin_post_child_vlp_fetch` (also available via `admin_post_nopriv_child_vlp_fetch`) and is responsible for fetch/parse/cache.
 
-- `blocks/` — block source code and editor assets used during development.
-- `visual-link-preview/`, `popular-posts/`, `stories/` — block-specific source and build folders.
-- `build/` — compiled block assets (ready-to-ship).
-- `dist/` — packaging output (created by `npm run dist`).
-- `inc/` — PHP includes for server-side rendering and integration.
-- `functions.php`, `render.php` files — theme bootstrap and per-block renderers where applicable.
-- `assets/` — shared CSS/JS assets used by the theme and blocks.
+## Quick FAQ
 
-## Notes and next steps
-
-- If you modify block source code under `blocks/` or `stories/src/`, run `npm run build` to regenerate the compiled files in `build/`.
-- Packaging uses the `build/` assets; make sure those are up to date before creating a distributable.
-- Tests are currently manual/visual. Adding automated unit or integration tests for the build pipeline and PHP renderers would be a useful next improvement.
-
-If you'd like, I can:
-
-1. Commit this updated README for you.
-2. Add a short CONTRIBUTING.md section or a small build-check script to verify artifacts before packaging.
-
----
-
-Last updated: October 2025
+- Where do I set the Fediverse meta tag? → Customizer → "Fediverse Author" (setting `fediverse_creator_handle`).
+- Where are server-side renderers? → `blocks/<block>/render.php` and the corresponding `inc/*.php` registration files.

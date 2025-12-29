@@ -1,34 +1,8 @@
 <?php
 /**
  * Minimal replacement for WordPress Popular Posts plugin:
- * - Tracks post views in post meta.
- * - Provides a Gutenberg block to display the top N posts by views.
+ * - Provides a Gutenberg block to display a curated list of posts.
  */
-
-// Increment post views on single post view
-add_action( 'wp', function() {
-    if ( is_singular( 'post' ) ) {
-        $post_id = get_queried_object_id();
-        // Avoid counting views from users who can edit posts (admins/editors)
-        if ( current_user_can( 'edit_posts' ) ) {
-            return;
-        }
-
-        // Debounce repeated view increments from the same visitor by using a cookie.
-        // This reduces DB write load under high traffic while keeping view counts
-        // roughly representative. Cookie expires after 6 hours by default.
-        $cookie_name = 'child_viewed_' . $post_id;
-        if ( empty( $_COOKIE[ $cookie_name ] ) ) {
-            $views = (int) get_post_meta( $post_id, '_child_post_views', true );
-            update_post_meta( $post_id, '_child_post_views', $views + 1 );
-            $expire = time() + ( 6 * HOUR_IN_SECONDS );
-            $path = defined( 'COOKIEPATH' ) ? COOKIEPATH : '/';
-            setcookie( $cookie_name, '1', $expire, $path );
-            // Also populate superglobal so further logic in the same request sees the cookie
-            $_COOKIE[ $cookie_name ] = '1';
-        }
-    }
-});
 
 // Register the block
 add_action( 'init', function() {
