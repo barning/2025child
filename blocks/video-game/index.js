@@ -22,11 +22,7 @@ const GamePreview = ({ gameTitle, coverUrl }) => {
 
     return (
         <div className="child-game-card" aria-label={__('Videospiel', 'child')}>
-            <div 
-                className="child-game-card__media"
-                data-cover-url={coverUrl || ''}
-                style={coverUrl ? { '--cover-bg': `url('${coverUrl}')` } : {}}
-            >
+            <div className="child-game-card__media">
                 {coverUrl ? (
                     <img
                         className="child-game-card__cover"

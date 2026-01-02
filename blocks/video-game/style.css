@@ -11,50 +11,34 @@
 }
 
 .child-game-card__media {
+    position: relative;
     width: clamp(180px, 60vw, 260px);
     border-radius: 12px;
     background: #fff;
     display: flex;
     justify-content: center;
-    position: relative;
-    isolation: isolate;
-    /* Subtle drop shadow */
-    filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.15));
-    transition: filter 0.3s ease;
+    transition: transform 0.2s ease;
 }
 
-/* Ambilight glow effect using pseudo-element */
-.child-game-card__media::after {
+/* Ambilight effect using pseudo-element */
+.child-game-card__media::before {
     content: '';
     position: absolute;
-    inset: -40px;
+    inset: -20px;
+    border-radius: 12px;
+    background: var(--ambilight-color, #888);
+    filter: blur(25px) brightness(1.2) saturate(1.5);
+    opacity: 0.5;
     z-index: -1;
-    border-radius: 20px;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-    pointer-events: none;
-    background-image: inherit;
-    background-size: cover;
-    background-position: center;
-    filter: blur(40px) saturate(1.5) brightness(0.8);
-}
-
-/* Show ambilight on hover */
-.child-game-card__media:hover::after {
-    opacity: 0.6;
+    transition: opacity 0.3s ease, background 0.5s ease;
 }
 
 .child-game-card__media:hover {
-    /* Enhanced shadow on hover */
-    filter: drop-shadow(0 6px 30px rgba(0, 0, 0, 0.2));
+    transform: translateY(-4px);
 }
 
-/* Apply background image for ambilight effect */
-.child-game-card__media[data-cover-url] {
-    background-image: var(--cover-bg);
-    background-size: cover;
-    background-position: center;
-    background-clip: padding-box;
+.child-game-card__media:hover::before {
+    opacity: 0.7;
 }
 
 .child-game-card__cover {
@@ -62,6 +46,8 @@
     height: auto;
     border-radius: 10px;
     display: block;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15),
+                0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .child-game-card__placeholder {
@@ -75,6 +61,8 @@
         rgba(255, 255, 255, 0.55) 12px,
         rgba(255, 255, 255, 0.55) 24px
     );
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15),
+                0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .child-game-card__meta {

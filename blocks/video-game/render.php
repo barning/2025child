@@ -11,22 +11,16 @@ return function($attributes) {
     $wrapper_attributes = get_block_wrapper_attributes();
     $game_title = $attributes['gameTitle'] ?? '';
     $cover_url = $attributes['coverUrl'] ?? '';
+    $block_id = 'game-card-' . wp_unique_id();
 
     if (empty($game_title)) {
         return '';
     }
 
-    $cover_attrs = '';
-    $cover_style = '';
-    if ( ! empty( $cover_url ) ) {
-        $cover_attrs = ' data-cover-url="' . esc_url( $cover_url ) . '"';
-        $cover_style = ' style="--cover-bg: url(\'' . esc_url( $cover_url ) . '\');"';
-    }
-    
     ob_start(); ?>
     <div <?php echo $wrapper_attributes; ?>>
         <div class="child-game-card" aria-label="<?php echo esc_attr__( 'Videospiel', 'child' ); ?>">
-            <div class="child-game-card__media"<?php echo $cover_attrs . $cover_style; ?>>
+            <div class="child-game-card__media" id="<?php echo esc_attr( $block_id ); ?>">
                 <?php if ( ! empty( $cover_url ) ) : ?>
                     <img 
                         src="<?php echo esc_url( $cover_url ); ?>" 
@@ -34,6 +28,7 @@ return function($attributes) {
                         class="child-game-card__cover"
                         loading="lazy"
                         crossorigin="anonymous"
+                        onload="childGameAmbilightInit('<?php echo esc_js( $block_id ); ?>', this)"
                     />
                 <?php else : ?>
                     <div class="child-game-card__placeholder" aria-hidden="true"></div>

@@ -31,6 +31,59 @@ add_action( 'wp_enqueue_scripts', function() {
     }
 }, 20 );
 
+// Add frontend ambilight effect script
+add_action( 'wp_footer', function() {
+    if ( ! has_block( 'child/video-game' ) ) {
+        return;
+    }
+    ?>
+    <script>
+    function childGameAmbilightInit(containerId, imgElement) {
+        try {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const container = document.getElementById(containerId);
+            
+            if (!container || !ctx) return;
+            
+            canvas.width = 50;
+            canvas.height = 50;
+            
+            ctx.drawImage(imgElement, 0, 0, 50, 50);
+            
+            const imageData = ctx.getImageData(0, 0, 50, 50);
+            const data = imageData.data;
+            
+            let r = 0, g = 0, b = 0, count = 0;
+            
+            // Sample from the edges of the image for better ambilight effect
+            for (let i = 0; i < data.length; i += 4) {
+                const pixelIndex = i / 4;
+                const x = pixelIndex % 50;
+                const y = Math.floor(pixelIndex / 50);
+                
+                // Only sample edge pixels
+                if (x < 5 || x > 45 || y < 5 || y > 45) {
+                    r += data[i];
+                    g += data[i + 1];
+                    b += data[i + 2];
+                    count++;
+                }
+            }
+            
+            r = Math.round(r / count);
+            g = Math.round(g / count);
+            b = Math.round(b / count);
+            
+            container.style.setProperty('--ambilight-color', `rgb(${r}, ${g}, ${b})`);
+        } catch (error) {
+            console.warn('Ambilight effect error:', error);
+        }
+    }
+    </script>
+    <?php
+}, 100 );
+
 /**
  * Register REST API endpoint for IGDB search
  * 
@@ -68,8 +121,8 @@ function child_igdb_search( $request ) {
     $search_term = $request->get_param( 'search' );
     
     // Check if IGDB credentials are configured
-    $client_id = get_theme_mod( 'child_igdb_client_id', '' );
-    $client_secret = get_theme_mod( 'child_igdb_client_secret', '' );
+    $client_id = child_get_igdb_client_id();
+    $client_secret = child_get_igdb_client_secret();
     
     if ( empty( $client_id ) || empty( $client_secret ) ) {
         // Return mock data for development/testing
@@ -213,37 +266,117 @@ function child_igdb_mock_search( $search_term ) {
     return [ 'games' => array_values( $filtered_games ) ];
 }
 
-/**
- * Add Customizer settings for IGDB API credentials
- */
-add_action( 'customize_register', function( $wp_customize ) {
-    $wp_customize->add_section( 'igdb_api_section', [
-        'title'       => __( 'IGDB API Settings', 'child' ),
-        'description' => __( 'Configure IGDB API credentials for the video game block. Get your credentials at dev.twitch.tv', 'child' ),
-        'priority'    => 31,
-    ] );
+// Helper function to get IGDB API credentials
+function child_get_igdb_client_id() {
+    // First, check if it's set in options (from settings page)
+    $client_id = get_option( 'child_igdb_client_id', '' );
     
-    $wp_customize->add_setting( 'child_igdb_client_id', [
-        'type' => 'theme_mod',
+    // Fallback to wp-config.php constant for backwards compatibility
+    if ( empty( $client_id ) && defined( 'IGDB_CLIENT_ID' ) ) {
+        $client_id = IGDB_CLIENT_ID;
+    }
+    
+    return $client_id;
+}
+
+function child_get_igdb_client_secret() {
+    // First, check if it's set in options (from settings page)
+    $client_secret = get_option( 'child_igdb_client_secret', '' );
+    
+    // Fallback to wp-config.php constant for backwards compatibility
+    if ( empty( $client_secret ) && defined( 'IGDB_CLIENT_SECRET' ) ) {
+        $client_secret = IGDB_CLIENT_SECRET;
+    }
+    
+    return $client_secret;
+}
+
+// Add settings page for IGDB API credentials
+add_action( 'admin_menu', function() {
+    add_options_page(
+        __( 'Video Game Block Settings', 'child' ),
+        __( 'Video Game Block', 'child' ),
+        'manage_options',
+        'child-video-game',
+        function() {
+            ?>
+            <div class="wrap">
+                <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+                <form action="options.php" method="post">
+                    <?php
+                    settings_fields( 'child_video_game' );
+                    do_settings_sections( 'child-video-game' );
+                    submit_button( __( 'Save Settings', 'child' ) );
+                    ?>
+                </form>
+            </div>
+            <?php
+        }
+    );
+} );
+
+// Register settings
+add_action( 'admin_init', function() {
+    register_setting( 'child_video_game', 'child_igdb_client_id', [
+        'type' => 'string',
         'sanitize_callback' => 'sanitize_text_field',
+        'default' => ''
     ] );
     
-    $wp_customize->add_control( 'child_igdb_client_id', [
-        'label'       => __( 'IGDB Client ID', 'child' ),
-        'description' => __( 'Enter your Twitch/IGDB Client ID', 'child' ),
-        'section'     => 'igdb_api_section',
-        'type'        => 'text',
-    ] );
-    
-    $wp_customize->add_setting( 'child_igdb_client_secret', [
-        'type' => 'theme_mod',
+    register_setting( 'child_video_game', 'child_igdb_client_secret', [
+        'type' => 'string',
         'sanitize_callback' => 'sanitize_text_field',
+        'default' => ''
     ] );
     
-    $wp_customize->add_control( 'child_igdb_client_secret', [
-        'label'       => __( 'IGDB Client Secret', 'child' ),
-        'description' => __( 'Enter your Twitch/IGDB Client Secret', 'child' ),
-        'section'     => 'igdb_api_section',
-        'type'        => 'password',
-    ] );
+    add_settings_section(
+        'child_video_game_section',
+        __( 'IGDB API Configuration', 'child' ),
+        function() {
+            echo '<p>' . sprintf(
+                /* translators: %s: URL to IGDB/Twitch API settings */
+                __( 'To use the Video Game block, you need a free API key from IGDB (powered by Twitch). Get your credentials at <a href="%s" target="_blank" rel="noopener noreferrer">dev.twitch.tv</a>.', 'child' ),
+                'https://dev.twitch.tv/'
+            ) . '</p>';
+        },
+        'child-video-game'
+    );
+    
+    add_settings_field(
+        'child_igdb_client_id',
+        __( 'IGDB Client ID', 'child' ),
+        function() {
+            $value = get_option( 'child_igdb_client_id', '' );
+            $has_constant = defined( 'IGDB_CLIENT_ID' ) && ! empty( IGDB_CLIENT_ID );
+            
+            echo '<input type="text" id="child_igdb_client_id" name="child_igdb_client_id" value="' . esc_attr( $value ) . '" class="regular-text" placeholder="' . esc_attr__( 'Enter your IGDB Client ID', 'child' ) . '" />';
+            
+            if ( $has_constant && empty( $value ) ) {
+                echo '<p class="description">' . __( 'Currently using Client ID from wp-config.php. Enter a key here to override it.', 'child' ) . '</p>';
+            } else {
+                echo '<p class="description">' . __( 'Your Client ID will be stored securely in the database.', 'child' ) . '</p>';
+            }
+        },
+        'child-video-game',
+        'child_video_game_section'
+    );
+    
+    add_settings_field(
+        'child_igdb_client_secret',
+        __( 'IGDB Client Secret', 'child' ),
+        function() {
+            $value = get_option( 'child_igdb_client_secret', '' );
+            $has_constant = defined( 'IGDB_CLIENT_SECRET' ) && ! empty( IGDB_CLIENT_SECRET );
+            
+            echo '<input type="password" id="child_igdb_client_secret" name="child_igdb_client_secret" value="' . esc_attr( $value ) . '" class="regular-text" placeholder="' . esc_attr__( 'Enter your IGDB Client Secret', 'child' ) . '" />';
+            
+            if ( $has_constant && empty( $value ) ) {
+                echo '<p class="description">' . __( 'Currently using Client Secret from wp-config.php. Enter a key here to override it.', 'child' ) . '</p>';
+            } else {
+                echo '<p class="description">' . __( 'Your Client Secret will be stored securely in the database.', 'child' ) . '</p>';
+            }
+        },
+        'child-video-game',
+        'child_video_game_section'
+    );
 } );

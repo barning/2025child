@@ -81,4 +81,4 @@ These optimizations are transparent to users and require no configuration.
 
 - Where do I set the Fediverse meta tag? → Customizer → "Fediverse Author" (setting `fediverse_creator_handle`).
 - Where are server-side renderers? → `blocks/<block>/render.php` and the corresponding `inc/*.php` registration files.
-- How do I configure IGDB API? → Go to Appearance → Customize → "IGDB API Settings" to enter your Twitch/IGDB Client ID and Client Secret. By default, the video game block uses mock data for development.
+- How do I configure IGDB API? → Go to Settings → Video Game Block to enter your Twitch/IGDB Client ID and Client Secret. By default, the video game block uses mock data for development.
