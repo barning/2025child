@@ -23,7 +23,7 @@ const MoxfieldPreview = ({ url }) => {
 	}
 
 	// Extract deck ID from Moxfield URL
-	const deckMatch = url.match(/moxfield\.com\/decks\/([a-zA-Z0-9_-]+)/);
+	const deckMatch = url.match(/moxfield\.com\/decks\/([a-zA-Z0-9_-]{1,100})/);
 	if (!deckMatch) {
 		return (
 			<div className="magic-cards-preview--error">
@@ -195,7 +195,10 @@ function Edit({ attributes, setAttributes }) {
 			);
 
 			if (!response.ok) {
-				throw new Error('Failed to load prints');
+				// Silently fail - prints are optional, card is already selected
+				console.warn('Failed to load alternative prints:', response.status);
+				setIsLoadingPrints(false);
+				return;
 			}
 
 			const data = await response.json();
@@ -210,7 +213,8 @@ function Edit({ attributes, setAttributes }) {
 
 			setAvailablePrints(prints);
 		} catch (error) {
-			console.error('Error loading prints:', error);
+			// Silently fail - prints are optional, card is already selected
+			console.warn('Error loading alternative prints:', error);
 		}
 		setIsLoadingPrints(false);
 	};

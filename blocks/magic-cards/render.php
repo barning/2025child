@@ -31,7 +31,8 @@ function child_render_moxfield_embed($attributes, $wrapper_attributes) {
     // Extract deck ID from URL
     // Moxfield deck IDs contain alphanumeric characters, hyphens, and underscores
     // Example: https://moxfield.com/decks/4My29fffy0eWok-VYMORYQ
-    if (!preg_match('/moxfield\.com\/decks\/([a-zA-Z0-9_-]+)/', $moxfield_url, $matches)) {
+    // Limit to 100 characters to prevent potential DoS attacks
+    if (!preg_match('/moxfield\.com\/decks\/([a-zA-Z0-9_-]{1,100})/', $moxfield_url, $matches)) {
         return '';
     }
 
