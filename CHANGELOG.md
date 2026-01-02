@@ -3,6 +3,8 @@
 All notable changes to this project are documented in this file.
 
 ## [Unreleased]
+
+## [1.1.4] - 2025-01-02
 ### Changed
 - **Visual Link Preview:** Changed from async to synchronous metadata fetching to always display rich cards with image/title/description immediately
 - **Performance Optimizations:** Cached `glob()` results in functions.php to avoid repeated filesystem operations on every request
