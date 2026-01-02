@@ -62,6 +62,16 @@ Note: After changes to `blocks/` always run `npm run build` to update the `build
 - Popular Posts: The block renders a curated list chosen by editors.
 - Visual Link Preview: Background fetch endpoint is `admin_post_child_vlp_fetch` (also available via `admin_post_nopriv_child_vlp_fetch`) and is responsible for fetch/parse/cache.
 
+## Performance Optimizations
+
+The theme includes several performance optimizations to minimize filesystem I/O operations:
+
+- **Cached Module Loading**: `functions.php` caches the result of `glob()` when loading modules from `inc/` to avoid repeated filesystem scans on every page load.
+- **Static CSS Caching**: All block modules (book-rating, popular-posts, visual-link-preview) use static variables to cache CSS file existence and modification time checks, reducing redundant `file_exists()` and `filemtime()` calls.
+- **Clean Code**: Removed unreachable dead code from the Visual Link Preview render callback to improve code maintainability and execution efficiency.
+
+These optimizations are transparent to users and require no configuration.
+
 ## Quick FAQ
 
 - Where do I set the Fediverse meta tag? → Customizer → "Fediverse Author" (setting `fediverse_creator_handle`).
