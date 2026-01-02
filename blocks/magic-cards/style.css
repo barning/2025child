@@ -1,0 +1,91 @@
+.wp-block-child-magic-cards {
+    margin: clamp(1.5rem, 4vw, 3rem) 0;
+}
+
+/* Moxfield Embed Styles */
+.child-magic-moxfield {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.child-magic-moxfield__iframe {
+    width: 100%;
+    min-height: 500px;
+    height: 600px;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: #fff;
+}
+
+/* Single Card Styles */
+.child-magic-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.child-magic-card__media {
+    width: clamp(220px, 70vw, 340px);
+    border-radius: 12px;
+    background: #fff;
+    display: flex;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.child-magic-card__media:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.child-magic-card__image {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    display: block;
+}
+
+.child-magic-card__placeholder {
+    width: 100%;
+    aspect-ratio: 5 / 7;
+    border-radius: 12px;
+    background: repeating-linear-gradient(
+        135deg,
+        rgba(220, 211, 196, 0.55),
+        rgba(220, 211, 196, 0.55) 12px,
+        rgba(255, 255, 255, 0.55) 12px,
+        rgba(255, 255, 255, 0.55) 24px
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+}
+
+.child-magic-card__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.child-magic-card__name {
+    margin: 0;
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+    font-weight: 700;
+    color: var(--wp--preset--color--contrast, #241f1a);
+    line-height: 1.2;
+    text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .child-magic-moxfield__iframe {
+        min-height: 400px;
+        height: 500px;
+    }
+}

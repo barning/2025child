@@ -24,9 +24,22 @@ This child theme extends a block-based parent theme with a set of small, maintai
 	- Registration: `build/video-game` (block assets) and server-side renderer at `blocks/video-game/render.php`.
 	- Purpose: Display a video game card (cover, title) with data from IGDB (Internet Game Database). Features a search interface in the editor and an ambilight-style drop shadow that adapts to the game cover colors. Uses mock data by default; configure IGDB API credentials via Customizer for production use.
 
+- **Media Recommendation (Film/Serie)**
+	- Location: `inc/media-recommendation.php`
+	- Registration: `build/media-recommendation` (block assets) and server-side renderer at `blocks/media-recommendation/render.php`.
+	- Purpose: Display movies and TV shows with poster images and titles. Searches both movies and TV shows via TMDB API with server-side AJAX endpoint for security.
+	- Features: Ambilight-style gradient effect that adapts to poster colors, responsive design matching book-rating block.
+	- Setup: Requires TMDB API key configuration (see `MEDIA_RECOMMENDATION_SETUP.md`).
+
+- **Magic Cards**
+	- Location: `inc/magic-cards.php`
+	- Registration: `build/magic-cards` (block assets) and server-side renderer at `blocks/magic-cards/render.php`.
+	- Purpose: Display Magic: The Gathering cards (single cards from Scryfall/Gatherer or Moxfield deck embeds). Features card lookup with alternative print selection and lazy loading for images and iframes.
+
 - **Popular Posts**
 	- Location: `inc/popular-posts.php`
 	- Purpose: Provides a Gutenberg block to render a curated list of posts selected by editors.
+
 - **Visual Link Preview**
 	- Location: `inc/visual-link-preview.php` (block) and `inc/visual-link-preview-async.php` (background fetch)
 	- Behavior: Fetches metadata (OG/Twitter) using `wp_safe_remote_get()`, parses HTML with `DOMDocument`/`DOMXPath`, normalizes image URLs, and caches results in a transient (`child_vlp_<md5(url)>`) for approximately 24 hours.

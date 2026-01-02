@@ -1,0 +1,37 @@
+{
+  "apiVersion": 2,
+  "name": "child/media-recommendation",
+  "title": "Film/Serie",
+  "category": "widgets",
+  "icon": "video-alt2",
+  "description": "Ein Block zur Anzeige von Filmen und TV-Serien",
+  "supports": {
+    "html": false
+  },
+  "attributes": {
+    "mediaTitle": {
+      "type": "string",
+      "default": ""
+    },
+    "mediaType": {
+      "type": "string",
+      "default": "movie"
+    },
+    "posterUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "releaseYear": {
+      "type": "string",
+      "default": ""
+    },
+    "tmdbId": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "textdomain": "twentyfivetwentyfivechild",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./editor.css",
+  "style": "file:./style.css"
+}
