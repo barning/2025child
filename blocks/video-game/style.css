@@ -1,0 +1,63 @@
+.wp-block-child-video-game {
+    margin: clamp(1.5rem, 4vw, 3rem) 0;
+}
+
+.child-game-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .5rem;
+}
+
+.child-game-card__media {
+    width: clamp(180px, 60vw, 260px);
+    border-radius: 12px;
+    background: #fff;
+    display: flex;
+    justify-content: center;
+    /* Subtle drop shadow */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    transition: box-shadow 0.3s ease;
+}
+
+.child-game-card__media:hover {
+    /* Enhanced shadow on hover */
+    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.2);
+}
+
+.child-game-card__cover {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    display: block;
+}
+
+.child-game-card__placeholder {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    border-radius: 10px;
+    background: repeating-linear-gradient(
+        135deg,
+        rgba(220, 211, 196, 0.55),
+        rgba(220, 211, 196, 0.55) 12px,
+        rgba(255, 255, 255, 0.55) 12px,
+        rgba(255, 255, 255, 0.55) 24px
+    );
+}
+
+.child-game-card__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: .5rem;
+}
+
+.child-game-card__title {
+    margin: 0;
+    font-size: clamp(1.5rem, 2vw, 2rem);
+    font-weight: 700;
+    color: var(--wp--preset--color--contrast, #241f1a);
+    line-height: 1.2;
+    text-align: center;
+}
