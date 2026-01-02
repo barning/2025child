@@ -15,13 +15,28 @@ To use the Media Recommendation block (Film/Serie), you need to configure a TMDB
 
 ## Configuration
 
-Add the following line to your `wp-config.php` file (before the "That's all, stop editing!" line):
+### Method 1: WordPress Admin (Recommended)
+
+The easiest way to configure your API key:
+
+1. Log in to your WordPress admin dashboard
+2. Go to **Settings > Media Recommendation**
+3. Enter your TMDB API key in the field
+4. Click "Save Settings"
+
+That's it! No code changes needed.
+
+### Method 2: wp-config.php (Alternative)
+
+If you prefer to define the API key in code, add this line to your `wp-config.php` file (before the "That's all, stop editing!" line):
 
 ```php
 define('TMDB_API_KEY', 'your_api_key_here');
 ```
 
 Replace `your_api_key_here` with your actual TMDB API key.
+
+**Note**: If you configure the API key in both places, the settings page value takes priority.
 
 ## Usage
 

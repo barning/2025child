@@ -4,9 +4,88 @@
  */
 
 // TMDB API Configuration
-// To use this block, add your TMDB API key to wp-config.php:
-// define('TMDB_API_KEY', 'your_api_key_here');
+// You can configure the API key in two ways:
+// 1. Via WordPress Admin: Settings > Media Recommendation (recommended)
+// 2. Via wp-config.php: define('TMDB_API_KEY', 'your_api_key_here');
 // Get a free API key at https://www.themoviedb.org/settings/api
+
+// Helper function to get TMDB API key from settings or constant
+function child_get_tmdb_api_key() {
+    // First, check if it's set in options (from settings page)
+    $api_key = get_option( 'child_tmdb_api_key', '' );
+    
+    // Fallback to wp-config.php constant for backwards compatibility
+    if ( empty( $api_key ) && defined( 'TMDB_API_KEY' ) ) {
+        $api_key = TMDB_API_KEY;
+    }
+    
+    return $api_key;
+}
+
+// Add settings page for TMDB API key
+add_action( 'admin_menu', function() {
+    add_options_page(
+        __( 'Media Recommendation Settings', 'child' ),
+        __( 'Media Recommendation', 'child' ),
+        'manage_options',
+        'child-media-recommendation',
+        function() {
+            ?>
+            <div class="wrap">
+                <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+                <form action="options.php" method="post">
+                    <?php
+                    settings_fields( 'child_media_recommendation' );
+                    do_settings_sections( 'child-media-recommendation' );
+                    submit_button( __( 'Save Settings', 'child' ) );
+                    ?>
+                </form>
+            </div>
+            <?php
+        }
+    );
+} );
+
+// Register settings
+add_action( 'admin_init', function() {
+    register_setting( 'child_media_recommendation', 'child_tmdb_api_key', [
+        'type' => 'string',
+        'sanitize_callback' => 'sanitize_text_field',
+        'default' => ''
+    ] );
+    
+    add_settings_section(
+        'child_media_recommendation_section',
+        __( 'TMDB API Configuration', 'child' ),
+        function() {
+            echo '<p>' . sprintf(
+                /* translators: %s: URL to TMDB API settings */
+                __( 'To use the Media Recommendation block, you need a free API key from The Movie Database. Get your API key at <a href="%s" target="_blank" rel="noopener noreferrer">themoviedb.org/settings/api</a>.', 'child' ),
+                'https://www.themoviedb.org/settings/api'
+            ) . '</p>';
+        },
+        'child-media-recommendation'
+    );
+    
+    add_settings_field(
+        'child_tmdb_api_key',
+        __( 'TMDB API Key', 'child' ),
+        function() {
+            $value = get_option( 'child_tmdb_api_key', '' );
+            $has_constant = defined( 'TMDB_API_KEY' ) && ! empty( TMDB_API_KEY );
+            
+            echo '<input type="text" id="child_tmdb_api_key" name="child_tmdb_api_key" value="' . esc_attr( $value ) . '" class="regular-text" placeholder="' . esc_attr__( 'Enter your TMDB API key', 'child' ) . '" />';
+            
+            if ( $has_constant && empty( $value ) ) {
+                echo '<p class="description">' . __( 'Currently using API key from wp-config.php. Enter a key here to override it.', 'child' ) . '</p>';
+            } else {
+                echo '<p class="description">' . __( 'Your API key will be stored securely in the database.', 'child' ) . '</p>';
+            }
+        },
+        'child-media-recommendation',
+        'child_media_recommendation_section'
+    );
+} );
 
 // Register the block + styles similar to other replacements
 add_action( 'init', function() {
@@ -100,9 +179,9 @@ add_action( 'wp_ajax_child_tmdb_search', function() {
         wp_send_json_error( 'Query required', 400 );
     }
 
-    $api_key = defined( 'TMDB_API_KEY' ) ? TMDB_API_KEY : '';
+    $api_key = child_get_tmdb_api_key();
     if ( empty( $api_key ) ) {
-        wp_send_json_error( 'TMDB API key not configured. Please add TMDB_API_KEY to wp-config.php', 500 );
+        wp_send_json_error( 'TMDB API key not configured. Please configure it in Settings > Media Recommendation or add TMDB_API_KEY to wp-config.php', 500 );
     }
 
     // Get WordPress locale and convert to TMDB format (e.g., de_DE -> de-DE)
