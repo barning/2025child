@@ -22,7 +22,7 @@ This child theme extends a block-based parent theme with a set of small, maintai
 - **Video Game**
 	- Location: `inc/video-game.php`
 	- Registration: `build/video-game` (block assets) and server-side renderer at `blocks/video-game/render.php`.
-	- Purpose: Display a video game card (cover, title) with data from IGDB (Internet Game Database). Features a search interface in the editor and a subtle drop shadow effect. Uses mock data by default; configure IGDB API credentials in the code for production use.
+	- Purpose: Display a video game card (cover, title) with data from IGDB (Internet Game Database). Features a search interface in the editor and an ambilight-style drop shadow that adapts to the game cover colors. Uses mock data by default; configure IGDB API credentials via Customizer for production use.
 
 - **Popular Posts**
 	- Location: `inc/popular-posts.php`
@@ -81,4 +81,4 @@ These optimizations are transparent to users and require no configuration.
 
 - Where do I set the Fediverse meta tag? → Customizer → "Fediverse Author" (setting `fediverse_creator_handle`).
 - Where are server-side renderers? → `blocks/<block>/render.php` and the corresponding `inc/*.php` registration files.
-- How do I configure IGDB API? → By default, the video game block uses mock data. To use real IGDB data, add your Twitch/IGDB credentials in `inc/video-game.php` by setting the `child_igdb_client_id` and `child_igdb_client_secret` options, or uncomment the settings page code at the bottom of the file to enable a UI for entering credentials.
+- How do I configure IGDB API? → Go to Appearance → Customize → "IGDB API Settings" to enter your Twitch/IGDB Client ID and Client Secret. By default, the video game block uses mock data for development.

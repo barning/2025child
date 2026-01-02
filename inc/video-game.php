@@ -68,8 +68,8 @@ function child_igdb_search( $request ) {
     $search_term = $request->get_param( 'search' );
     
     // Check if IGDB credentials are configured
-    $client_id = get_option( 'child_igdb_client_id', '' );
-    $client_secret = get_option( 'child_igdb_client_secret', '' );
+    $client_id = get_theme_mod( 'child_igdb_client_id', '' );
+    $client_secret = get_theme_mod( 'child_igdb_client_secret', '' );
     
     if ( empty( $client_id ) || empty( $client_secret ) ) {
         // Return mock data for development/testing
@@ -214,63 +214,39 @@ function child_igdb_mock_search( $search_term ) {
 }
 
 /**
- * Add settings page for IGDB API credentials (optional)
- * Uncomment to enable settings UI
+ * Add Customizer settings for IGDB API credentials
  */
-/*
-add_action( 'admin_menu', function() {
-    add_options_page(
-        'IGDB API Settings',
-        'IGDB API',
-        'manage_options',
-        'child-igdb-settings',
-        'child_igdb_settings_page'
-    );
+add_action( 'customize_register', function( $wp_customize ) {
+    $wp_customize->add_section( 'igdb_api_section', [
+        'title'       => __( 'IGDB API Settings', 'child' ),
+        'description' => __( 'Configure IGDB API credentials for the video game block. Get your credentials at dev.twitch.tv', 'child' ),
+        'priority'    => 31,
+    ] );
+    
+    $wp_customize->add_setting( 'child_igdb_client_id', [
+        'type' => 'theme_mod',
+        'sanitize_callback' => 'sanitize_text_field',
+    ] );
+    
+    $wp_customize->add_control( 'child_igdb_client_id', [
+        'label'       => __( 'IGDB Client ID', 'child' ),
+        'description' => __( 'Enter your Twitch/IGDB Client ID', 'child' ),
+        'section'     => 'igdb_api_section',
+        'type'        => 'text',
+    ] );
+    
+    $wp_customize->add_setting( 'child_igdb_client_secret', [
+        'type' => 'theme_mod',
+        'sanitize_callback' => function( $value ) {
+            // Store secret as-is without altering it
+            return $value;
+        },
+    ] );
+    
+    $wp_customize->add_control( 'child_igdb_client_secret', [
+        'label'       => __( 'IGDB Client Secret', 'child' ),
+        'description' => __( 'Enter your Twitch/IGDB Client Secret', 'child' ),
+        'section'     => 'igdb_api_section',
+        'type'        => 'password',
+    ] );
 } );
-
-function child_igdb_settings_page() {
-    if ( ! current_user_can( 'manage_options' ) ) {
-        return;
-    }
-    
-    if ( isset( $_POST['child_igdb_save'] ) && check_admin_referer( 'child_igdb_settings' ) ) {
-        update_option( 'child_igdb_client_id', sanitize_text_field( $_POST['client_id'] ?? '' ) );
-        // Client secret should be stored as-is without sanitization that could alter it
-        update_option( 'child_igdb_client_secret', wp_unslash( $_POST['client_secret'] ?? '' ) );
-        echo '<div class="notice notice-success"><p>Settings saved.</p></div>';
-    }
-    
-    $client_id = get_option( 'child_igdb_client_id', '' );
-    $client_secret = get_option( 'child_igdb_client_secret', '' );
-    
-    ?>
-    <div class="wrap">
-        <h1>IGDB API Settings</h1>
-        <form method="post">
-            <?php wp_nonce_field( 'child_igdb_settings' ); ?>
-            <table class="form-table">
-                <tr>
-                    <th><label for="client_id">Client ID</label></th>
-                    <td><input type="text" name="client_id" id="client_id" value="<?php echo esc_attr( $client_id ); ?>" class="regular-text"></td>
-                </tr>
-                <tr>
-                    <th><label for="client_secret">Client Secret</label></th>
-                    <td><input type="password" name="client_secret" id="client_secret" value="<?php echo esc_attr( $client_secret ); ?>" class="regular-text"></td>
-                </tr>
-            </table>
-            <p>
-                To get IGDB API credentials:
-                <ol>
-                    <li>Create a Twitch account at <a href="https://dev.twitch.tv/" target="_blank">dev.twitch.tv</a></li>
-                    <li>Register a new application</li>
-                    <li>Copy the Client ID and Client Secret here</li>
-                </ol>
-            </p>
-            <p class="submit">
-                <button type="submit" name="child_igdb_save" class="button button-primary">Save Settings</button>
-            </p>
-        </form>
-    </div>
-    <?php
-}
-*/

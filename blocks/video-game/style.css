@@ -7,6 +7,7 @@
     flex-direction: column;
     align-items: center;
     gap: .5rem;
+    position: relative;
 }
 
 .child-game-card__media {
@@ -15,14 +16,45 @@
     background: #fff;
     display: flex;
     justify-content: center;
+    position: relative;
+    isolation: isolate;
     /* Subtle drop shadow */
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    transition: box-shadow 0.3s ease;
+    filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.15));
+    transition: filter 0.3s ease;
+}
+
+/* Ambilight glow effect using pseudo-element */
+.child-game-card__media::after {
+    content: '';
+    position: absolute;
+    inset: -40px;
+    z-index: -1;
+    border-radius: 20px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+    background-image: inherit;
+    background-size: cover;
+    background-position: center;
+    filter: blur(40px) saturate(1.5) brightness(0.8);
+}
+
+/* Show ambilight on hover */
+.child-game-card__media:hover::after {
+    opacity: 0.6;
 }
 
 .child-game-card__media:hover {
     /* Enhanced shadow on hover */
-    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.2);
+    filter: drop-shadow(0 6px 30px rgba(0, 0, 0, 0.2));
+}
+
+/* Apply background image for ambilight effect */
+.child-game-card__media[data-cover-url] {
+    background-image: var(--cover-bg);
+    background-size: cover;
+    background-position: center;
+    background-clip: padding-box;
 }
 
 .child-game-card__cover {

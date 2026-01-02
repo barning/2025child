@@ -19,13 +19,14 @@ return function($attributes) {
     ob_start(); ?>
     <div <?php echo $wrapper_attributes; ?>>
         <div class="child-game-card" aria-label="<?php echo esc_attr__( 'Videospiel', 'child' ); ?>">
-            <div class="child-game-card__media">
+            <div class="child-game-card__media"<?php if ( ! empty( $cover_url ) ) echo ' data-cover-url="' . esc_url( $cover_url ) . '"'; ?><?php if ( ! empty( $cover_url ) ) echo ' style="--cover-bg: url(\'' . esc_url( $cover_url ) . '\');"'; ?>>
                 <?php if ( ! empty( $cover_url ) ) : ?>
                     <img 
                         src="<?php echo esc_url( $cover_url ); ?>" 
                         alt="<?php echo esc_attr( $game_title ); ?>" 
                         class="child-game-card__cover"
                         loading="lazy"
+                        crossorigin="anonymous"
                     />
                 <?php else : ?>
                     <div class="child-game-card__placeholder" aria-hidden="true"></div>
