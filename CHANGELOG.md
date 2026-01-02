@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file.
 
+## [Unreleased]
+### Changed
+- **Performance Optimizations:** Removed 70 lines of unreachable dead code in visual-link-preview render.php
+- **Performance Optimizations:** Cached `glob()` results in functions.php to avoid repeated filesystem operations on every request
+- **Performance Optimizations:** Added static caching for CSS file existence and modification time checks across all modules (book-rating, popular-posts, visual-link-preview)
+- These improvements reduce filesystem I/O operations and improve page load performance
+
 ## [1.1.3] - 2025-12-29
 ### Changed
 - README rewritten in English and updated documentation.

@@ -22,12 +22,12 @@ add_action( 'init', function() {
 
 // Safety-net: enqueue the frontend style globally so it is always available
 add_action( 'wp_enqueue_scripts', function() {
-    static $css_info = null;
-    if ( null === $css_info ) {
+    static $css_mtime = null;
+    if ( null === $css_mtime ) {
         $css_path = get_stylesheet_directory() . '/build/visual-link-preview/style-index.css';
-        $css_info = file_exists( $css_path ) ? [ 'path' => $css_path, 'mtime' => filemtime( $css_path ) ] : false;
+        $css_mtime = file_exists( $css_path ) ? filemtime( $css_path ) : false;
     }
-    if ( $css_info ) {
-        wp_enqueue_style( 'child-visual-link-preview-style-global', get_stylesheet_directory_uri() . '/build/visual-link-preview/style-index.css', [], $css_info['mtime'] );
+    if ( false !== $css_mtime ) {
+        wp_enqueue_style( 'child-visual-link-preview-style-global', get_stylesheet_directory_uri() . '/build/visual-link-preview/style-index.css', [], $css_mtime );
     }
 }, 20 );

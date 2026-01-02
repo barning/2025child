@@ -9,8 +9,12 @@ add_action( 'wp_enqueue_scripts', function() {
 $inc_files = wp_cache_get( 'child_inc_files', 'child_theme' );
 if ( false === $inc_files ) {
 	$inc_files = glob( get_stylesheet_directory() . '/inc/*.php' );
-	wp_cache_set( 'child_inc_files', $inc_files, 'child_theme', HOUR_IN_SECONDS );
+	if ( is_array( $inc_files ) ) {
+		wp_cache_set( 'child_inc_files', $inc_files, 'child_theme', HOUR_IN_SECONDS );
+	}
 }
-foreach ( $inc_files as $file ) {
-	require_once $file;
+if ( is_array( $inc_files ) ) {
+	foreach ( $inc_files as $file ) {
+		require_once $file;
+	}
 }
