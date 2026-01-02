@@ -23,8 +23,12 @@ add_action( 'init', function() {
 
 // Safety-net: enqueue style globally
 add_action( 'wp_enqueue_scripts', function() {
-    $css_path = get_stylesheet_directory() . '/build/popular-posts/style-index.css';
-    if ( file_exists( $css_path ) ) {
-        wp_enqueue_style( 'child-popular-posts-style-global', get_stylesheet_directory_uri() . '/build/popular-posts/style-index.css', [], filemtime( $css_path ) );
+    static $css_info = null;
+    if ( null === $css_info ) {
+        $css_path = get_stylesheet_directory() . '/build/popular-posts/style-index.css';
+        $css_info = file_exists( $css_path ) ? [ 'path' => $css_path, 'mtime' => filemtime( $css_path ) ] : false;
+    }
+    if ( $css_info ) {
+        wp_enqueue_style( 'child-popular-posts-style-global', get_stylesheet_directory_uri() . '/build/popular-posts/style-index.css', [], $css_info['mtime'] );
     }
 }, 20 );
