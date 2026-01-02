@@ -29,6 +29,8 @@ function child_render_moxfield_embed($attributes, $wrapper_attributes) {
     }
 
     // Extract deck ID from URL
+    // Moxfield deck IDs contain alphanumeric characters, hyphens, and underscores
+    // Example: https://moxfield.com/decks/4My29fffy0eWok-VYMORYQ
     if (!preg_match('/moxfield\.com\/decks\/([a-zA-Z0-9_-]+)/', $moxfield_url, $matches)) {
         return '';
     }
@@ -62,15 +64,6 @@ function child_render_magic_card($attributes, $wrapper_attributes) {
     
     if (empty($card_name)) {
         return '';
-    }
-
-    // Fallback: if no image URL, try to fetch from Scryfall cache
-    if (empty($card_image_url) && !empty($attributes['scryfallId'])) {
-        $cache_key = 'child_mtg_' . md5($attributes['scryfallId']);
-        $cached_image = get_transient($cache_key);
-        if ($cached_image) {
-            $card_image_url = $cached_image;
-        }
     }
 
     ob_start(); ?>

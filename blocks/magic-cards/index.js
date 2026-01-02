@@ -9,6 +9,10 @@ import './style.css';
 
 const SCRYFALL_API = 'https://api.scryfall.com';
 
+// Note: Scryfall API has a rate limit of 10 requests per second.
+// For production use, consider implementing debouncing or caching.
+// See: https://scryfall.com/docs/api
+
 const MoxfieldPreview = ({ url }) => {
 	if (!url?.trim()) {
 		return (
@@ -146,7 +150,16 @@ function Edit({ attributes, setAttributes }) {
 			);
 
 			if (!response.ok) {
-				throw new Error('Search failed');
+				// Handle specific HTTP errors
+				if (response.status === 404) {
+					setSearchError(__('No cards found matching your search.', 'child'));
+				} else if (response.status === 429) {
+					setSearchError(__('Too many requests. Please wait a moment and try again.', 'child'));
+				} else {
+					setSearchError(__('Search failed. Please check your connection and try again.', 'child'));
+				}
+				setIsSearching(false);
+				return;
 			}
 
 			const data = await response.json();
@@ -161,11 +174,15 @@ function Edit({ attributes, setAttributes }) {
 
 			setSearchResults(results);
 			if (!results.length) {
-				setSearchError(__('No cards found.', 'child'));
+				setSearchError(__('No cards found matching your search.', 'child'));
 			}
 		} catch (error) {
 			console.error('Error searching cards:', error);
-			setSearchError(__('An error occurred while searching. Please try again.', 'child'));
+			if (error.name === 'TypeError' && error.message.includes('fetch')) {
+				setSearchError(__('Network error. Please check your connection and try again.', 'child'));
+			} else {
+				setSearchError(__('An unexpected error occurred. Please try again.', 'child'));
+			}
 		}
 		setIsSearching(false);
 	};
