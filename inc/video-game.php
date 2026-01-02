@@ -237,10 +237,7 @@ add_action( 'customize_register', function( $wp_customize ) {
     
     $wp_customize->add_setting( 'child_igdb_client_secret', [
         'type' => 'theme_mod',
-        'sanitize_callback' => function( $value ) {
-            // Store secret as-is without altering it
-            return $value;
-        },
+        'sanitize_callback' => 'sanitize_text_field',
     ] );
     
     $wp_customize->add_control( 'child_igdb_client_secret', [
