@@ -84,12 +84,16 @@ function child_igdb_search( $request ) {
     }
     
     // Make request to IGDB API
+    // The search term is passed as part of the query body in IGDB's query language format
+    // We need to properly escape the search term for the IGDB query language
+    $escaped_search = str_replace( ['"', '\\'], ['\"', '\\\\'], $search_term );
+    
     $response = wp_safe_remote_post( 'https://api.igdb.com/v4/games', [
         'headers' => [
             'Client-ID' => $client_id,
             'Authorization' => 'Bearer ' . $access_token,
         ],
-        'body' => 'search "' . addslashes( $search_term ) . '"; fields name,cover.url; limit 5;',
+        'body' => 'search "' . $escaped_search . '"; fields name,cover.url; limit 5;',
         'timeout' => 15,
     ] );
     
@@ -231,7 +235,8 @@ function child_igdb_settings_page() {
     
     if ( isset( $_POST['child_igdb_save'] ) && check_admin_referer( 'child_igdb_settings' ) ) {
         update_option( 'child_igdb_client_id', sanitize_text_field( $_POST['client_id'] ?? '' ) );
-        update_option( 'child_igdb_client_secret', sanitize_text_field( $_POST['client_secret'] ?? '' ) );
+        // Client secret should be stored as-is without sanitization that could alter it
+        update_option( 'child_igdb_client_secret', wp_unslash( $_POST['client_secret'] ?? '' ) );
         echo '<div class="notice notice-success"><p>Settings saved.</p></div>';
     }
     
@@ -250,7 +255,7 @@ function child_igdb_settings_page() {
                 </tr>
                 <tr>
                     <th><label for="client_secret">Client Secret</label></th>
-                    <td><input type="text" name="client_secret" id="client_secret" value="<?php echo esc_attr( $client_secret ); ?>" class="regular-text"></td>
+                    <td><input type="password" name="client_secret" id="client_secret" value="<?php echo esc_attr( $client_secret ); ?>" class="regular-text"></td>
                 </tr>
             </table>
             <p>
