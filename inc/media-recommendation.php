@@ -105,16 +105,20 @@ add_action( 'wp_ajax_child_tmdb_search', function() {
         wp_send_json_error( 'TMDB API key not configured. Please add TMDB_API_KEY to wp-config.php', 500 );
     }
 
+    // Get WordPress locale and convert to TMDB format (e.g., de_DE -> de-DE)
+    $wp_locale = get_locale();
+    $tmdb_locale = str_replace( '_', '-', $wp_locale );
+    
     // Search both movies and TV shows
     $movie_response = wp_safe_remote_get(
         'https://api.themoviedb.org/3/search/movie?api_key=' . urlencode( $api_key ) . 
-        '&query=' . urlencode( $query ) . '&language=de-DE',
+        '&query=' . urlencode( $query ) . '&language=' . urlencode( $tmdb_locale ),
         [ 'timeout' => 10 ]
     );
 
     $tv_response = wp_safe_remote_get(
         'https://api.themoviedb.org/3/search/tv?api_key=' . urlencode( $api_key ) . 
-        '&query=' . urlencode( $query ) . '&language=de-DE',
+        '&query=' . urlencode( $query ) . '&language=' . urlencode( $tmdb_locale ),
         [ 'timeout' => 10 ]
     );
 

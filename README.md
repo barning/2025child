@@ -19,6 +19,13 @@ This child theme extends a block-based parent theme with a set of small, maintai
 	- Registration: `build/book-rating` (block assets) and server-side renderer at `blocks/book-rating/render.php`.
 	- Purpose: Display a book rating card (cover, title, author, 0–5 stars). Rendering is done server-side in PHP.
 
+- **Media Recommendation (Film/Serie)**
+	- Location: `inc/media-recommendation.php`
+	- Registration: `build/media-recommendation` (block assets) and server-side renderer at `blocks/media-recommendation/render.php`.
+	- Purpose: Display movies and TV shows with poster images and titles. Searches both movies and TV shows via TMDB API with server-side AJAX endpoint for security.
+	- Features: Ambilight-style gradient effect that adapts to poster colors, responsive design matching book-rating block.
+	- Setup: Requires TMDB API key configuration (see `MEDIA_RECOMMENDATION_SETUP.md`).
+
 - **Popular Posts**
 	- Location: `inc/popular-posts.php`
 	- Purpose: Provides a Gutenberg block to render a curated list of posts selected by editors.
