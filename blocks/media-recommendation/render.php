@@ -13,6 +13,7 @@ return function($attributes) {
     $media_type = $attributes['mediaType'] ?? 'movie';
     $poster_url = $attributes['posterUrl'] ?? '';
     $release_year = $attributes['releaseYear'] ?? '';
+    $block_id = 'media-card-' . wp_unique_id();
 
     if (empty($media_title)) {
         return '';
@@ -23,13 +24,15 @@ return function($attributes) {
     ob_start(); ?>
     <div <?php echo $wrapper_attributes; ?>>
         <div class="child-media-card" aria-label="<?php echo esc_attr( $type_label ); ?>">
-            <div class="child-media-card__media">
+            <div class="child-media-card__media" id="<?php echo esc_attr( $block_id ); ?>">
                 <?php if ( ! empty( $poster_url ) ) : ?>
                     <img 
                         src="<?php echo esc_url( $poster_url ); ?>" 
                         alt="<?php echo esc_attr( $media_title ); ?>" 
                         class="child-media-card__poster"
                         loading="lazy"
+                        crossorigin="anonymous"
+                        onload="childMediaAmbilightInit('<?php echo esc_js( $block_id ); ?>', this)"
                     />
                 <?php else : ?>
                     <div class="child-media-card__placeholder" aria-hidden="true"></div>

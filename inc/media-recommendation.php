@@ -36,6 +36,57 @@ add_action( 'wp_enqueue_scripts', function() {
     }
 }, 20 );
 
+// Add frontend ambilight effect script
+add_action( 'wp_footer', function() {
+    if ( ! has_block( 'child/media-recommendation' ) ) {
+        return;
+    }
+    ?>
+    <script>
+    function childMediaAmbilightInit(containerId, imgElement) {
+        try {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const container = document.getElementById(containerId);
+            
+            if (!container || !ctx) return;
+            
+            canvas.width = 50;
+            canvas.height = 50;
+            
+            ctx.drawImage(imgElement, 0, 0, 50, 50);
+            
+            const imageData = ctx.getImageData(0, 0, 50, 50);
+            const data = imageData.data;
+            
+            let r = 0, g = 0, b = 0, count = 0;
+            
+            for (let i = 0; i < data.length; i += 4) {
+                const pixelIndex = i / 4;
+                const x = pixelIndex % 50;
+                const y = Math.floor(pixelIndex / 50);
+                
+                if (x < 5 || x > 45 || y < 5 || y > 45) {
+                    r += data[i];
+                    g += data[i + 1];
+                    b += data[i + 2];
+                    count++;
+                }
+            }
+            
+            r = Math.round(r / count);
+            g = Math.round(g / count);
+            b = Math.round(b / count);
+            
+            container.style.setProperty('--ambilight-color', `rgb(${r}, ${g}, ${b})`);
+        } catch (error) {
+            console.warn('Ambilight effect error:', error);
+        }
+    }
+    </script>
+    <?php
+}, 100 );
+
 // AJAX endpoint for TMDB search (authenticated users)
 add_action( 'wp_ajax_child_tmdb_search', function() {
     check_ajax_referer( 'child-media-search', 'nonce' );
