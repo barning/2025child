@@ -19,6 +19,11 @@ This child theme extends a block-based parent theme with a set of small, maintai
 	- Registration: `build/book-rating` (block assets) and server-side renderer at `blocks/book-rating/render.php`.
 	- Purpose: Display a book rating card (cover, title, author, 0–5 stars). Rendering is done server-side in PHP.
 
+- **Video Game**
+	- Location: `inc/video-game.php`
+	- Registration: `build/video-game` (block assets) and server-side renderer at `blocks/video-game/render.php`.
+	- Purpose: Display a video game card (cover, title) with data from IGDB (Internet Game Database). Features a search interface in the editor and an ambilight-style drop shadow that adapts to the game cover colors. Uses mock data by default; configure IGDB API credentials via Customizer for production use.
+
 - **Media Recommendation (Film/Serie)**
 	- Location: `inc/media-recommendation.php`
 	- Registration: `build/media-recommendation` (block assets) and server-side renderer at `blocks/media-recommendation/render.php`.
@@ -34,6 +39,7 @@ This child theme extends a block-based parent theme with a set of small, maintai
 - **Popular Posts**
 	- Location: `inc/popular-posts.php`
 	- Purpose: Provides a Gutenberg block to render a curated list of posts selected by editors.
+
 - **Visual Link Preview**
 	- Location: `inc/visual-link-preview.php` (block) and `inc/visual-link-preview-async.php` (background fetch)
 	- Behavior: Fetches metadata (OG/Twitter) using `wp_safe_remote_get()`, parses HTML with `DOMDocument`/`DOMXPath`, normalizes image URLs, and caches results in a transient (`child_vlp_<md5(url)>`) for approximately 24 hours.
@@ -79,7 +85,7 @@ Note: After changes to `blocks/` always run `npm run build` to update the `build
 The theme includes several performance optimizations to minimize filesystem I/O operations:
 
 - **Cached Module Loading**: `functions.php` caches the result of `glob()` when loading modules from `inc/` to avoid repeated filesystem scans on every page load.
-- **Static CSS Caching**: All block modules (book-rating, magic-cards, popular-posts, visual-link-preview) use static variables to cache CSS file existence and modification time checks, reducing redundant `file_exists()` and `filemtime()` calls.
+- **Static CSS Caching**: All block modules (book-rating, popular-posts, video-game, visual-link-preview) use static variables to cache CSS file existence and modification time checks, reducing redundant `file_exists()` and `filemtime()` calls.
 - **Clean Code**: Removed unreachable dead code from the Visual Link Preview render callback to improve code maintainability and execution efficiency.
 
 These optimizations are transparent to users and require no configuration.
@@ -88,3 +94,4 @@ These optimizations are transparent to users and require no configuration.
 
 - Where do I set the Fediverse meta tag? → Customizer → "Fediverse Author" (setting `fediverse_creator_handle`).
 - Where are server-side renderers? → `blocks/<block>/render.php` and the corresponding `inc/*.php` registration files.
+- How do I configure IGDB API? → Go to Settings → Video Game Block to enter your Twitch/IGDB Client ID and Client Secret. By default, the video game block uses mock data for development.
