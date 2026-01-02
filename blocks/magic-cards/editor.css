@@ -1,0 +1,88 @@
+/* Editor-specific styles for Magic Cards block */
+
+.magic-cards-preview--empty,
+.magic-cards-preview--error {
+    padding: 2rem;
+    text-align: center;
+    background: #f0f0f0;
+    border-radius: 8px;
+    color: #666;
+}
+
+.magic-cards-preview--error {
+    background: #ffe0e0;
+    color: #c00;
+}
+
+.child-magic-moxfield__preview {
+    padding: 2rem;
+    background: #f5f5f5;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.child-magic-moxfield__preview code {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: #fff;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+    word-break: break-all;
+}
+
+.magic-cards-search-button {
+    margin-top: 1rem;
+    width: 100%;
+}
+
+.magic-cards-loading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    justify-content: center;
+}
+
+.magic-cards-results {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #ddd;
+}
+
+.magic-cards-result {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    margin-bottom: 0.5rem;
+    text-align: left;
+    padding: 0.75rem;
+}
+
+.magic-cards-result__name {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.magic-cards-result__set {
+    font-size: 0.85em;
+    opacity: 0.7;
+}
+
+.magic-cards-prints-info {
+    padding: 0.5rem;
+    background: #f0f0f0;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 0.9em;
+    color: #666;
+}
+
+/* Editor preview for cards */
+.editor-styles-wrapper .child-magic-card__media {
+    cursor: default;
+}
+
+.editor-styles-wrapper .child-magic-card__media:hover {
+    transform: none;
+}
