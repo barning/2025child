@@ -43,7 +43,10 @@ function child_vlp_fetch_metadata( $url ) {
 		$html = wp_remote_retrieve_body( $response );
 		
 		if ( $html ) {
+			// Protect against XXE attacks
+			$previous_value = libxml_disable_entity_loader( true );
 			libxml_use_internal_errors( true );
+			
 			$doc = new DOMDocument();
 			$loaded = $doc->loadHTML( $html );
 			
@@ -89,7 +92,9 @@ function child_vlp_fetch_metadata( $url ) {
 					}
 				}
 			}
+			
 			libxml_clear_errors();
+			libxml_disable_entity_loader( $previous_value );
 
 			// Normalize relative image URLs
 			if ( $image && 0 === strpos( $image, '//' ) ) {
@@ -113,6 +118,16 @@ function child_vlp_fetch_metadata( $url ) {
 }
 
 function child_vlp_render_card( $url, $title, $desc, $image ) {
+	// If no metadata was fetched, try oEmbed as fallback
+	if ( empty( $title ) && empty( $desc ) && empty( $image ) ) {
+		$embed = wp_oembed_get( $url );
+		if ( $embed ) {
+			return '<div class="wp-block-child-visual-link-preview">' . $embed . '</div>';
+		}
+		// Final fallback: simple link
+		return '<div class="wp-block-child-visual-link-preview"><a href="' . esc_url( $url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $url ) . '</a></div>';
+	}
+
 	$host = wp_parse_url( $url, PHP_URL_HOST );
 	$out  = '<a class="child-url-card" href="' . esc_url( $url ) . '" target="_blank" rel="noopener noreferrer">';
 	if ( $image ) {
