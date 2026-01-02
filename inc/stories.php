@@ -58,8 +58,31 @@ function twentytwentyfivechild_register_stories_block() {
     register_block_type(
         get_stylesheet_directory() . '/build/stories'
     );
+
+    // Attach style to the block (conditional when block is present)
+    $css_path = get_stylesheet_directory() . '/build/stories/style-index.css';
+    if (file_exists($css_path)) {
+        wp_enqueue_block_style('twentytwentyfivechild/stories', [
+            'handle' => 'twentytwentyfivechild-stories-style',
+            'src'    => get_stylesheet_directory_uri() . '/build/stories/style-index.css',
+            'path'   => $css_path,
+        ]);
+    }
 }
 add_action('init', 'twentytwentyfivechild_register_stories_block');
+
+// Safety-net: enqueue the frontend style globally so it is always available
+add_action('wp_enqueue_scripts', function() {
+    $css_path = get_stylesheet_directory() . '/build/stories/style-index.css';
+    if (file_exists($css_path)) {
+        wp_enqueue_style(
+            'twentytwentyfivechild-stories-style-global',
+            get_stylesheet_directory_uri() . '/build/stories/style-index.css',
+            [],
+            filemtime($css_path)
+        );
+    }
+}, 20);
 
 /**
  * Meta Box für Story-Einstellungen hinzufügen

@@ -9,6 +9,12 @@ import { useEffect, useState } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 
 /**
+ * Styles
+ */
+import './editor.css';
+import './style.css';
+
+/**
  * Register the block
  */
 registerBlockType('twentytwentyfivechild/stories', {
