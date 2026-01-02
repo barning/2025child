@@ -1,7 +1,3 @@
-# TwentyTwentyFive Child Theme — Plugin Replacements (Current status)
-
-This child theme implements several features as native theme modules and custom Gutenberg blocks, replacing the need for a few third-party plugins. The repository contains both source code for the blocks and the compiled build outputs used by the theme.
-
 # TwentyTwentyFive Child Theme — Overview
 
 This child theme extends a block-based parent theme with a set of small, maintainable theme modules and custom Gutenberg blocks. It replaces certain plugin functionality with lightweight, theme-integrated code.
