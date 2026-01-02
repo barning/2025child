@@ -5,6 +5,16 @@ add_action( 'wp_enqueue_scripts', function() {
 });
 
 // Auto-load all PHP files in inc/ for modular structure
-foreach ( glob( get_stylesheet_directory() . '/inc/*.php' ) as $file ) {
-	require_once $file;
+// Cache the glob result to avoid filesystem operations on every request
+$inc_files = wp_cache_get( 'child_inc_files', 'child_theme' );
+if ( false === $inc_files ) {
+	$inc_files = glob( get_stylesheet_directory() . '/inc/*.php' );
+	if ( is_array( $inc_files ) ) {
+		wp_cache_set( 'child_inc_files', $inc_files, 'child_theme', HOUR_IN_SECONDS );
+	}
+}
+if ( is_array( $inc_files ) ) {
+	foreach ( $inc_files as $file ) {
+		require_once $file;
+	}
 }

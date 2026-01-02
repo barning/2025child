@@ -12,110 +12,105 @@ return function( $attributes ) {
 		return child_vlp_render_card( $cached['url'], $cached['title'], $cached['desc'], $cached['image'] );
 	}
 
-	// Stampede-protection: try to acquire a short-lived lock so only one
-	// process fetches remote metadata at a time. Other processes render a
-	// fallback (oEmbed or simple link) while the first one populates the cache.
-	$lock_key = 'child_vlp_lock_' . md5( $url );
-	$got_lock = false;
-	if ( function_exists( 'wp_cache_add' ) ) {
-		$got_lock = wp_cache_add( $lock_key, 1, 'child_vlp', 30 );
-	} else {
-		$got_lock = add_option( $lock_key, 1 );
-	}
-	if ( ! $got_lock ) {
-		$embed = wp_oembed_get( $url );
-		return $embed ? '<div class="wp-block-child-visual-link-preview">' . $embed . '</div>' : '<div class="wp-block-child-visual-link-preview"><a href="' . esc_url( $url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $url ) . '</a></div>';
-	}
+	// Fetch metadata synchronously
+	$metadata = child_vlp_fetch_metadata( $url );
+	
+	// Cache the result for 24 hours
+	set_transient( $cache_key, $metadata, HOUR_IN_SECONDS * 24 );
+	
+	// Render the rich card with fetched metadata
+	return child_vlp_render_card( $metadata['url'], $metadata['title'], $metadata['desc'], $metadata['image'] );
+};
 
-	// We have the lock: schedule a non-blocking background fetch so the current
-	// request doesn't perform the remote HTTP call. Background handler will
-	// populate the transient and remove the lock.
-	$endpoint = admin_url( 'admin-post.php' );
-	$body = [ 'action' => 'child_vlp_fetch', 'url' => $url ];
-
-	// fire-and-forget request to our admin-post handler
-	wp_remote_post( $endpoint, [
-		'body'     => $body,
-		'timeout'  => 1,
-		'blocking' => false,
-		'headers'  => [ 'user-agent' => 'WordPress; VisualLinkPreview/1.0' ],
+/**
+ * Fetch and parse metadata from a URL
+ *
+ * @param string $url The URL to fetch metadata from
+ * @return array Array with keys: url, title, desc, image
+ */
+function child_vlp_fetch_metadata( $url ) {
+	$response = wp_safe_remote_get( $url, [
+		'timeout'     => 8,
+		'redirection' => 5,
+		'headers'     => [ 'user-agent' => 'WordPress; VisualLinkPreview/1.0' ],
 	] );
-
-	// Immediately render a safe fallback (oEmbed or simple link). Future
-	// requests will use the cached transient once the background job completes.
-	$embed = wp_oembed_get( $url );
-	return $embed ? '<div class="wp-block-child-visual-link-preview">' . $embed . '</div>' : '<div class="wp-block-child-visual-link-preview"><a href="' . esc_url( $url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $url ) . '</a></div>';
-
-	$html = wp_remote_retrieve_body( $response );
-	if ( ! $html ) {
-		return '<div class="wp-block-child-visual-link-preview"><a href="' . esc_url( $url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $url ) . '</a></div>';
-	}
 
 	$title = '';
 	$desc  = '';
 	$image = '';
 
-	libxml_use_internal_errors( true );
-	$doc = new DOMDocument();
-	$loaded = $doc->loadHTML( $html );
-	if ( $loaded ) {
-		$xpath = new DOMXPath( $doc );
-		$queries = [
-			'title' => [
-				"//meta[@property='og:title']/@content",
-				"//meta[@name='twitter:title']/@content",
-				'//title/text()'
-			],
-			'desc' => [
-				"//meta[@property='og:description']/@content",
-				"//meta[@name='twitter:description']/@content",
-				"//meta[@name='description']/@content"
-			],
-			'image' => [
-				"//meta[@property='og:image:secure_url']/@content",
-				"//meta[@property='og:image']/@content",
-				"//meta[@name='twitter:image']/@content"
-			],
-		];
+	if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
+		$html = wp_remote_retrieve_body( $response );
+		
+		if ( $html ) {
+			libxml_use_internal_errors( true );
+			$doc = new DOMDocument();
+			$loaded = $doc->loadHTML( $html );
+			
+			if ( $loaded ) {
+				$xpath = new DOMXPath( $doc );
+				$queries = [
+					'title' => [
+						"//meta[@property='og:title']/@content",
+						"//meta[@name='twitter:title']/@content",
+						'//title/text()'
+					],
+					'desc' => [
+						"//meta[@property='og:description']/@content",
+						"//meta[@name='twitter:description']/@content",
+						"//meta[@name='description']/@content"
+					],
+					'image' => [
+						"//meta[@property='og:image:secure_url']/@content",
+						"//meta[@property='og:image']/@content",
+						"//meta[@name='twitter:image']/@content"
+					],
+				];
 
-		foreach ( $queries['title'] as $q ) {
-			$nodes = $xpath->query( $q );
-			if ( $nodes && $nodes->length ) { $title = trim( $nodes->item(0)->nodeValue ); break; }
-		}
-		foreach ( $queries['desc'] as $q ) {
-			$nodes = $xpath->query( $q );
-			if ( $nodes && $nodes->length ) { $desc = trim( $nodes->item(0)->nodeValue ); break; }
-		}
-		foreach ( $queries['image'] as $q ) {
-			$nodes = $xpath->query( $q );
-			if ( $nodes && $nodes->length ) { $image = trim( $nodes->item(0)->nodeValue ); break; }
+				foreach ( $queries['title'] as $q ) {
+					$nodes = $xpath->query( $q );
+					if ( $nodes && $nodes->length ) {
+						$title = trim( $nodes->item(0)->nodeValue );
+						break;
+					}
+				}
+				foreach ( $queries['desc'] as $q ) {
+					$nodes = $xpath->query( $q );
+					if ( $nodes && $nodes->length ) {
+						$desc = trim( $nodes->item(0)->nodeValue );
+						break;
+					}
+				}
+				foreach ( $queries['image'] as $q ) {
+					$nodes = $xpath->query( $q );
+					if ( $nodes && $nodes->length ) {
+						$image = trim( $nodes->item(0)->nodeValue );
+						break;
+					}
+				}
+			}
+			libxml_clear_errors();
+
+			// Normalize relative image URLs
+			if ( $image && 0 === strpos( $image, '//' ) ) {
+				$image = ( is_ssl() ? 'https:' : 'http:' ) . $image;
+			} elseif ( $image && 0 === strpos( $image, '/' ) ) {
+				$parts = wp_parse_url( $url );
+				$scheme = isset( $parts['scheme'] ) ? $parts['scheme'] : 'https';
+				$host   = isset( $parts['host'] ) ? $parts['host'] : '';
+				$port   = isset( $parts['port'] ) ? ':' . $parts['port'] : '';
+				$image  = $scheme . '://' . $host . $port . $image;
+			}
 		}
 	}
-	libxml_clear_errors();
 
-	if ( $image && 0 === strpos( $image, '//' ) ) {
-		$image = ( is_ssl() ? 'https:' : 'http:' ) . $image;
-	} elseif ( $image && 0 === strpos( $image, '/' ) ) {
-		$parts = wp_parse_url( $url );
-		$scheme = isset( $parts['scheme'] ) ? $parts['scheme'] : 'https';
-		$host   = isset( $parts['host'] ) ? $parts['host'] : '';
-		$port   = isset( $parts['port'] ) ? ':' . $parts['port'] : '';
-		$image  = $scheme . '://' . $host . $port . $image;
-	}
-
-	$data = [ 'url' => $url, 'title' => $title, 'desc' => $desc, 'image' => $image ];
-	// Cache metadata for 24 hours by default
-	set_transient( $cache_key, $data, HOUR_IN_SECONDS * 24 );
-
-	// Remove lock after cache is populated
-	if ( function_exists( 'wp_cache_delete' ) ) {
-		wp_cache_delete( $lock_key, 'child_vlp' );
-	} else {
-		delete_option( $lock_key );
-	}
-
-	return child_vlp_render_card( $url, $title, $desc, $image );
-};
+	return [
+		'url'   => $url,
+		'title' => $title,
+		'desc'  => $desc,
+		'image' => $image
+	];
+}
 
 function child_vlp_render_card( $url, $title, $desc, $image ) {
 	$host = wp_parse_url( $url, PHP_URL_HOST );
