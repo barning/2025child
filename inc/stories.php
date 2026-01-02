@@ -60,11 +60,14 @@ function twentytwentyfivechild_register_stories_block() {
     );
 
     // Attach style to the block (conditional when block is present)
-    $css_path = get_stylesheet_directory() . '/build/stories/style-index.css';
+    $css_relative_path = '/build/stories/style-index.css';
+    $css_path = get_stylesheet_directory() . $css_relative_path;
+    $css_url = get_stylesheet_directory_uri() . $css_relative_path;
+    
     if (file_exists($css_path)) {
         wp_enqueue_block_style('twentytwentyfivechild/stories', [
             'handle' => 'twentytwentyfivechild-stories-style',
-            'src'    => get_stylesheet_directory_uri() . '/build/stories/style-index.css',
+            'src'    => $css_url,
             'path'   => $css_path,
         ]);
     }
@@ -73,11 +76,13 @@ add_action('init', 'twentytwentyfivechild_register_stories_block');
 
 // Safety-net: enqueue the frontend style globally so it is always available
 add_action('wp_enqueue_scripts', function() {
-    $css_path = get_stylesheet_directory() . '/build/stories/style-index.css';
+    $css_relative_path = '/build/stories/style-index.css';
+    $css_path = get_stylesheet_directory() . $css_relative_path;
+    
     if (file_exists($css_path)) {
         wp_enqueue_style(
             'twentytwentyfivechild-stories-style-global',
-            get_stylesheet_directory_uri() . '/build/stories/style-index.css',
+            get_stylesheet_directory_uri() . $css_relative_path,
             [],
             filemtime($css_path)
         );
