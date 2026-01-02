@@ -19,6 +19,11 @@ This child theme extends a block-based parent theme with a set of small, maintai
 	- Registration: `build/book-rating` (block assets) and server-side renderer at `blocks/book-rating/render.php`.
 	- Purpose: Display a book rating card (cover, title, author, 0–5 stars). Rendering is done server-side in PHP.
 
+- **Magic Cards**
+	- Location: `inc/magic-cards.php`
+	- Registration: `build/magic-cards` (block assets) and server-side renderer at `blocks/magic-cards/render.php`.
+	- Purpose: Display Magic: The Gathering cards (single cards from Scryfall/Gatherer or Moxfield deck embeds). Features card lookup with alternative print selection and lazy loading for images and iframes.
+
 - **Popular Posts**
 	- Location: `inc/popular-posts.php`
 	- Purpose: Provides a Gutenberg block to render a curated list of posts selected by editors.
@@ -67,7 +72,7 @@ Note: After changes to `blocks/` always run `npm run build` to update the `build
 The theme includes several performance optimizations to minimize filesystem I/O operations:
 
 - **Cached Module Loading**: `functions.php` caches the result of `glob()` when loading modules from `inc/` to avoid repeated filesystem scans on every page load.
-- **Static CSS Caching**: All block modules (book-rating, popular-posts, visual-link-preview) use static variables to cache CSS file existence and modification time checks, reducing redundant `file_exists()` and `filemtime()` calls.
+- **Static CSS Caching**: All block modules (book-rating, magic-cards, popular-posts, visual-link-preview) use static variables to cache CSS file existence and modification time checks, reducing redundant `file_exists()` and `filemtime()` calls.
 - **Clean Code**: Removed unreachable dead code from the Visual Link Preview render callback to improve code maintainability and execution efficiency.
 
 These optimizations are transparent to users and require no configuration.
