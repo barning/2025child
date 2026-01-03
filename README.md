@@ -70,6 +70,17 @@ npm run dist
 
 Note: After changes to `blocks/` always run `npm run build` to update the `build/` assets — the theme registers assets from that folder.
 
+## Automated Builds & Releases
+
+The repository uses GitHub Actions to automatically build and release the theme:
+
+- **Pull Request Merged to main**: Triggers a build and uploads artifacts to the workflow run.
+- **Tag Pushed (v*)**: Triggers a build and automatically creates a GitHub release with the theme zip file attached.
+- **Release Published**: When a GitHub release is manually created/published, automatically builds and uploads the theme zip to that release.
+- **Manual Workflow Dispatch**: Can be triggered manually from the Actions tab.
+
+The automated workflow ensures the `dist/twentytwentyfive-child.zip` file is always available for releases without needing to commit build artifacts to the repository.
+
 ## Developer Notes
 
 - Styles: Each module registers `style-index.css` as a block style and also enqueues it globally as a frontend fallback when present.
