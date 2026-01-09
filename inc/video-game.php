@@ -168,6 +168,11 @@ function child_igdb_search( $request ) {
         return new WP_Error( 'igdb_request_error', 'Failed to fetch from IGDB', [ 'status' => 500 ] );
     }
     
+    $response_code = wp_remote_retrieve_response_code( $response );
+    if ( $response_code !== 200 ) {
+        return new WP_Error( 'igdb_api_error', 'IGDB API returned an error', [ 'status' => $response_code ] );
+    }
+    
     $body = wp_remote_retrieve_body( $response );
     $games_data = json_decode( $body, true );
     
@@ -184,13 +189,18 @@ function child_igdb_search( $request ) {
         }
         
         return [
-            'id' => $game['id'],
+            'id' => $game['id'] ?? 0,
             'name' => $game['name'] ?? '',
             'cover_url' => $cover_url,
         ];
     }, $games_data );
     
-    return [ 'games' => $games ];
+    // Filter out any invalid games (those without IDs)
+    $games = array_filter( $games, function( $game ) {
+        return ! empty( $game['id'] );
+    } );
+    
+    return [ 'games' => array_values( $games ) ];
 }
 
 /**
