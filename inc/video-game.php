@@ -415,6 +415,15 @@ add_action( 'admin_init', function() {
                 __( 'To use the Video Game block, you need a free API key from IGDB (powered by Twitch). Get your credentials at <a href="%s" target="_blank" rel="noopener noreferrer">dev.twitch.tv</a>.', 'child' ),
                 'https://dev.twitch.tv/'
             ) . '</p>';
+            echo '<div class="notice notice-info inline"><p><strong>' . __( 'Setup Instructions:', 'child' ) . '</strong></p>';
+            echo '<ol style="margin-left: 1.5em;">';
+            echo '<li>' . __( 'Go to <a href="https://dev.twitch.tv/console/apps" target="_blank" rel="noopener noreferrer">Twitch Developer Console</a> and log in', 'child' ) . '</li>';
+            echo '<li>' . __( 'Click "Register Your Application" or select an existing app', 'child' ) . '</li>';
+            echo '<li>' . __( 'Copy your Client ID and Client Secret', 'child' ) . '</li>';
+            echo '<li>' . __( 'Paste them into the fields below and save', 'child' ) . '</li>';
+            echo '</ol>';
+            echo '<p><strong>' . __( 'Important:', 'child' ) . '</strong> ' . __( 'Both Client ID and Client Secret are required. The IGDB API uses Twitch OAuth 2.0 authentication which requires both credentials.', 'child' ) . '</p>';
+            echo '</div>';
         },
         'child-video-game'
     );
