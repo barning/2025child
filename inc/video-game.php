@@ -431,7 +431,15 @@ add_action( 'admin_init', function() {
             <div class="notice notice-info inline">
                 <p><strong><?php _e( 'Setup Instructions:', 'child' ); ?></strong></p>
                 <ol style="margin-left: 1.5em;">
-                    <li><?php _e( 'Go to <a href="https://dev.twitch.tv/console/apps" target="_blank" rel="noopener noreferrer">Twitch Developer Console</a> and log in', 'child' ); ?></li>
+                    <li>
+                        <?php
+                        printf(
+                            /* translators: %s: URL to Twitch Developer Console */
+                            __( 'Go to <a href="%s" target="_blank" rel="noopener noreferrer">Twitch Developer Console</a> and log in', 'child' ),
+                            'https://dev.twitch.tv/console/apps'
+                        );
+                        ?>
+                    </li>
                     <li><?php _e( 'Click "Register Your Application" or select an existing app', 'child' ); ?></li>
                     <li><?php _e( 'Copy your Client ID and Client Secret', 'child' ); ?></li>
                     <li><?php _e( 'Paste them into the fields below and save', 'child' ); ?></li>
