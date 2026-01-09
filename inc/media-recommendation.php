@@ -122,46 +122,62 @@ add_action( 'wp_footer', function() {
     }
     ?>
     <script>
-    function childMediaAmbilightInit(containerId, imgElement) {
-        try {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            const container = document.getElementById(containerId);
-            
-            if (!container || !ctx) return;
-            
-            canvas.width = 50;
-            canvas.height = 50;
-            
-            ctx.drawImage(imgElement, 0, 0, 50, 50);
-            
-            const imageData = ctx.getImageData(0, 0, 50, 50);
-            const data = imageData.data;
-            
-            let r = 0, g = 0, b = 0, count = 0;
-            
-            for (let i = 0; i < data.length; i += 4) {
-                const pixelIndex = i / 4;
-                const x = pixelIndex % 50;
-                const y = Math.floor(pixelIndex / 50);
+    (function() {
+        // Use IIFE to avoid global namespace pollution
+        window.childMediaAmbilightInit = function(containerId, imgElement) {
+            try {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const container = document.getElementById(containerId);
                 
-                if (x < 5 || x > 45 || y < 5 || y > 45) {
-                    r += data[i];
-                    g += data[i + 1];
-                    b += data[i + 2];
-                    count++;
+                if (!container || !ctx) return;
+                
+                // Ensure image is loaded
+                if (!imgElement.complete || !imgElement.naturalWidth) {
+                    imgElement.addEventListener('load', function() {
+                        window.childMediaAmbilightInit(containerId, imgElement);
+                    });
+                    return;
                 }
+                
+                canvas.width = 50;
+                canvas.height = 50;
+                
+                ctx.drawImage(imgElement, 0, 0, 50, 50);
+                
+                const imageData = ctx.getImageData(0, 0, 50, 50);
+                const data = imageData.data;
+                
+                let r = 0, g = 0, b = 0, count = 0;
+                
+                // Sample from the edges of the image for better ambilight effect
+                for (let i = 0; i < data.length; i += 4) {
+                    const pixelIndex = i / 4;
+                    const x = pixelIndex % 50;
+                    const y = Math.floor(pixelIndex / 50);
+                    
+                    // Only sample edge pixels
+                    if (x < 5 || x > 45 || y < 5 || y > 45) {
+                        r += data[i];
+                        g += data[i + 1];
+                        b += data[i + 2];
+                        count++;
+                    }
+                }
+                
+                // Prevent division by zero and ensure we have valid data
+                if (count > 0) {
+                    r = Math.round(r / count);
+                    g = Math.round(g / count);
+                    b = Math.round(b / count);
+                    container.style.setProperty('--ambilight-color', `rgb(${r}, ${g}, ${b})`);
+                }
+            } catch (error) {
+                // Silently fail for CORS errors or other canvas issues
+                console.warn('Ambilight effect error:', error);
             }
-            
-            r = Math.round(r / count);
-            g = Math.round(g / count);
-            b = Math.round(b / count);
-            
-            container.style.setProperty('--ambilight-color', `rgb(${r}, ${g}, ${b})`);
-        } catch (error) {
-            console.warn('Ambilight effect error:', error);
-        }
-    }
+        };
+    })();
     </script>
     <?php
 }, 100 );
