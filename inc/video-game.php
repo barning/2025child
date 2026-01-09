@@ -147,7 +147,12 @@ function child_igdb_search( $request ) {
     $access_token = child_igdb_get_access_token( $client_id, $client_secret );
     
     if ( is_wp_error( $access_token ) ) {
-        return new WP_Error( 'igdb_auth_error', 'Failed to authenticate with IGDB', [ 'status' => 500 ] );
+        // Pass through the detailed error message from OAuth
+        return new WP_Error( 
+            'igdb_auth_error', 
+            'Failed to authenticate with IGDB: ' . $access_token->get_error_message(), 
+            [ 'status' => 500 ] 
+        );
     }
     
     // Make request to IGDB API
@@ -190,9 +195,18 @@ function child_igdb_search( $request ) {
             $igdb_error_detail = mb_substr( $body, 0, 200 );
         }
 
-        $error_message = 'IGDB API returned an error (HTTP ' . $response_code . ')';
-        if ( $igdb_error_detail !== '' ) {
-            $error_message .= ': ' . $igdb_error_detail;
+        // If we get a 401, the token might be invalid - clear the cache
+        if ( $response_code === 401 ) {
+            delete_transient( 'child_igdb_access_token' );
+            $error_message = 'IGDB API authentication failed (HTTP 401). Please verify your Client ID and Client Secret are correct and your Twitch application has IGDB API access enabled.';
+            if ( $igdb_error_detail !== '' ) {
+                $error_message .= ' Details: ' . $igdb_error_detail;
+            }
+        } else {
+            $error_message = 'IGDB API returned an error (HTTP ' . $response_code . ')';
+            if ( $igdb_error_detail !== '' ) {
+                $error_message .= ': ' . $igdb_error_detail;
+            }
         }
 
         return new WP_Error( 'igdb_api_error', $error_message, [ 'status' => $response_code ] );
@@ -253,11 +267,25 @@ function child_igdb_get_access_token( $client_id, $client_secret ) {
         return $response;
     }
     
+    $response_code = wp_remote_retrieve_response_code( $response );
     $body = wp_remote_retrieve_body( $response );
     $data = json_decode( $body, true );
     
+    // Check for HTTP errors
+    if ( $response_code !== 200 ) {
+        $error_message = 'Twitch OAuth returned error (HTTP ' . $response_code . ')';
+        if ( isset( $data['message'] ) ) {
+            $error_message .= ': ' . $data['message'];
+        } elseif ( isset( $data['error'] ) && isset( $data['error_description'] ) ) {
+            $error_message .= ': ' . $data['error'] . ' - ' . $data['error_description'];
+        } elseif ( ! empty( $body ) ) {
+            $error_message .= ': ' . mb_substr( $body, 0, 200 );
+        }
+        return new WP_Error( 'igdb_token_error', $error_message );
+    }
+    
     if ( ! isset( $data['access_token'] ) ) {
-        return new WP_Error( 'igdb_token_error', 'Failed to get access token' );
+        return new WP_Error( 'igdb_token_error', 'Failed to get access token from response: ' . mb_substr( $body, 0, 200 ) );
     }
     
     // Cache token for its expiration time (minus 5 minutes for safety)
