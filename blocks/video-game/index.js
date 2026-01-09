@@ -111,10 +111,21 @@ function Edit({ attributes, setAttributes }) {
             const response = await fetch(
                 `${IGDB_SEARCH_ENDPOINT}?search=${encodeURIComponent(trimmedTerm)}`
             );
-            if (!response.ok) {
-                throw new Error('Request failed');
-            }
+            
+            // Try to get the response body for error details
             const data = await response.json();
+            
+            if (!response.ok) {
+                // Extract error message from WordPress REST API error response
+                let errorMessage = __('Beim Suchen ist ein Fehler aufgetreten.', 'child');
+                if (data && data.message) {
+                    errorMessage = data.message;
+                } else if (data && data.code) {
+                    errorMessage = `${__('Fehler', 'child')}: ${data.code}`;
+                }
+                console.error('IGDB API Error:', data);
+                throw new Error(errorMessage);
+            }
 
             const results = (data.games || []).map((item) => {
                 return {
@@ -131,7 +142,9 @@ function Edit({ attributes, setAttributes }) {
             }
         } catch (error) {
             console.error('Fehler beim Suchen:', error);
-            setSearchError(__('Beim Suchen ist ein Fehler aufgetreten. Bitte versuche es erneut.', 'child'));
+            // Use the error message if available, otherwise show generic message
+            const errorMessage = error.message || __('Beim Suchen ist ein Fehler aufgetreten. Bitte versuche es erneut.', 'child');
+            setSearchError(errorMessage);
             setHasSearched(false);
         }
         setIsSearching(false);
