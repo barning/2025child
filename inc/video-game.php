@@ -189,13 +189,13 @@ function child_igdb_search( $request ) {
         }
         
         return [
-            'id' => $game['id'] ?? 0,
+            'id' => $game['id'] ?? 0, // Default to 0 for missing IDs (will be filtered out)
             'name' => $game['name'] ?? '',
             'cover_url' => $cover_url,
         ];
     }, $games_data );
     
-    // Filter out any invalid games (those without IDs)
+    // Filter out any invalid games (those without IDs, including 0)
     $games = array_filter( $games, function( $game ) {
         return ! empty( $game['id'] );
     } );
