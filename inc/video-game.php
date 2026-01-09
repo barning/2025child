@@ -274,7 +274,7 @@ function child_igdb_get_access_token( $client_id, $client_secret ) {
     
     // Check for HTTP errors
     if ( $response_code !== 200 ) {
-        $error_message = 'Twitch OAuth returned error (HTTP ' . $response_code . ')';
+        $error_message = sprintf( __( 'Twitch OAuth returned error (HTTP %d)', 'child' ), $response_code );
         if ( isset( $data['message'] ) ) {
             $error_message .= ': ' . $data['message'];
         } elseif ( isset( $data['error'] ) && isset( $data['error_description'] ) ) {
@@ -286,7 +286,14 @@ function child_igdb_get_access_token( $client_id, $client_secret ) {
     }
     
     if ( ! isset( $data['access_token'] ) ) {
-        return new WP_Error( 'igdb_token_error', 'Failed to get access token from response: ' . mb_substr( $body, 0, 200 ) );
+        return new WP_Error( 
+            'igdb_token_error', 
+            sprintf( 
+                /* translators: %s: response body snippet */
+                __( 'Failed to get access token from response: %s', 'child' ), 
+                mb_substr( $body, 0, 200 ) 
+            ) 
+        );
     }
     
     // Cache token for its expiration time (minus 5 minutes for safety)
