@@ -198,12 +198,13 @@ function child_igdb_search( $request ) {
         // If we get a 401, the token might be invalid - clear the cache
         if ( $response_code === 401 ) {
             delete_transient( 'child_igdb_access_token' );
-            $error_message = 'IGDB API authentication failed (HTTP 401). Please verify your Client ID and Client Secret are correct and your Twitch application has IGDB API access enabled.';
+            $error_message = __( 'IGDB API authentication failed (HTTP 401). Please verify your Client ID and Client Secret are correct and your Twitch application has IGDB API access enabled.', 'child' );
             if ( $igdb_error_detail !== '' ) {
-                $error_message .= ' Details: ' . $igdb_error_detail;
+                /* translators: %s: error details from IGDB API */
+                $error_message .= ' ' . sprintf( __( 'Details: %s', 'child' ), $igdb_error_detail );
             }
         } else {
-            $error_message = 'IGDB API returned an error (HTTP ' . $response_code . ')';
+            $error_message = sprintf( __( 'IGDB API returned an error (HTTP %d)', 'child' ), $response_code );
             if ( $igdb_error_detail !== '' ) {
                 $error_message .= ': ' . $igdb_error_detail;
             }
@@ -410,20 +411,30 @@ add_action( 'admin_init', function() {
         'child_video_game_section',
         __( 'IGDB API Configuration', 'child' ),
         function() {
-            echo '<p>' . sprintf(
-                /* translators: %s: URL to IGDB/Twitch API settings */
-                __( 'To use the Video Game block, you need a free API key from IGDB (powered by Twitch). Get your credentials at <a href="%s" target="_blank" rel="noopener noreferrer">dev.twitch.tv</a>.', 'child' ),
-                'https://dev.twitch.tv/'
-            ) . '</p>';
-            echo '<div class="notice notice-info inline"><p><strong>' . __( 'Setup Instructions:', 'child' ) . '</strong></p>';
-            echo '<ol style="margin-left: 1.5em;">';
-            echo '<li>' . __( 'Go to <a href="https://dev.twitch.tv/console/apps" target="_blank" rel="noopener noreferrer">Twitch Developer Console</a> and log in', 'child' ) . '</li>';
-            echo '<li>' . __( 'Click "Register Your Application" or select an existing app', 'child' ) . '</li>';
-            echo '<li>' . __( 'Copy your Client ID and Client Secret', 'child' ) . '</li>';
-            echo '<li>' . __( 'Paste them into the fields below and save', 'child' ) . '</li>';
-            echo '</ol>';
-            echo '<p><strong>' . __( 'Important:', 'child' ) . '</strong> ' . __( 'Both Client ID and Client Secret are required. The IGDB API uses Twitch OAuth 2.0 authentication which requires both credentials.', 'child' ) . '</p>';
-            echo '</div>';
+            ?>
+            <p>
+                <?php
+                printf(
+                    /* translators: %s: URL to IGDB/Twitch API settings */
+                    __( 'To use the Video Game block, you need a free API key from IGDB (powered by Twitch). Get your credentials at <a href="%s" target="_blank" rel="noopener noreferrer">dev.twitch.tv</a>.', 'child' ),
+                    'https://dev.twitch.tv/'
+                );
+                ?>
+            </p>
+            <div class="notice notice-info inline">
+                <p><strong><?php _e( 'Setup Instructions:', 'child' ); ?></strong></p>
+                <ol style="margin-left: 1.5em;">
+                    <li><?php _e( 'Go to <a href="https://dev.twitch.tv/console/apps" target="_blank" rel="noopener noreferrer">Twitch Developer Console</a> and log in', 'child' ); ?></li>
+                    <li><?php _e( 'Click "Register Your Application" or select an existing app', 'child' ); ?></li>
+                    <li><?php _e( 'Copy your Client ID and Client Secret', 'child' ); ?></li>
+                    <li><?php _e( 'Paste them into the fields below and save', 'child' ); ?></li>
+                </ol>
+                <p>
+                    <strong><?php _e( 'Important:', 'child' ); ?></strong>
+                    <?php _e( 'Both Client ID and Client Secret are required. The IGDB API uses Twitch OAuth 2.0 authentication which requires both credentials.', 'child' ); ?>
+                </p>
+            </div>
+            <?php
         },
         'child-video-game'
     );
