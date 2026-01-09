@@ -168,13 +168,38 @@ function child_igdb_search( $request ) {
         return new WP_Error( 'igdb_request_error', 'Failed to fetch from IGDB', [ 'status' => 500 ] );
     }
     
+    // Retrieve response details for both success and error handling.
+    $body          = wp_remote_retrieve_body( $response );
+    $decoded_body  = json_decode( $body, true );
     $response_code = wp_remote_retrieve_response_code( $response );
+
     if ( $response_code !== 200 ) {
-        return new WP_Error( 'igdb_api_error', 'IGDB API returned an error', [ 'status' => $response_code ] );
+        // Try to extract a more specific error message from the IGDB response.
+        $igdb_error_detail = '';
+
+        if ( is_array( $decoded_body ) ) {
+            if ( ! empty( $decoded_body['message'] ) && is_string( $decoded_body['message'] ) ) {
+                $igdb_error_detail = $decoded_body['message'];
+            } elseif ( ! empty( $decoded_body['error'] ) && is_string( $decoded_body['error'] ) ) {
+                $igdb_error_detail = $decoded_body['error'];
+            }
+        }
+
+        if ( $igdb_error_detail === '' && ! empty( $body ) && is_string( $body ) ) {
+            // Fallback: include a truncated snippet of the raw response body.
+            $igdb_error_detail = mb_substr( $body, 0, 200 );
+        }
+
+        $error_message = 'IGDB API returned an error (HTTP ' . $response_code . ')';
+        if ( $igdb_error_detail !== '' ) {
+            $error_message .= ': ' . $igdb_error_detail;
+        }
+
+        return new WP_Error( 'igdb_api_error', $error_message, [ 'status' => $response_code ] );
     }
     
-    $body = wp_remote_retrieve_body( $response );
-    $games_data = json_decode( $body, true );
+    // Use the already-decoded body when possible for successful responses.
+    $games_data = is_array( $decoded_body ) ? $decoded_body : json_decode( $body, true );
     
     if ( ! is_array( $games_data ) ) {
         return [ 'games' => [] ];
