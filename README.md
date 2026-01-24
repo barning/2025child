@@ -22,6 +22,13 @@ This child theme extends a block-based parent theme with a set of small, maintai
 	- Features: Ambilight-style gradient effect that adapts to poster colors, responsive design matching book-rating block.
 	- Setup: Requires TMDB API key configuration (see `MEDIA_RECOMMENDATION_SETUP.md`).
 
+- **Videogame Recommendation**
+	- Location: `inc/videogame-recommendation.php`
+	- Registration: `build/videogame-recommendation` (block assets) and server-side renderer at `blocks/videogame-recommendation/render.php`.
+	- Purpose: Display video games with cover images and titles. Searches games via RAWG API with server-side AJAX endpoint for security.
+	- Features: Ambilight-style gradient effect that adapts to cover colors, responsive design matching media-recommendation block.
+	- Setup: Requires RAWG API key (free from [rawg.io/apidocs](https://rawg.io/apidocs)). Configure via WordPress Admin → Settings → Videogame Recommendation or define `RAWG_API_KEY` in `wp-config.php`.
+
 - **Magic Cards**
 	- Location: `inc/magic-cards.php`
 	- Registration: `build/magic-cards` (block assets) and server-side renderer at `blocks/magic-cards/render.php`.
