@@ -4,7 +4,7 @@
   "title": "Buchbewertung",
   "category": "widgets",
   "icon": "book-alt",
-  "description": "Ein Block zur Anzeige und Bewertung von Büchern",
+  "description": "Ein Block zur Anzeige von Büchern",
   "supports": {
     "html": false
   },
@@ -20,10 +20,6 @@
     "coverUrl": {
       "type": "string",
       "default": ""
-    },
-    "rating": {
-      "type": "number",
-      "default": 0
     }
   },
   "textdomain": "twentyfivetwentyfivechild",

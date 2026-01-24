@@ -37,22 +37,6 @@
     );
 }
 
-.child-book-card__stars {
-    display: inline-flex;
-    justify-content: center;
-    gap: 0.35rem;
-}
-
-.child-book-card__star {
-    display: none;
-    font-size: 1.75rem;
-    color: #f1c40f;
-}
-
-.child-book-card__star.is-active {
-    display: inline-block;
-}
-
 .child-book-card__meta {
     display: flex;
     flex-direction: column;

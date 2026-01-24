@@ -72,56 +72,6 @@
     color: #3c434a;
 }
 
-.book-rating-control {
-    margin: 1.5rem 0;
-    padding: 1rem;
-    border-radius: 12px;
-    background: rgba(0, 0, 0, 0.03);
-}
-
-.book-rating-control__label {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-
-.book-rating-control__value {
-    font-size: 0.9rem;
-    color: #50575e;
-}
-
-.book-rating-control__stars {
-    display: flex;
-    gap: 0.25rem;
-    margin-bottom: 0.5rem;
-}
-
-.book-rating-control__star {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    padding: 0.15rem;
-    color: rgba(36, 31, 26, 0.25);
-    cursor: pointer;
-    line-height: 1;
-    transition: transform 0.12s ease, color 0.12s ease;
-}
-
-.book-rating-control__star.is-active {
-    color: #f1c40f;
-}
-
-.book-rating-control__star:focus-visible {
-    outline: 2px solid #1f1b16;
-    outline-offset: 3px;
-}
-
-.book-rating-control__star:hover {
-    transform: scale(1.08);
-}
-
 .book-preview--empty {
     margin-top: 1.5rem;
     padding: 2rem;
