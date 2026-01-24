@@ -13,10 +13,9 @@
     "dist": "npm run build && npm run package"
   },
   "devDependencies": {
-    "@wordpress/scripts": "^30.25.0"
+    "@wordpress/scripts": "^31.3.0"
   },
   "dependencies": {
-    "@wordpress/html-entities": "^4.32.0",
-    "simple-icons": "^16.6.0"
+    "@wordpress/html-entities": "^4.38.0"
   }
 }
