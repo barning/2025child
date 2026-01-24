@@ -21,6 +21,18 @@
       "type": "string",
       "default": ""
     },
+    "releaseDate": {
+      "type": "string",
+      "default": ""
+    },
+    "platforms": {
+      "type": "array",
+      "default": []
+    },
+    "genres": {
+      "type": "array",
+      "default": []
+    },
     "rawgId": {
       "type": "number",
       "default": 0

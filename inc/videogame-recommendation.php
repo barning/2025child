@@ -115,73 +115,6 @@ add_action( 'wp_enqueue_scripts', function() {
     }
 }, 20 );
 
-// Add frontend ambilight effect script
-add_action( 'wp_footer', function() {
-    if ( ! has_block( 'child/videogame-recommendation' ) ) {
-        return;
-    }
-    ?>
-    <script>
-    (function() {
-        // Use IIFE to avoid global namespace pollution
-        window.childGameAmbilightInit = function(containerId, imgElement) {
-            try {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                const container = document.getElementById(containerId);
-                
-                if (!container || !ctx) return;
-                
-                // Ensure image is loaded
-                if (!imgElement.complete || !imgElement.naturalWidth) {
-                    imgElement.addEventListener('load', function() {
-                        window.childGameAmbilightInit(containerId, imgElement);
-                    });
-                    return;
-                }
-                
-                canvas.width = 50;
-                canvas.height = 50;
-                
-                ctx.drawImage(imgElement, 0, 0, 50, 50);
-                
-                const imageData = ctx.getImageData(0, 0, 50, 50);
-                const data = imageData.data;
-                
-                let r = 0, g = 0, b = 0, count = 0;
-                
-                // Sample from the edges of the image for better ambilight effect
-                for (let i = 0; i < data.length; i += 4) {
-                    const pixelIndex = i / 4;
-                    const x = pixelIndex % 50;
-                    const y = Math.floor(pixelIndex / 50);
-                    
-                    // Only sample edge pixels
-                    if (x < 5 || x > 45 || y < 5 || y > 45) {
-                        r += data[i];
-                        g += data[i + 1];
-                        b += data[i + 2];
-                        count++;
-                    }
-                }
-                
-                // Prevent division by zero and ensure we have valid data
-                if (count > 0) {
-                    r = Math.round(r / count);
-                    g = Math.round(g / count);
-                    b = Math.round(b / count);
-                    container.style.setProperty('--ambilight-color', `rgb(${r}, ${g}, ${b})`);
-                }
-            } catch (error) {
-                // Silently fail for CORS errors or other canvas issues
-                console.warn('Ambilight effect error:', error);
-            }
-        };
-    })();
-    </script>
-    <?php
-}, 100 );
-
 // AJAX endpoint for RAWG search (authenticated users)
 add_action( 'wp_ajax_child_rawg_search', function() {
     check_ajax_referer( 'child-game-search', 'nonce' );
@@ -233,8 +166,24 @@ add_action( 'wp_ajax_child_rawg_search', function() {
 
     $data = json_decode( wp_remote_retrieve_body( $response ), true );
 
+    // Enrich results with formatted data
+    $games = array_map( function( $game ) {
+        return [
+            'id' => $game['id'] ?? 0,
+            'name' => $game['name'] ?? '',
+            'released' => $game['released'] ?? '',
+            'background_image' => $game['background_image'] ?? '',
+            'platforms' => array_map( function( $platform ) {
+                return $platform['platform']['name'] ?? '';
+            }, $game['platforms'] ?? [] ),
+            'genres' => array_map( function( $genre ) {
+                return $genre['name'] ?? '';
+            }, $game['genres'] ?? [] )
+        ];
+    }, $data['results'] ?? [] );
+
     $results = [
-        'games' => $data['results'] ?? []
+        'games' => $games
     ];
 
     wp_send_json_success( $results );
