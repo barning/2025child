@@ -211,6 +211,26 @@ add_action( 'wp_ajax_child_rawg_search', function() {
         wp_send_json_error( 'API request failed', 500 );
     }
 
+    $status_code = wp_remote_retrieve_response_code( $response );
+    if ( 200 !== $status_code ) {
+        switch ( $status_code ) {
+            case 401:
+                $message = 'RAWG API request unauthorized. Please check that your API key is valid.';
+                break;
+            case 403:
+                $message = 'RAWG API request forbidden. Your API key may not have access to this resource.';
+                break;
+            case 429:
+                $message = 'RAWG API rate limit exceeded. Please wait and try again later.';
+                break;
+            default:
+                $message = 'RAWG API returned an unexpected response. HTTP status code: ' . intval( $status_code );
+                break;
+        }
+
+        wp_send_json_error( $message, $status_code );
+    }
+
     $data = json_decode( wp_remote_retrieve_body( $response ), true );
 
     $results = [

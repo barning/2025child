@@ -1,4 +1,4 @@
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { registerBlockType } from '@wordpress/blocks';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, TextControl, Button, Spinner, Notice } from '@wordpress/components';
@@ -47,11 +47,16 @@ const extractDominantColor = (imageElement, callback) => {
             }
         }
         
-        r = Math.round(r / count);
-        g = Math.round(g / count);
-        b = Math.round(b / count);
-        
-        callback(`rgb(${r}, ${g}, ${b})`);
+        if (count > 0) {
+            r = Math.round(r / count);
+            g = Math.round(g / count);
+            b = Math.round(b / count);
+            
+            callback(`rgb(${r}, ${g}, ${b})`);
+        } else {
+            // No edge pixels found; fallback to no ambilight
+            callback(null);
+        }
     } catch (error) {
         // If there's a CORS error or any other issue, fallback to no ambilight
         console.warn('Could not extract colors for ambilight effect:', error);
@@ -163,7 +168,7 @@ const SearchResults = ({ results, selectedId, onSelect }) => {
 
 function Edit({ attributes, setAttributes }) {
     const blockProps = useBlockProps();
-    const { gameTitle, coverUrl, releaseYear, rawgId } = attributes;
+    const { gameTitle, coverUrl, releaseYear } = attributes;
     const [searchTerm, setSearchTerm] = useState('');
     const [isSearching, setIsSearching] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
