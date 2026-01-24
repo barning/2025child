@@ -13,7 +13,7 @@ This child theme extends a block-based parent theme with a set of small, maintai
 - **Book Rating**
 	- Location: `inc/book-rating.php`
 	- Registration: `build/book-rating` (block assets) and server-side renderer at `blocks/book-rating/render.php`.
-	- Purpose: Display a book rating card (cover, title, author, 0–5 stars). Rendering is done server-side in PHP.
+	- Purpose: Display a book card (cover, title, author). Rendering is done server-side in PHP.
 
 - **Media Recommendation (Film/Serie)**
 	- Location: `inc/media-recommendation.php`

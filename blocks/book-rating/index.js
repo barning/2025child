@@ -1,7 +1,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { registerBlockType } from '@wordpress/blocks';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, TextControl, Button, Spinner, Notice, RangeControl } from '@wordpress/components';
+import { PanelBody, TextControl, Button, Spinner, Notice } from '@wordpress/components';
 import { useState, useEffect } from '@wordpress/element';
 import metadata from './block.json';
 import './editor.css';
@@ -23,9 +23,7 @@ const normalizeCoverUrl = (url) => {
     return normalizedUrl;
 };
 
-const STARS = [1, 2, 3, 4, 5];
-
-const BookPreview = ({ bookTitle, author, coverUrl, rating }) => {
+const BookPreview = ({ bookTitle, author, coverUrl }) => {
     if (!bookTitle?.trim()) {
         return (
             <div className="book-preview--empty">
@@ -34,10 +32,8 @@ const BookPreview = ({ bookTitle, author, coverUrl, rating }) => {
         );
     }
 
-    const normalizedRating = Number.isFinite(rating) ? Math.max(0, Math.min(5, rating)) : 0;
-
     return (
-        <div className="child-book-card" aria-label={__('Buchbewertung', 'child')}>
+        <div className="child-book-card" aria-label={__('Buch', 'child')}>
             <div className="child-book-card__media">
                 {coverUrl ? (
                     <img
@@ -49,24 +45,6 @@ const BookPreview = ({ bookTitle, author, coverUrl, rating }) => {
                 ) : (
                     <div className="child-book-card__placeholder" aria-hidden="true" />
                 )}
-            </div>
-            <div className="child-book-card__stars" aria-label={__('Bewertung', 'child')}>
-                {STARS.map((star) => (
-                    <span
-                        key={star}
-                        className={`child-book-card__star${star <= normalizedRating ? ' is-active' : ''}`}
-                        aria-hidden="true"
-                    >
-                        ★
-                    </span>
-                ))}
-                <span className="screen-reader-text">
-                    {sprintf(
-                        /* translators: %d: selected star */
-                        __('Bewertet mit %d von 5 Sternen', 'child'),
-                        normalizedRating
-                    )}
-                </span>
             </div>
             <div className="child-book-card__meta">
                 <h3 className="child-book-card__title">{bookTitle}</h3>
@@ -80,33 +58,6 @@ const BookPreview = ({ bookTitle, author, coverUrl, rating }) => {
                     </p>
                 ) : null}
             </div>
-        </div>
-    );
-};
-
-const RatingControl = ({ value = 0, onChange }) => {
-    const normalizedRating = Number.isFinite(value) ? Math.max(0, Math.min(5, value)) : 0;
-
-    const handleSelect = (newValue) => {
-        if (typeof onChange === 'function') {
-            onChange(newValue);
-        }
-    };
-
-    return (
-        <div className="book-rating-control">
-            <div className="book-rating-control__label">
-                <span>{__('Bewertung', 'child')}</span>
-                <span className="book-rating-control__value">{normalizedRating}/5</span>
-            </div>
-            <RangeControl
-                value={normalizedRating}
-                min={0}
-                max={5}
-                step={1}
-                onChange={(nextValue) => handleSelect(Number(nextValue) || 0)}
-                __nextHasNoMarginBottom
-            />
         </div>
     );
 };
@@ -156,7 +107,7 @@ const SearchResults = ({ results, selectedId, onSelect }) => {
 
 function Edit({ attributes, setAttributes }) {
     const blockProps = useBlockProps();
-    const { bookTitle, author, rating, coverUrl } = attributes;
+    const { bookTitle, author, coverUrl } = attributes;
     const [searchTerm, setSearchTerm] = useState('');
     const [isSearching, setIsSearching] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
@@ -294,10 +245,6 @@ function Edit({ attributes, setAttributes }) {
                         onChange={(value) => setAttributes({ coverUrl: value })}
                         help={__('Optional: Eigene Cover-Grafik einfügen', 'child')}
                     />
-                    <RatingControl
-                        value={rating}
-                        onChange={(nextValue) => setAttributes({ rating: nextValue })}
-                    />
                 </PanelBody>
             </InspectorControls>
 
@@ -308,5 +255,33 @@ function Edit({ attributes, setAttributes }) {
 
 registerBlockType(metadata.name, {
     edit: Edit,
-    save: () => null
+    save: () => null,
+    deprecated: [
+        {
+            attributes: {
+                bookTitle: {
+                    type: 'string',
+                    default: ''
+                },
+                author: {
+                    type: 'string',
+                    default: ''
+                },
+                coverUrl: {
+                    type: 'string',
+                    default: ''
+                },
+                rating: {
+                    type: 'number',
+                    default: 0
+                }
+            },
+            migrate: (attributes) => {
+                // Remove the rating attribute when migrating old blocks
+                const { rating, ...newAttributes } = attributes;
+                return newAttributes;
+            },
+            save: () => null
+        }
+    ]
 });
