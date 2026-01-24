@@ -255,5 +255,33 @@ function Edit({ attributes, setAttributes }) {
 
 registerBlockType(metadata.name, {
     edit: Edit,
-    save: () => null
+    save: () => null,
+    deprecated: [
+        {
+            attributes: {
+                bookTitle: {
+                    type: 'string',
+                    default: ''
+                },
+                author: {
+                    type: 'string',
+                    default: ''
+                },
+                coverUrl: {
+                    type: 'string',
+                    default: ''
+                },
+                rating: {
+                    type: 'number',
+                    default: 0
+                }
+            },
+            migrate: (attributes) => {
+                // Remove the rating attribute when migrating old blocks
+                const { rating, ...newAttributes } = attributes;
+                return newAttributes;
+            },
+            save: () => null
+        }
+    ]
 });
