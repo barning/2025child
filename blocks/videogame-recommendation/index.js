@@ -8,13 +8,7 @@ import './editor.css';
 import './style.css';
 
 const normalizeImageUrl = (url) => {
-    if (!url) {
-        return '';
-    }
-    if (url.startsWith('http')) {
-        return url;
-    }
-    return url;
+    return url || '';
 };
 
 // Extract dominant colors from an image for ambilight effect
