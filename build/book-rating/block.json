@@ -1,7 +1,7 @@
 {
   "apiVersion": 2,
   "name": "child/book-rating",
-  "title": "Buchbewertung",
+  "title": "Buchanzeige",
   "category": "widgets",
   "icon": "book-alt",
   "description": "Ein Block zur Anzeige von Büchern",
