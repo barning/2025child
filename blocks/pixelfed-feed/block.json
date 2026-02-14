@@ -1,0 +1,25 @@
+{
+  "apiVersion": 2,
+  "name": "child/pixelfed-feed",
+  "title": "Pixelfed Feed",
+  "category": "widgets",
+  "icon": "format-gallery",
+  "description": "Displays the latest images from a Pixelfed RSS feed.",
+  "supports": {
+    "html": false
+  },
+  "attributes": {
+    "feedUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "itemsToShow": {
+      "type": "number",
+      "default": 6
+    }
+  },
+  "textdomain": "twentyfivetwentyfivechild",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./editor.css",
+  "style": "file:./style.css"
+}
