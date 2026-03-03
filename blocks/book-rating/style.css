@@ -12,7 +12,7 @@
 .child-book-card__media {
     width: clamp(180px, 60vw, 260px);
     border-radius: 12px;
-    background: #fff;
+    background: var(--child-surface-1);
     display: flex;
     justify-content: center;
 }
@@ -30,10 +30,10 @@
     border-radius: 10px;
     background: repeating-linear-gradient(
         135deg,
-        rgba(220, 211, 196, 0.55),
-        rgba(220, 211, 196, 0.55) 12px,
-        rgba(255, 255, 255, 0.55) 12px,
-        rgba(255, 255, 255, 0.55) 24px
+        var(--child-placeholder-a),
+        var(--child-placeholder-a) 12px,
+        var(--child-placeholder-b) 12px,
+        var(--child-placeholder-b) 24px
     );
 }
 
@@ -49,7 +49,7 @@
     margin: 0;
     font-size: clamp(1.5rem, 2vw, 2rem);
     font-weight: 700;
-    color: var(--wp--preset--color--contrast, #241f1a);
+    color: var(--child-text-1);
     line-height: 1.2;
 }
 
@@ -57,5 +57,5 @@
     margin: 0;
     font-size: 1.1rem;
     font-style: italic;
-    color: color-mix(in srgb, var(--wp--preset--color--contrast, #241f1a) 65%, transparent);
+    color: var(--child-text-2);
 }

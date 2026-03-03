@@ -14,16 +14,16 @@
 	display: flex;
 	flex-direction: column;
 	max-width: 520px;
-	background: #ffffff;
+	background: var(--child-surface-1);
 	border-radius: 16px;
 	overflow: hidden;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.05);
+	box-shadow: var(--child-shadow-1);
 	transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .child-game-card:hover {
 	transform: translateY(-2px);
-	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+	box-shadow: var(--child-shadow-2);
 }
 
 /* Media Container */
@@ -31,7 +31,7 @@
 	position: relative;
 	width: 100%;
 	aspect-ratio: 16 / 9;
-	background: #f5f5f5;
+	background: var(--child-surface-2);
 	overflow: hidden;
 }
 
@@ -47,10 +47,10 @@
 	height: 100%;
 	background: repeating-linear-gradient(
 		135deg,
-		rgba(220, 211, 196, 0.55),
-		rgba(220, 211, 196, 0.55) 12px,
-		rgba(255, 255, 255, 0.55) 12px,
-		rgba(255, 255, 255, 0.55) 24px
+		var(--child-placeholder-a),
+		var(--child-placeholder-a) 12px,
+		var(--child-placeholder-b) 12px,
+		var(--child-placeholder-b) 24px
 	);
 }
 
@@ -61,7 +61,7 @@
 	align-items: flex-start;
 	gap: 0.35rem;
 	padding: 1.25rem 1.5rem 1.5rem;
-	background: #ffffff;
+	background: var(--child-surface-1);
 }
 
 /* Platform Chips */
@@ -89,7 +89,7 @@
 	margin: 0;
 	font-size: clamp(1.25rem, 2vw, 1.75rem);
 	font-weight: 700;
-	color: #1a1a1a;
+	color: var(--child-text-1);
 	line-height: 1.3;
 	text-align: left;
 }
@@ -103,11 +103,11 @@
 }
 
 .child-game-card__label {
-	color: #888888;
+	color: var(--child-text-2);
 	font-weight: 500;
 }
 
 .child-game-card__value {
-	color: #1a1a1a;
+	color: var(--child-text-1);
 	font-weight: 600;
 }

@@ -13,7 +13,7 @@
     position: relative;
     width: clamp(200px, 65vw, 280px);
     border-radius: 12px;
-    background: #fff;
+    background: var(--child-surface-1);
     display: flex;
     justify-content: center;
     transition: transform 0.2s ease;
@@ -45,8 +45,7 @@
     height: auto;
     border-radius: 10px;
     display: block;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15),
-                0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--child-shadow-2);
 }
 
 .child-media-card__placeholder {
@@ -55,13 +54,12 @@
     border-radius: 10px;
     background: repeating-linear-gradient(
         135deg,
-        rgba(220, 211, 196, 0.55),
-        rgba(220, 211, 196, 0.55) 12px,
-        rgba(255, 255, 255, 0.55) 12px,
-        rgba(255, 255, 255, 0.55) 24px
+        var(--child-placeholder-a),
+        var(--child-placeholder-a) 12px,
+        var(--child-placeholder-b) 12px,
+        var(--child-placeholder-b) 24px
     );
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15),
-                0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--child-shadow-2);
 }
 
 .child-media-card__meta {
@@ -76,7 +74,7 @@
     margin: 0;
     font-size: clamp(1.5rem, 2vw, 2rem);
     font-weight: 700;
-    color: var(--wp--preset--color--contrast, #241f1a);
+    color: var(--child-text-1);
     line-height: 1.2;
     text-align: center;
 }
@@ -85,5 +83,5 @@
     margin: 0;
     font-size: 1.1rem;
     font-style: italic;
-    color: color-mix(in srgb, var(--wp--preset--color--contrast, #241f1a) 65%, transparent);
+    color: var(--child-text-2);
 }

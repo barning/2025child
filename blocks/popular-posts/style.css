@@ -13,7 +13,7 @@
 
 .wp-block-child-popular-posts .child-popular-card{
   background: var(--wp--preset--color--accent-5);
-  border: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+  border: 1px solid var(--child-border);
   border-radius: 14px;
   padding: 20px 24px;
 }
@@ -21,11 +21,11 @@
 .child-popular-card__emoji{ font-size:36px; line-height:1; }
 .child-popular-card__title{ margin:0; font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.8rem); text-align:center; font-weight:700; }
 .child-popular-card__list{ list-style: none; margin:0; padding:0; }
-.child-popular-card__item{ padding: 16px 0; border-top: 1px solid color-mix(in srgb, currentColor 10%, transparent); }
+.child-popular-card__item{ padding: 16px 0; border-top: 1px solid var(--child-border); }
 .child-popular-card__item:first-child{ border-top: 0; }
 .child-popular-card__link { 
   text-decoration: none; 
-  color: var(--wp--preset--color--contrast);
+  color: var(--child-text-1);
   display: block;
   transition: color 0.2s ease;
 }
@@ -36,11 +36,7 @@
 }
 
 .child-popular-card__link--placeholder {
-  color: #757575;
+  color: var(--child-text-2);
   font-style: italic;
 }
 
-@media (prefers-color-scheme: dark){
-  .wp-block-child-popular-posts .child-popular-card{ border-color: color-mix(in srgb, currentColor 20%, transparent); }
-  .child-popular-card__item{ border-top-color: color-mix(in srgb, currentColor 20%, transparent); }
-}
