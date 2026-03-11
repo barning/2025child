@@ -20,6 +20,10 @@
         "coverUrl": {
             "type": "string",
             "default": ""
+        },
+        "shopUrl": {
+            "type": "string",
+            "default": ""
         }
     },
     "textdomain": "twentyfivetwentyfivechild",

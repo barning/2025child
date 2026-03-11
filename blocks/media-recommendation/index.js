@@ -67,7 +67,7 @@ const extractDominantColor = (imageElement, callback) => {
     }
 };
 
-const MediaPreview = ({ mediaTitle, mediaType, posterUrl, releaseYear }) => {
+const MediaPreview = ({ mediaTitle, mediaType, posterUrl, releaseYear, serviceUrl }) => {
     const imageRef = useRef(null);
     const containerRef = useRef(null);
 
@@ -126,6 +126,18 @@ const MediaPreview = ({ mediaTitle, mediaType, posterUrl, releaseYear }) => {
                         {releaseYear}
                     </p>
                 ) : null}
+                {serviceUrl?.trim() ? (
+                    <p className="child-media-card__link-row">
+                        <a
+                            className="child-media-card__link"
+                            href={serviceUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            {__('Zum Streaming', 'child')}
+                        </a>
+                    </p>
+                ) : null}
             </div>
         </div>
     );
@@ -174,7 +186,7 @@ const SearchResults = ({ results, selectedId, onSelect }) => {
 
 function Edit({ attributes, setAttributes }) {
     const blockProps = useBlockProps();
-    const { mediaTitle, mediaType, posterUrl, releaseYear, tmdbId } = attributes;
+    const { mediaTitle, mediaType, posterUrl, releaseYear, tmdbId, serviceUrl } = attributes;
     const [searchTerm, setSearchTerm] = useState('');
     const [isSearching, setIsSearching] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
@@ -230,7 +242,8 @@ function Edit({ attributes, setAttributes }) {
                 title: item.title || '',
                 year: item.release_date ? new Date(item.release_date).getFullYear().toString() : '',
                 poster: normalizePosterUrl(item.poster_path),
-                mediaType: 'movie'
+                mediaType: 'movie',
+                serviceUrl: item.id ? `https://www.themoviedb.org/movie/${item.id}` : ''
             }));
 
             const tvResults = (tv || []).slice(0, 3).map((item) => ({
@@ -239,7 +252,8 @@ function Edit({ attributes, setAttributes }) {
                 title: item.name || '',
                 year: item.first_air_date ? new Date(item.first_air_date).getFullYear().toString() : '',
                 poster: normalizePosterUrl(item.poster_path),
-                mediaType: 'tv'
+                mediaType: 'tv',
+                serviceUrl: item.id ? `https://www.themoviedb.org/tv/${item.id}` : ''
             }));
 
             const results = [...movieResults, ...tvResults];
@@ -265,7 +279,8 @@ function Edit({ attributes, setAttributes }) {
             mediaType: media.mediaType,
             posterUrl: media.poster || posterUrl || '',
             releaseYear: media.year || releaseYear || '',
-            tmdbId: media.tmdbId || 0
+            tmdbId: media.tmdbId || 0,
+            serviceUrl: media.serviceUrl || serviceUrl || ''
         });
     };
 
@@ -337,6 +352,12 @@ function Edit({ attributes, setAttributes }) {
                         value={posterUrl}
                         onChange={(value) => setAttributes({ posterUrl: value })}
                         help={__('Optional: Eigenes Poster einfügen', 'child')}
+                    />
+                    <TextControl
+                        label={__('Streaming-Link', 'child')}
+                        value={serviceUrl}
+                        onChange={(value) => setAttributes({ serviceUrl: value })}
+                        help={__('Wird bei der Suche automatisch befüllt (TMDB-Link), kann aber manuell überschrieben werden.', 'child')}
                     />
                 </PanelBody>
             </InspectorControls>

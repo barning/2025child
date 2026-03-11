@@ -12,6 +12,7 @@ return function($attributes) {
     $book_title = $attributes['bookTitle'] ?? '';
     $author = $attributes['author'] ?? '';
     $cover_url = $attributes['coverUrl'] ?? '';
+    $shop_url = $attributes['shopUrl'] ?? '';
 
     if (empty($book_title)) {
         return '';
@@ -41,6 +42,11 @@ return function($attributes) {
                             /* translators: %s: author name */
                             printf( esc_html__( 'Von %s', 'child' ), esc_html( $author ) ); 
                         ?>
+                    </p>
+                <?php endif; ?>
+                <?php if ( ! empty( $shop_url ) ) : ?>
+                    <p class="child-book-card__link-row">
+                        <a class="child-book-card__link" href="<?php echo esc_url( $shop_url ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Zum Shop', 'child' ); ?></a>
                     </p>
                 <?php endif; ?>
             </div>

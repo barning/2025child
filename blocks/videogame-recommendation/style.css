@@ -111,3 +111,18 @@
 	color: #1a1a1a;
 	font-weight: 600;
 }
+
+.child-game-card__link-row {
+	margin: 0.5rem 0 0;
+}
+
+.child-game-card__link {
+	display: inline-block;
+	padding: 0.45rem 0.8rem;
+	border-radius: 999px;
+	background: var(--wp--preset--color--primary, #1d3d36);
+	color: #fff;
+	text-decoration: none;
+	font-size: 0.9rem;
+	font-weight: 600;
+}
