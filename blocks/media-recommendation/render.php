@@ -13,6 +13,7 @@ return function($attributes) {
     $media_type = $attributes['mediaType'] ?? 'movie';
     $poster_url = $attributes['posterUrl'] ?? '';
     $release_year = $attributes['releaseYear'] ?? '';
+    $service_url = $attributes['serviceUrl'] ?? '';
     $block_id = 'media-card-' . wp_unique_id();
 
     if (empty($media_title)) {
@@ -44,6 +45,11 @@ return function($attributes) {
                 <?php if ( ! empty( $release_year ) ) : ?>
                     <p class="child-media-card__year">
                         <?php echo esc_html( $release_year ); ?>
+                    </p>
+                <?php endif; ?>
+                <?php if ( ! empty( $service_url ) ) : ?>
+                    <p class="child-media-card__link-row">
+                        <a class="child-media-card__link" href="<?php echo esc_url( $service_url ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Zum Streaming', 'child' ); ?></a>
                     </p>
                 <?php endif; ?>
             </div>

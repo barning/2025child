@@ -23,7 +23,7 @@ const normalizeCoverUrl = (url) => {
     return normalizedUrl;
 };
 
-const BookPreview = ({ bookTitle, author, coverUrl }) => {
+const BookPreview = ({ bookTitle, author, coverUrl, shopUrl }) => {
     if (!bookTitle?.trim()) {
         return (
             <div className="book-preview--empty">
@@ -55,6 +55,18 @@ const BookPreview = ({ bookTitle, author, coverUrl }) => {
                             __('Von %s', 'child'),
                             author
                         )}
+                    </p>
+                ) : null}
+                {shopUrl?.trim() ? (
+                    <p className="child-book-card__link-row">
+                        <a
+                            className="child-book-card__link"
+                            href={shopUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            {__('Zum Shop', 'child')}
+                        </a>
                     </p>
                 ) : null}
             </div>
@@ -107,7 +119,7 @@ const SearchResults = ({ results, selectedId, onSelect }) => {
 
 function Edit({ attributes, setAttributes }) {
     const blockProps = useBlockProps();
-    const { bookTitle, author, coverUrl } = attributes;
+    const { bookTitle, author, coverUrl, shopUrl } = attributes;
     const [searchTerm, setSearchTerm] = useState('');
     const [isSearching, setIsSearching] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
@@ -156,7 +168,13 @@ function Edit({ attributes, setAttributes }) {
                     title: info?.title || '',
                     subtitle: info?.subtitle || '',
                     authors: info?.authors || [],
-                    cover: normalizeCoverUrl(coverImage)
+                    cover: normalizeCoverUrl(coverImage),
+                    shopUrl:
+                        item?.saleInfo?.buyLink ||
+                        info?.infoLink ||
+                        info?.canonicalVolumeLink ||
+                        info?.previewLink ||
+                        ''
                 };
             });
 
@@ -181,7 +199,8 @@ function Edit({ attributes, setAttributes }) {
         setAttributes({
             bookTitle: book.title || bookTitle,
             author: resolvedAuthor,
-            coverUrl: book.cover || coverUrl || ''
+            coverUrl: book.cover || coverUrl || '',
+            shopUrl: book.shopUrl || shopUrl || ''
         });
     };
 
@@ -244,6 +263,12 @@ function Edit({ attributes, setAttributes }) {
                         value={coverUrl}
                         onChange={(value) => setAttributes({ coverUrl: value })}
                         help={__('Optional: Eigene Cover-Grafik einfügen', 'child')}
+                    />
+                    <TextControl
+                        label={__('Shop-Link', 'child')}
+                        value={shopUrl}
+                        onChange={(value) => setAttributes({ shopUrl: value })}
+                        help={__('Wird bei der Suche automatisch befüllt, kann aber manuell überschrieben werden.', 'child')}
                     />
                 </PanelBody>
             </InspectorControls>

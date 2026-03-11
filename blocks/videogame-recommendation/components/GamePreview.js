@@ -6,7 +6,7 @@ import { getPlatformInfo, formatReleaseDate } from '../utils';
  * GamePreview Component
  * Displays a game card with cover image, platforms, title, and metadata
  */
-export const GamePreview = ({ gameTitle, coverUrl, releaseDate, platforms, genres }) => {
+export const GamePreview = ({ gameTitle, coverUrl, releaseDate, platforms, genres, shopUrl }) => {
 	const imageRef = useRef(null);
 	const containerRef = useRef(null);
 
@@ -55,6 +55,19 @@ export const GamePreview = ({ gameTitle, coverUrl, releaseDate, platforms, genre
 						label={__('Genres:', 'child')} 
 						value={genres.slice(0, 3).join(', ')} 
 					/>
+				)}
+
+				{shopUrl?.trim() && (
+					<p className="child-game-card__link-row">
+						<a
+							className="child-game-card__link"
+							href={shopUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							{__('Zum Shop', 'child')}
+						</a>
+					</p>
 				)}
 			</div>
 		</div>

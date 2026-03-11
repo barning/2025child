@@ -48,6 +48,7 @@ return function( $attributes ) {
 	$release_date = $attributes['releaseDate'] ?? '';
 	$platforms = $attributes['platforms'] ?? [];
 	$genres = $attributes['genres'] ?? [];
+	$shop_url = $attributes['shopUrl'] ?? '';
 
 	if ( empty( $game_title ) ) {
 		return '';
@@ -109,6 +110,12 @@ return function( $attributes ) {
 						<span class="child-game-card__label"><?php echo esc_html( __( 'Genres:', 'child' ) ); ?></span>
 						<span class="child-game-card__value"><?php echo esc_html( implode( ', ', array_slice( $genres, 0, 3 ) ) ); ?></span>
 					</div>
+				<?php endif; ?>
+
+				<?php if ( ! empty( $shop_url ) ) : ?>
+					<p class="child-game-card__link-row">
+						<a class="child-game-card__link" href="<?php echo esc_url( $shop_url ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Zum Shop', 'child' ); ?></a>
+					</p>
 				<?php endif; ?>
 			</div>
 		</div>

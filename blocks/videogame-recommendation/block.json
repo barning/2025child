@@ -36,6 +36,10 @@
     "rawgId": {
       "type": "number",
       "default": 0
+    },
+    "shopUrl": {
+      "type": "string",
+      "default": ""
     }
   },
   "textdomain": "twentyfivetwentyfivechild",
