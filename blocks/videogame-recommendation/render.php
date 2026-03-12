@@ -68,12 +68,23 @@ return function( $attributes ) {
 		<div class="child-game-card" aria-label="<?php echo esc_attr( __( 'Videospiel', 'child' ) ); ?>">
 			<div class="child-game-card__media">
 				<?php if ( ! empty( $cover_url ) ) : ?>
-					<img 
-						src="<?php echo esc_url( $cover_url ); ?>" 
-						alt="<?php echo esc_attr( $game_title ); ?>" 
-						class="child-game-card__cover"
-						loading="lazy"
-					/>
+					<?php if ( ! empty( $shop_url ) ) : ?>
+						<a class="child-game-card__cover-link" href="<?php echo esc_url( $shop_url ); ?>" target="_blank" rel="noopener noreferrer">
+							<img 
+								src="<?php echo esc_url( $cover_url ); ?>" 
+								alt="<?php echo esc_attr( $game_title ); ?>" 
+								class="child-game-card__cover"
+								loading="lazy"
+							/>
+						</a>
+					<?php else : ?>
+						<img 
+							src="<?php echo esc_url( $cover_url ); ?>" 
+							alt="<?php echo esc_attr( $game_title ); ?>" 
+							class="child-game-card__cover"
+							loading="lazy"
+						/>
+					<?php endif; ?>
 				<?php else : ?>
 					<div class="child-game-card__placeholder" aria-hidden="true"></div>
 				<?php endif; ?>
@@ -112,11 +123,6 @@ return function( $attributes ) {
 					</div>
 				<?php endif; ?>
 
-				<?php if ( ! empty( $shop_url ) ) : ?>
-					<p class="child-game-card__link-row">
-						<a class="child-game-card__link" href="<?php echo esc_url( $shop_url ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Zum Shop', 'child' ); ?></a>
-					</p>
-				<?php endif; ?>
 			</div>
 		</div>
 	</div>

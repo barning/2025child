@@ -14,7 +14,6 @@ return function($attributes) {
     $poster_url = $attributes['posterUrl'] ?? '';
     $release_year = $attributes['releaseYear'] ?? '';
     $service_url = $attributes['serviceUrl'] ?? '';
-    $block_id = 'media-card-' . wp_unique_id();
 
     if (empty($media_title)) {
         return '';
@@ -25,16 +24,25 @@ return function($attributes) {
     ob_start(); ?>
     <div <?php echo $wrapper_attributes; ?>>
         <div class="child-media-card" aria-label="<?php echo esc_attr( $type_label ); ?>">
-            <div class="child-media-card__media" id="<?php echo esc_attr( $block_id ); ?>">
+            <div class="child-media-card__media">
                 <?php if ( ! empty( $poster_url ) ) : ?>
-                    <img 
-                        src="<?php echo esc_url( $poster_url ); ?>" 
-                        alt="<?php echo esc_attr( $media_title ); ?>" 
-                        class="child-media-card__poster"
-                        loading="lazy"
-                        crossorigin="anonymous"
-                        onload="childMediaAmbilightInit('<?php echo esc_js( $block_id ); ?>', this)"
-                    />
+                    <?php if ( ! empty( $service_url ) ) : ?>
+                        <a class="child-media-card__poster-link" href="<?php echo esc_url( $service_url ); ?>" target="_blank" rel="noopener noreferrer">
+                            <img 
+                                src="<?php echo esc_url( $poster_url ); ?>" 
+                                alt="<?php echo esc_attr( $media_title ); ?>" 
+                                class="child-media-card__poster"
+                                loading="lazy"
+                            />
+                        </a>
+                    <?php else : ?>
+                        <img 
+                            src="<?php echo esc_url( $poster_url ); ?>" 
+                            alt="<?php echo esc_attr( $media_title ); ?>" 
+                            class="child-media-card__poster"
+                            loading="lazy"
+                        />
+                    <?php endif; ?>
                 <?php else : ?>
                     <div class="child-media-card__placeholder" aria-hidden="true"></div>
                 <?php endif; ?>
@@ -45,11 +53,6 @@ return function($attributes) {
                 <?php if ( ! empty( $release_year ) ) : ?>
                     <p class="child-media-card__year">
                         <?php echo esc_html( $release_year ); ?>
-                    </p>
-                <?php endif; ?>
-                <?php if ( ! empty( $service_url ) ) : ?>
-                    <p class="child-media-card__link-row">
-                        <a class="child-media-card__link" href="<?php echo esc_url( $service_url ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Zum Streaming', 'child' ); ?></a>
                     </p>
                 <?php endif; ?>
             </div>

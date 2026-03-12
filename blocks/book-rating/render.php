@@ -13,7 +13,6 @@ return function($attributes) {
     $author = $attributes['author'] ?? '';
     $cover_url = $attributes['coverUrl'] ?? '';
     $shop_url = $attributes['shopUrl'] ?? '';
-    $block_id = 'book-card-' . wp_unique_id();
 
     if (empty($book_title)) {
         return '';
@@ -22,16 +21,25 @@ return function($attributes) {
     ob_start(); ?>
     <div <?php echo $wrapper_attributes; ?>>
         <div class="child-book-card" aria-label="<?php echo esc_attr__( 'Buch', 'child' ); ?>">
-            <div class="child-book-card__media" id="<?php echo esc_attr( $block_id ); ?>">
+            <div class="child-book-card__media">
                 <?php if ( ! empty( $cover_url ) ) : ?>
-                    <img 
-                        src="<?php echo esc_url( $cover_url ); ?>" 
-                        alt="<?php echo esc_attr( $book_title ); ?>" 
-                        class="child-book-card__cover"
-                        loading="lazy"
-                        crossorigin="anonymous"
-                        onload="childBookAmbilightInit('<?php echo esc_js( $block_id ); ?>', this)"
-                    />
+                    <?php if ( ! empty( $shop_url ) ) : ?>
+                        <a class="child-book-card__cover-link" href="<?php echo esc_url( $shop_url ); ?>" target="_blank" rel="noopener noreferrer">
+                            <img 
+                                src="<?php echo esc_url( $cover_url ); ?>" 
+                                alt="<?php echo esc_attr( $book_title ); ?>" 
+                                class="child-book-card__cover"
+                                loading="lazy"
+                            />
+                        </a>
+                    <?php else : ?>
+                        <img 
+                            src="<?php echo esc_url( $cover_url ); ?>" 
+                            alt="<?php echo esc_attr( $book_title ); ?>" 
+                            class="child-book-card__cover"
+                            loading="lazy"
+                        />
+                    <?php endif; ?>
                 <?php else : ?>
                     <div class="child-book-card__placeholder" aria-hidden="true"></div>
                 <?php endif; ?>
@@ -45,11 +53,6 @@ return function($attributes) {
                             /* translators: %s: author name */
                             printf( esc_html__( 'Von %s', 'child' ), esc_html( $author ) ); 
                         ?>
-                    </p>
-                <?php endif; ?>
-                <?php if ( ! empty( $shop_url ) ) : ?>
-                    <p class="child-book-card__link-row">
-                        <a class="child-book-card__link" href="<?php echo esc_url( $shop_url ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Zum Shop', 'child' ); ?></a>
                     </p>
                 <?php endif; ?>
             </div>

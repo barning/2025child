@@ -18,22 +18,6 @@
     justify-content: center;
 }
 
-.child-media-card__media::before {
-    content: '';
-    position: absolute;
-    inset: -20px;
-    border-radius: 12px;
-    background: var(--ambilight-color, #888);
-    filter: blur(25px) brightness(1.2) saturate(1.5);
-    opacity: 0.5;
-    z-index: -1;
-    transition: opacity 0.3s ease, background 0.5s ease;
-}
-
-.child-media-card__media:hover::before {
-    opacity: 0.7;
-}
-
 .child-media-card__poster {
     width: 100%;
     height: auto;
@@ -41,6 +25,32 @@
     display: block;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15),
                 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.child-media-card__poster-link {
+    display: block;
+    border-radius: 10px;
+    outline-offset: 4px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.child-media-card__poster-link:hover,
+.child-media-card__poster-link:focus-visible {
+    transform: translateY(-2px);
+}
+
+.child-media-card__poster-link:focus-visible {
+    outline: 3px solid var(--wp--preset--color--primary, #1d3d36);
+}
+
+.child-media-card__poster-link:hover .child-media-card__poster,
+.child-media-card__poster-link:focus-visible .child-media-card__poster {
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2),
+                0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.child-media-card__poster-link:active {
+    transform: translateY(0);
 }
 
 .child-media-card__placeholder {
@@ -80,19 +90,4 @@
     font-size: 1.1rem;
     font-style: italic;
     color: color-mix(in srgb, var(--wp--preset--color--contrast, #241f1a) 65%, transparent);
-}
-
-.child-media-card__link-row {
-    margin: 0.5rem 0 0;
-}
-
-.child-media-card__link {
-    display: inline-block;
-    padding: 0.45rem 0.8rem;
-    border-radius: 999px;
-    background: var(--wp--preset--color--primary, #1d3d36);
-    color: #fff;
-    text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 600;
 }

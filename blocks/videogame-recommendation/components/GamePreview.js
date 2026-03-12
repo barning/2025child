@@ -1,5 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import { useRef } from '@wordpress/element';
 import { getPlatformInfo, formatReleaseDate } from '../utils';
 
 /**
@@ -7,9 +6,6 @@ import { getPlatformInfo, formatReleaseDate } from '../utils';
  * Displays a game card with cover image, platforms, title, and metadata
  */
 export const GamePreview = ({ gameTitle, coverUrl, releaseDate, platforms, genres, shopUrl }) => {
-	const imageRef = useRef(null);
-	const containerRef = useRef(null);
-
 	if (!gameTitle?.trim()) {
 		return (
 			<div className="game-preview--empty">
@@ -19,18 +15,34 @@ export const GamePreview = ({ gameTitle, coverUrl, releaseDate, platforms, genre
 	}
 
 	const formattedDate = formatReleaseDate(releaseDate);
+	const coverLink = shopUrl?.trim();
 
 	return (
 		<div className="child-game-card" aria-label={__('Videospiel', 'child')}>
-			<div className="child-game-card__media" ref={containerRef}>
+			<div className="child-game-card__media">
 				{coverUrl ? (
-					<img
-						ref={imageRef}
-						className="child-game-card__cover"
-						src={coverUrl}
-						alt={gameTitle}
-						loading="lazy"
-					/>
+					coverLink ? (
+						<a
+							className="child-game-card__cover-link"
+							href={coverLink}
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							<img
+								className="child-game-card__cover"
+								src={coverUrl}
+								alt={gameTitle}
+								loading="lazy"
+							/>
+						</a>
+					) : (
+						<img
+							className="child-game-card__cover"
+							src={coverUrl}
+							alt={gameTitle}
+							loading="lazy"
+						/>
+					)
 				) : (
 					<div className="child-game-card__placeholder" aria-hidden="true" />
 				)}
@@ -57,18 +69,6 @@ export const GamePreview = ({ gameTitle, coverUrl, releaseDate, platforms, genre
 					/>
 				)}
 
-				{shopUrl?.trim() && (
-					<p className="child-game-card__link-row">
-						<a
-							className="child-game-card__link"
-							href={shopUrl}
-							target="_blank"
-							rel="noopener noreferrer"
-						>
-							{__('Zum Shop', 'child')}
-						</a>
-					</p>
-				)}
 			</div>
 		</div>
 	);
