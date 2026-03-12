@@ -173,6 +173,8 @@ add_action( 'wp_ajax_child_rawg_search', function() {
             'name' => $game['name'] ?? '',
             'released' => $game['released'] ?? '',
             'background_image' => $game['background_image'] ?? '',
+            'slug' => $game['slug'] ?? '',
+            'website' => $game['website'] ?? '',
             'platforms' => array_map( function( $platform ) {
                 return $platform['platform']['name'] ?? '';
             }, $game['platforms'] ?? [] ),

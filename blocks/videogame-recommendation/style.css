@@ -42,6 +42,32 @@
 	display: block;
 }
 
+.child-game-card__cover-link {
+	display: block;
+	height: 100%;
+	outline-offset: 4px;
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.child-game-card__cover-link:hover,
+.child-game-card__cover-link:focus-visible {
+	transform: translateY(-2px);
+}
+
+.child-game-card__cover-link:focus-visible {
+	outline: 3px solid var(--wp--preset--color--primary, #1d3d36);
+}
+
+.child-game-card__cover-link:hover .child-game-card__cover,
+.child-game-card__cover-link:focus-visible .child-game-card__cover {
+	box-shadow: 0 10px 22px rgba(0, 0, 0, 0.2),
+		0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.child-game-card__cover-link:active {
+	transform: translateY(0);
+}
+
 .child-game-card__placeholder {
 	width: 100%;
 	height: 100%;

@@ -48,6 +48,7 @@ return function( $attributes ) {
 	$release_date = $attributes['releaseDate'] ?? '';
 	$platforms = $attributes['platforms'] ?? [];
 	$genres = $attributes['genres'] ?? [];
+	$shop_url = $attributes['shopUrl'] ?? '';
 
 	if ( empty( $game_title ) ) {
 		return '';
@@ -67,12 +68,23 @@ return function( $attributes ) {
 		<div class="child-game-card" aria-label="<?php echo esc_attr( __( 'Videospiel', 'child' ) ); ?>">
 			<div class="child-game-card__media">
 				<?php if ( ! empty( $cover_url ) ) : ?>
-					<img 
-						src="<?php echo esc_url( $cover_url ); ?>" 
-						alt="<?php echo esc_attr( $game_title ); ?>" 
-						class="child-game-card__cover"
-						loading="lazy"
-					/>
+					<?php if ( ! empty( $shop_url ) ) : ?>
+						<a class="child-game-card__cover-link" href="<?php echo esc_url( $shop_url ); ?>" target="_blank" rel="noopener noreferrer">
+							<img 
+								src="<?php echo esc_url( $cover_url ); ?>" 
+								alt="<?php echo esc_attr( $game_title ); ?>" 
+								class="child-game-card__cover"
+								loading="lazy"
+							/>
+						</a>
+					<?php else : ?>
+						<img 
+							src="<?php echo esc_url( $cover_url ); ?>" 
+							alt="<?php echo esc_attr( $game_title ); ?>" 
+							class="child-game-card__cover"
+							loading="lazy"
+						/>
+					<?php endif; ?>
 				<?php else : ?>
 					<div class="child-game-card__placeholder" aria-hidden="true"></div>
 				<?php endif; ?>
@@ -110,6 +122,7 @@ return function( $attributes ) {
 						<span class="child-game-card__value"><?php echo esc_html( implode( ', ', array_slice( $genres, 0, 3 ) ) ); ?></span>
 					</div>
 				<?php endif; ?>
+
 			</div>
 		</div>
 	</div>

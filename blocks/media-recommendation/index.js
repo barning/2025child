@@ -2,7 +2,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { registerBlockType } from '@wordpress/blocks';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, TextControl, Button, Spinner, Notice, SelectControl } from '@wordpress/components';
-import { useState, useEffect, useRef } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import metadata from './block.json';
 import './editor.css';
 import './style.css';
@@ -19,82 +19,7 @@ const normalizePosterUrl = (path) => {
     return `${TMDB_IMAGE_BASE}${path}`;
 };
 
-// Extract dominant colors from an image for ambilight effect
-const extractDominantColor = (imageElement, callback) => {
-    try {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        
-        // Use small canvas for performance
-        canvas.width = 50;
-        canvas.height = 50;
-        
-        // Draw scaled down image
-        ctx.drawImage(imageElement, 0, 0, 50, 50);
-        
-        // Get image data
-        const imageData = ctx.getImageData(0, 0, 50, 50);
-        const data = imageData.data;
-        
-        // Calculate average color from edges (for ambilight effect)
-        let r = 0, g = 0, b = 0;
-        let count = 0;
-        
-        // Sample from edges only
-        for (let i = 0; i < data.length; i += 4) {
-            const pixelIndex = i / 4;
-            const x = pixelIndex % 50;
-            const y = Math.floor(pixelIndex / 50);
-            
-            // Check if on edge
-            if (x < 5 || x > 45 || y < 5 || y > 45) {
-                r += data[i];
-                g += data[i + 1];
-                b += data[i + 2];
-                count++;
-            }
-        }
-        
-        r = Math.round(r / count);
-        g = Math.round(g / count);
-        b = Math.round(b / count);
-        
-        callback(`rgb(${r}, ${g}, ${b})`);
-    } catch (error) {
-        // If there's a CORS error or any other issue, fallback to no ambilight
-        console.warn('Could not extract colors for ambilight effect:', error);
-        callback(null);
-    }
-};
-
-const MediaPreview = ({ mediaTitle, mediaType, posterUrl, releaseYear }) => {
-    const imageRef = useRef(null);
-    const containerRef = useRef(null);
-
-    useEffect(() => {
-        if (!posterUrl || !imageRef.current || !containerRef.current) {
-            return;
-        }
-
-        const img = imageRef.current;
-        
-        // Wait for image to load
-        const handleImageLoad = () => {
-            extractDominantColor(img, (color) => {
-                if (color && containerRef.current) {
-                    containerRef.current.style.setProperty('--ambilight-color', color);
-                }
-            });
-        };
-
-        if (img.complete) {
-            handleImageLoad();
-        } else {
-            img.addEventListener('load', handleImageLoad);
-            return () => img.removeEventListener('load', handleImageLoad);
-        }
-    }, [posterUrl]);
-
+const MediaPreview = ({ mediaTitle, mediaType, posterUrl, releaseYear, serviceUrl }) => {
     if (!mediaTitle?.trim()) {
         return (
             <div className="media-preview--empty">
@@ -103,18 +28,34 @@ const MediaPreview = ({ mediaTitle, mediaType, posterUrl, releaseYear }) => {
         );
     }
 
+    const posterLink = serviceUrl?.trim();
+
     return (
         <div className="child-media-card" aria-label={mediaType === 'movie' ? __('Film', 'child') : __('Serie', 'child')}>
-            <div className="child-media-card__media" ref={containerRef}>
+            <div className="child-media-card__media">
                 {posterUrl ? (
-                    <img
-                        ref={imageRef}
-                        className="child-media-card__poster"
-                        src={posterUrl}
-                        alt={mediaTitle}
-                        loading="lazy"
-                        crossOrigin="anonymous"
-                    />
+                    posterLink ? (
+                        <a
+                            className="child-media-card__poster-link"
+                            href={posterLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <img
+                                className="child-media-card__poster"
+                                src={posterUrl}
+                                alt={mediaTitle}
+                                loading="lazy"
+                            />
+                        </a>
+                    ) : (
+                        <img
+                            className="child-media-card__poster"
+                            src={posterUrl}
+                            alt={mediaTitle}
+                            loading="lazy"
+                        />
+                    )
                 ) : (
                     <div className="child-media-card__placeholder" aria-hidden="true" />
                 )}
@@ -174,7 +115,7 @@ const SearchResults = ({ results, selectedId, onSelect }) => {
 
 function Edit({ attributes, setAttributes }) {
     const blockProps = useBlockProps();
-    const { mediaTitle, mediaType, posterUrl, releaseYear, tmdbId } = attributes;
+    const { mediaTitle, mediaType, posterUrl, releaseYear, tmdbId, serviceUrl } = attributes;
     const [searchTerm, setSearchTerm] = useState('');
     const [isSearching, setIsSearching] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
@@ -230,7 +171,8 @@ function Edit({ attributes, setAttributes }) {
                 title: item.title || '',
                 year: item.release_date ? new Date(item.release_date).getFullYear().toString() : '',
                 poster: normalizePosterUrl(item.poster_path),
-                mediaType: 'movie'
+                mediaType: 'movie',
+                serviceUrl: item.id ? `https://www.themoviedb.org/movie/${item.id}` : ''
             }));
 
             const tvResults = (tv || []).slice(0, 3).map((item) => ({
@@ -239,7 +181,8 @@ function Edit({ attributes, setAttributes }) {
                 title: item.name || '',
                 year: item.first_air_date ? new Date(item.first_air_date).getFullYear().toString() : '',
                 poster: normalizePosterUrl(item.poster_path),
-                mediaType: 'tv'
+                mediaType: 'tv',
+                serviceUrl: item.id ? `https://www.themoviedb.org/tv/${item.id}` : ''
             }));
 
             const results = [...movieResults, ...tvResults];
@@ -265,7 +208,8 @@ function Edit({ attributes, setAttributes }) {
             mediaType: media.mediaType,
             posterUrl: media.poster || posterUrl || '',
             releaseYear: media.year || releaseYear || '',
-            tmdbId: media.tmdbId || 0
+            tmdbId: media.tmdbId || 0,
+            serviceUrl: media.serviceUrl || serviceUrl || ''
         });
     };
 
@@ -337,6 +281,12 @@ function Edit({ attributes, setAttributes }) {
                         value={posterUrl}
                         onChange={(value) => setAttributes({ posterUrl: value })}
                         help={__('Optional: Eigenes Poster einfügen', 'child')}
+                    />
+                    <TextControl
+                        label={__('Streaming-Link', 'child')}
+                        value={serviceUrl}
+                        onChange={(value) => setAttributes({ serviceUrl: value })}
+                        help={__('Wird bei der Suche automatisch befüllt (TMDB-Link), kann aber manuell überschrieben werden.', 'child')}
                     />
                 </PanelBody>
             </InspectorControls>

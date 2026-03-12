@@ -46,7 +46,8 @@ function Edit({ attributes, setAttributes }) {
 			releaseDate: selectedGame.releaseDate,
 			platforms: selectedGame.platforms,
 			genres: selectedGame.genres,
-			rawgId: selectedGame.rawgId
+			rawgId: selectedGame.rawgId,
+			shopUrl: selectedGame.shopUrl || attributes.shopUrl || ''
 		});
 	};
 
@@ -114,6 +115,12 @@ function Edit({ attributes, setAttributes }) {
 						value={attributes.coverUrl}
 						onChange={(value) => setAttributes({ coverUrl: value })}
 						help={__('Optional: Eigenes Cover einfügen', 'child')}
+					/>
+					<TextControl
+						label={__('Shop-Link', 'child')}
+						value={attributes.shopUrl}
+						onChange={(value) => setAttributes({ shopUrl: value })}
+						help={__('Wird bei der Suche automatisch befüllt (RAWG-Link), kann aber manuell überschrieben werden.', 'child')}
 					/>
 				</PanelBody>
 			</InspectorControls>

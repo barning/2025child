@@ -12,6 +12,7 @@ return function($attributes) {
     $book_title = $attributes['bookTitle'] ?? '';
     $author = $attributes['author'] ?? '';
     $cover_url = $attributes['coverUrl'] ?? '';
+    $shop_url = $attributes['shopUrl'] ?? '';
 
     if (empty($book_title)) {
         return '';
@@ -22,12 +23,23 @@ return function($attributes) {
         <div class="child-book-card" aria-label="<?php echo esc_attr__( 'Buch', 'child' ); ?>">
             <div class="child-book-card__media">
                 <?php if ( ! empty( $cover_url ) ) : ?>
-                    <img 
-                        src="<?php echo esc_url( $cover_url ); ?>" 
-                        alt="<?php echo esc_attr( $book_title ); ?>" 
-                        class="child-book-card__cover"
-                        loading="lazy"
-                    />
+                    <?php if ( ! empty( $shop_url ) ) : ?>
+                        <a class="child-book-card__cover-link" href="<?php echo esc_url( $shop_url ); ?>" target="_blank" rel="noopener noreferrer">
+                            <img 
+                                src="<?php echo esc_url( $cover_url ); ?>" 
+                                alt="<?php echo esc_attr( $book_title ); ?>" 
+                                class="child-book-card__cover"
+                                loading="lazy"
+                            />
+                        </a>
+                    <?php else : ?>
+                        <img 
+                            src="<?php echo esc_url( $cover_url ); ?>" 
+                            alt="<?php echo esc_attr( $book_title ); ?>" 
+                            class="child-book-card__cover"
+                            loading="lazy"
+                        />
+                    <?php endif; ?>
                 <?php else : ?>
                     <div class="child-book-card__placeholder" aria-hidden="true"></div>
                 <?php endif; ?>

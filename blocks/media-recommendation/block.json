@@ -28,6 +28,10 @@
     "tmdbId": {
       "type": "number",
       "default": 0
+    },
+    "serviceUrl": {
+      "type": "string",
+      "default": ""
     }
   },
   "textdomain": "twentyfivetwentyfivechild",
