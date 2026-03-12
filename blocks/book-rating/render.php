@@ -13,6 +13,7 @@ return function($attributes) {
     $author = $attributes['author'] ?? '';
     $cover_url = $attributes['coverUrl'] ?? '';
     $shop_url = $attributes['shopUrl'] ?? '';
+    $block_id = 'book-card-' . wp_unique_id();
 
     if (empty($book_title)) {
         return '';
@@ -21,13 +22,15 @@ return function($attributes) {
     ob_start(); ?>
     <div <?php echo $wrapper_attributes; ?>>
         <div class="child-book-card" aria-label="<?php echo esc_attr__( 'Buch', 'child' ); ?>">
-            <div class="child-book-card__media">
+            <div class="child-book-card__media" id="<?php echo esc_attr( $block_id ); ?>">
                 <?php if ( ! empty( $cover_url ) ) : ?>
                     <img 
                         src="<?php echo esc_url( $cover_url ); ?>" 
                         alt="<?php echo esc_attr( $book_title ); ?>" 
                         class="child-book-card__cover"
                         loading="lazy"
+                        crossorigin="anonymous"
+                        onload="childBookAmbilightInit('<?php echo esc_js( $block_id ); ?>', this)"
                     />
                 <?php else : ?>
                     <div class="child-book-card__placeholder" aria-hidden="true"></div>

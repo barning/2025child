@@ -2,7 +2,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { registerBlockType } from '@wordpress/blocks';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, TextControl, Button, Spinner, Notice } from '@wordpress/components';
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, useRef } from '@wordpress/element';
 import metadata from './block.json';
 import './editor.css';
 import './style.css';
@@ -23,7 +23,78 @@ const normalizeCoverUrl = (url) => {
     return normalizedUrl;
 };
 
+
+const extractDominantColor = (imageElement, callback) => {
+    try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = 50;
+        canvas.height = 50;
+
+        ctx.drawImage(imageElement, 0, 0, 50, 50);
+
+        const imageData = ctx.getImageData(0, 0, 50, 50);
+        const data = imageData.data;
+
+        let r = 0;
+        let g = 0;
+        let b = 0;
+        let count = 0;
+
+        for (let i = 0; i < data.length; i += 4) {
+            const pixelIndex = i / 4;
+            const x = pixelIndex % 50;
+            const y = Math.floor(pixelIndex / 50);
+
+            if (x < 5 || x > 45 || y < 5 || y > 45) {
+                r += data[i];
+                g += data[i + 1];
+                b += data[i + 2];
+                count++;
+            }
+        }
+
+        if (!count) {
+            callback(null);
+            return;
+        }
+
+        callback(`rgb(${Math.round(r / count)}, ${Math.round(g / count)}, ${Math.round(b / count)})`);
+    } catch (error) {
+        console.warn('Could not extract colors for book ambilight effect:', error);
+        callback(null);
+    }
+};
+
 const BookPreview = ({ bookTitle, author, coverUrl, shopUrl }) => {
+    const imageRef = useRef(null);
+    const containerRef = useRef(null);
+
+    useEffect(() => {
+        if (!coverUrl || !imageRef.current || !containerRef.current) {
+            return;
+        }
+
+        const img = imageRef.current;
+        const handleImageLoad = () => {
+            extractDominantColor(img, (color) => {
+                if (color && containerRef.current) {
+                    containerRef.current.style.setProperty('--ambilight-color', color);
+                }
+            });
+        };
+
+        if (img.complete) {
+            handleImageLoad();
+        } else {
+            img.addEventListener('load', handleImageLoad);
+            return () => img.removeEventListener('load', handleImageLoad);
+        }
+
+        return undefined;
+    }, [coverUrl]);
+
     if (!bookTitle?.trim()) {
         return (
             <div className="book-preview--empty">
@@ -34,13 +105,15 @@ const BookPreview = ({ bookTitle, author, coverUrl, shopUrl }) => {
 
     return (
         <div className="child-book-card" aria-label={__('Buch', 'child')}>
-            <div className="child-book-card__media">
+            <div className="child-book-card__media" ref={containerRef}>
                 {coverUrl ? (
                     <img
+                        ref={imageRef}
                         className="child-book-card__cover"
                         src={coverUrl}
                         alt={bookTitle}
                         loading="lazy"
+                        crossOrigin="anonymous"
                     />
                 ) : (
                     <div className="child-book-card__placeholder" aria-hidden="true" />
