@@ -2,7 +2,7 @@
 const fs = require('fs');
 const fsp = fs.promises;
 const path = require('path');
-const { execSync } = require('child_process');
+const { execSync, execFileSync } = require('child_process');
 
 const root = process.cwd();
 const distRoot = path.join(root, 'dist');
@@ -68,11 +68,11 @@ async function main(){
   // Create zip
   const zipPath = path.join(distRoot, `${themeSlug}.zip`);
   try {
-    execSync(`cd ${distRoot} && zip -rq ${themeSlug}.zip ${themeSlug}`);
+    execFileSync('zip', ['-rq', `${themeSlug}.zip`, themeSlug], { cwd: distRoot });
     console.log(`Created ${zipPath}`);
   } catch (e) {
     console.warn('zip not available, creating tar.gz instead');
-    execSync(`cd ${distRoot} && tar -czf ${themeSlug}.tar.gz ${themeSlug}`);
+    execFileSync('tar', ['-czf', `${themeSlug}.tar.gz`, themeSlug], { cwd: distRoot });
     console.log(`Created ${path.join(distRoot, themeSlug + '.tar.gz')}`);
   }
 }
