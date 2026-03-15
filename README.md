@@ -44,6 +44,12 @@ This child theme extends a block-based parent theme with a set of small, maintai
 	- Location: `inc/head-footer-injections.php`
 	- Purpose: Adds a Customizer setting `fediverse_creator_handle` and outputs the `<meta name="fediverse:creator">` tag in the page head when set.
 
+- **Notes (Short Posts)**
+	- Location: `inc/notes.php`
+	- Purpose: Registers a `note` custom post type for short, headline-less thoughts.
+	- Editor behavior: Supports content editor without requiring a post title/headline.
+	- URL behavior: Public post type with archive at `/notes`.
+
 ## Files & Folders (quick)
 
 - `blocks/` — block source (editor scripts, `block.json`, `render.php` where server-side rendering is required)
