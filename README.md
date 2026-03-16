@@ -48,7 +48,7 @@ This child theme extends a block-based parent theme with a set of small, maintai
 	- Location: `inc/notes.php`
 	- Purpose: Registers a `note` custom post type for short, headline-less thoughts.
 	- Editor behavior: Supports content editor without requiring a post title/headline.
-	- URL behavior: Public post type with archive at `/notes`.
+	- URL behavior: Public post type with archive at `/notes`; rewrite rules are flushed automatically once after deployment/theme switch so archives and permalinks resolve without manual Permalink resave.
 
 ## Files & Folders (quick)
 

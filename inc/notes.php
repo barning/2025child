@@ -2,7 +2,7 @@
 /**
  * Note post type for short, headline-less thoughts.
  */
-add_action( 'init', function() {
+function child_register_note_post_type() {
 	$labels = [
 		'name'               => __( 'Notes', 'child' ),
 		'singular_name'      => __( 'Note', 'child' ),
@@ -37,4 +37,30 @@ add_action( 'init', function() {
 		'map_meta_cap'       => true,
 		'publicly_queryable' => true,
 	] );
-} );
+}
+add_action( 'init', 'child_register_note_post_type' );
+
+/**
+ * Flush rewrite rules once after introducing note archive rewrites.
+ */
+function child_maybe_flush_note_rewrite_rules() {
+	if ( '1' === get_option( 'child_note_rewrite_flushed' ) ) {
+		return;
+	}
+
+	child_register_note_post_type();
+	flush_rewrite_rules( false );
+	update_option( 'child_note_rewrite_flushed', '1' );
+}
+add_action( 'init', 'child_maybe_flush_note_rewrite_rules', 20 );
+
+/**
+ * Ensure rewrites are regenerated when the theme is activated.
+ */
+function child_flush_note_rewrite_rules_on_switch() {
+	delete_option( 'child_note_rewrite_flushed' );
+	child_register_note_post_type();
+	flush_rewrite_rules( false );
+	update_option( 'child_note_rewrite_flushed', '1' );
+}
+add_action( 'after_switch_theme', 'child_flush_note_rewrite_rules_on_switch' );
