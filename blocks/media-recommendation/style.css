@@ -11,7 +11,8 @@
 
 .child-media-card__media {
     position: relative;
-    width: clamp(200px, 65vw, 280px);
+    width: min(100%, clamp(160px, 65vw, 280px));
+    max-width: 100%;
     border-radius: 12px;
     background: #fff;
     display: flex;
@@ -20,6 +21,7 @@
 
 .child-media-card__poster {
     width: 100%;
+    max-width: 100%;
     height: auto;
     border-radius: 10px;
     display: block;
@@ -29,6 +31,8 @@
 
 .child-media-card__poster-link {
     display: block;
+    width: 100%;
+    max-width: 100%;
     border-radius: 10px;
     outline-offset: 4px;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
