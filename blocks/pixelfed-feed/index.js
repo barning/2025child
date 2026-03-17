@@ -8,7 +8,7 @@ import './editor.css';
 import './style.css';
 
 function Edit( { attributes, setAttributes } ) {
-	const { feedUrl = '', itemsToShow = 6 } = attributes;
+	const { feedUrl = '', itemsToShow = 9 } = attributes;
 
 	return (
 		<>
@@ -24,7 +24,7 @@ function Edit( { attributes, setAttributes } ) {
 					<RangeControl
 						label={ __( 'Number of images', 'child' ) }
 						value={ itemsToShow }
-						onChange={ ( value ) => setAttributes( { itemsToShow: value || 6 } ) }
+						onChange={ ( value ) => setAttributes( { itemsToShow: value || 9 } ) }
 						min={ 1 }
 						max={ 18 }
 					/>
