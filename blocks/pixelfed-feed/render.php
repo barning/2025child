@@ -58,6 +58,63 @@ return function( $attributes ) {
 		return array( $width, $height );
 	};
 
+	$get_media_dimensions = static function( $item ) {
+		$media_namespace = defined( 'SIMPLEPIE_NAMESPACE_MEDIARSS' ) ? SIMPLEPIE_NAMESPACE_MEDIARSS : 'http://search.yahoo.com/mrss/';
+		$media_tags = array_merge(
+			(array) $item->get_item_tags( $media_namespace, 'content' ),
+			(array) $item->get_item_tags( $media_namespace, 'thumbnail' )
+		);
+
+		$url = '';
+		$width = 0;
+		$height = 0;
+
+		foreach ( $media_tags as $tag ) {
+			$attrs = $tag['attribs'][''] ?? array();
+			if ( ! $url && ! empty( $attrs['url'] ) ) {
+				$url = (string) $attrs['url'];
+			}
+			if ( ! $width && ! empty( $attrs['width'] ) ) {
+				$width = (int) $attrs['width'];
+			}
+			if ( ! $height && ! empty( $attrs['height'] ) ) {
+				$height = (int) $attrs['height'];
+			}
+			if ( $url && $width && $height ) {
+				break;
+			}
+		}
+
+		return array( $url, $width, $height );
+	};
+
+	$get_remote_image_dimensions = static function( $image_url ) {
+		if ( ! $image_url || ! wp_http_validate_url( $image_url ) ) {
+			return array( 0, 0 );
+		}
+
+		if ( ! function_exists( 'wp_getimagesize' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/image.php';
+		}
+
+		$cache_key = 'child_pixelfed_dim_' . md5( $image_url );
+		$cached = get_transient( $cache_key );
+		if ( is_array( $cached ) && 2 === count( $cached ) ) {
+			return array( (int) $cached[0], (int) $cached[1] );
+		}
+
+		$size = wp_getimagesize( $image_url );
+		if ( is_array( $size ) && isset( $size[0], $size[1] ) ) {
+			$width = (int) $size[0];
+			$height = (int) $size[1];
+			set_transient( $cache_key, array( $width, $height ), HOUR_IN_SECONDS * 24 );
+			return array( $width, $height );
+		}
+
+		set_transient( $cache_key, array( 0, 0 ), HOUR_IN_SECONDS * 6 );
+		return array( 0, 0 );
+	};
+
 	ob_start();
 	?>
 	<div <?php echo get_block_wrapper_attributes(); ?>>
@@ -73,11 +130,22 @@ return function( $attributes ) {
 				$enclosure = $item->get_enclosure();
 				if ( $enclosure && 0 === strpos( (string) $enclosure->get_type(), 'image/' ) ) {
 					$image_url = $enclosure->get_link();
-					$image_width = (int) $enclosure->get_width();
-					$image_height = (int) $enclosure->get_height();
-				}
+			$image_width = (int) $enclosure->get_width();
+			$image_height = (int) $enclosure->get_height();
+		}
 
-				$content = (string) $item->get_content();
+		list( $media_url, $media_width, $media_height ) = $get_media_dimensions( $item );
+		if ( ! $image_url && $media_url ) {
+			$image_url = $media_url;
+		}
+		if ( ! $image_width && $media_width ) {
+			$image_width = $media_width;
+		}
+		if ( ! $image_height && $media_height ) {
+			$image_height = $media_height;
+		}
+
+		$content = (string) $item->get_content();
 				if ( ! $image_url && preg_match( '/<img[^>]+src=["\']([^"\']+)["\']/i', $content, $matches ) ) {
 					$image_url = $matches[1];
 				}
@@ -95,6 +163,10 @@ return function( $attributes ) {
 					if ( ! $image_width || ! $image_height ) {
 						list( $image_width, $image_height ) = $get_image_dimensions( $description );
 					}
+				}
+
+				if ( $image_url && ( ! $image_width || ! $image_height ) ) {
+					list( $image_width, $image_height ) = $get_remote_image_dimensions( $image_url );
 				}
 
 				if ( ! $image_url || ! $item_link ) {
