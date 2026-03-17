@@ -62,7 +62,8 @@ return function( $attributes ) {
 	?>
 	<div <?php echo get_block_wrapper_attributes(); ?>>
 		<div class="child-pixelfed-feed-grid">
-			<?php foreach ( $items as $index => $item ) : ?>
+			<?php $rendered_count = 0; ?>
+			<?php foreach ( $items as $item ) : ?>
 				<?php
 				$item_link = $item->get_link();
 				$image_url = '';
@@ -110,7 +111,8 @@ return function( $attributes ) {
 					}
 				}
 
-				$layout_class = 0 === ( $index % 7 ) ? 'is-featured-tile' : '';
+				$layout_class = 0 === ( $rendered_count % 7 ) ? 'is-featured-tile' : '';
+				$rendered_count++;
 				?>
 				<a class="child-pixelfed-feed-item <?php echo esc_attr( trim( $ratio_class . ' ' . $layout_class ) ); ?>" href="<?php echo esc_url( $item_link ); ?>" target="_blank" rel="noopener noreferrer">
 					<img

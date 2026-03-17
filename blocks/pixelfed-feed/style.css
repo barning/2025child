@@ -1,5 +1,6 @@
 .wp-block-child-pixelfed-feed {
 	margin: clamp(1.5rem, 4vw, 3rem) 0;
+	container-type: inline-size;
 }
 
 .child-pixelfed-feed-grid {
@@ -62,6 +63,20 @@
 @media (max-width: 700px) {
 	.child-pixelfed-feed-grid {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.child-pixelfed-feed-item.is-featured-tile,
+	.child-pixelfed-feed-item.is-ratio-landscape,
+	.child-pixelfed-feed-item.is-ratio-portrait {
+		grid-column: span 1;
+		grid-row: span 1;
+	}
+}
+
+
+@container (max-width: 320px) {
+	.child-pixelfed-feed-grid {
+		grid-template-columns: 1fr;
 	}
 
 	.child-pixelfed-feed-item.is-featured-tile,
