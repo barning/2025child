@@ -47,7 +47,9 @@ This child theme extends a block-based parent theme with a set of small, maintai
 - **Notes (Short Posts)**
 	- Location: `inc/notes.php`
 	- Purpose: Registers a `note` custom post type for short, headline-less thoughts.
-	- Editor behavior: Supports content editor without requiring a post title/headline.
+	- Editor behavior: Supports content editor without requiring a post title/headline. An internal title is auto-generated on save using the note date/time.
+	- Frontend behavior: The `core/post-title` block is suppressed for notes in Query Loops (so notes render without visible titles).
+	- Query behavior: Notes are not included in the main blog feed unless explicitly queried.
 	- URL behavior: Public post type with archive at `/notes`; rewrite rules are flushed automatically once after deployment/theme switch so archives and permalinks resolve without manual Permalink resave.
 
 ## Files & Folders (quick)
