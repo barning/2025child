@@ -14,7 +14,7 @@ function Edit( { attributes, setAttributes } ) {
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Pixelfed Feed Settings', 'child' ) }>
-					<TextControl
+					<TextControl __next40pxDefaultSize __nextHasNoMarginBottom
 						label={ __( 'Pixelfed RSS URL', 'child' ) }
 						value={ feedUrl }
 						onChange={ ( value ) => setAttributes( { feedUrl: value } ) }

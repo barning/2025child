@@ -81,12 +81,12 @@ const usePosts = (selectedPosts) => {
 const SettingsPanel = ({ title, emoji, selectedPosts, allPosts, onUpdatePost, onRemovePost, onAddPost, setAttributes }) => (
   <InspectorControls>
     <PanelBody title={__('Popular Posts Settings', 'child')}>
-      <TextControl
+      <TextControl __next40pxDefaultSize __nextHasNoMarginBottom
         label={__('Title', 'child')}
         value={title}
         onChange={(value) => setAttributes({ title: value })}
       />
-      <TextControl
+      <TextControl __next40pxDefaultSize __nextHasNoMarginBottom
         label={__('Emoji', 'child')}
         value={emoji}
         onChange={(value) => setAttributes({ emoji: value })}
@@ -109,7 +109,7 @@ const PostSelector = ({ selectedPosts, allPosts, onUpdatePost, onRemovePost, onA
   <div className="child-post-selector">
     {selectedPosts.map((selectedId, index) => (
       <div key={index} className="child-post-selector__row" style={styles.selectorRow}>
-        <ComboboxControl
+        <ComboboxControl __next40pxDefaultSize __nextHasNoMarginBottom
           label={__('Select or Search Post', 'child')}
           value={selectedId.toString()}
           options={allPosts.map(post => ({

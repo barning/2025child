@@ -163,8 +163,8 @@ add_action( 'wp_ajax_child_tmdb_search', 'child_handle_tmdb_search_ajax' );
  * Provide AJAX data in editor.
  */
 function child_localize_media_search(): void {
-	wp_localize_script(
-		'wp-block-editor',
+	child_localize_block_editor_script(
+		'child/media-recommendation',
 		'childMediaSearch',
 		[
 			'ajaxUrl' => admin_url( 'admin-ajax.php' ),

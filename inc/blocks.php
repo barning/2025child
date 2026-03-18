@@ -95,3 +95,27 @@ function child_enqueue_dynamic_block_styles_globally(): void {
 	}
 }
 add_action( 'wp_enqueue_scripts', 'child_enqueue_dynamic_block_styles_globally', 20 );
+
+/**
+ * Localize data to a block's editor script handle (iframe-safe).
+ *
+ * @param string               $block_name  Full block name (e.g., child/media-recommendation).
+ * @param string               $object_name JS global object name.
+ * @param array<string, mixed> $data        Data to expose.
+ */
+function child_localize_block_editor_script( string $block_name, string $object_name, array $data ): void {
+	if ( ! class_exists( 'WP_Block_Type_Registry' ) ) {
+		return;
+	}
+
+	$registry   = WP_Block_Type_Registry::get_instance();
+	$block_type = $registry->get_registered( $block_name );
+
+	if ( ! $block_type || empty( $block_type->editor_script_handles ) ) {
+		return;
+	}
+
+	foreach ( $block_type->editor_script_handles as $handle ) {
+		wp_localize_script( $handle, $object_name, $data );
+	}
+}

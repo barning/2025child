@@ -215,7 +215,7 @@ function Edit({ attributes, setAttributes }) {
         <div {...blockProps}>
             <InspectorControls>
                 <PanelBody title={__('Buch finden', 'child')} initialOpen={true}>
-                    <TextControl
+                    <TextControl __next40pxDefaultSize __nextHasNoMarginBottom
                         label={__('Suche nach Titel oder Autor', 'child')}
                         value={searchTerm}
                         onChange={setSearchTerm}
@@ -255,23 +255,23 @@ function Edit({ attributes, setAttributes }) {
                 </PanelBody>
 
                 <PanelBody title={__('Buchdetails', 'child')} initialOpen={true}>
-                    <TextControl
+                    <TextControl __next40pxDefaultSize __nextHasNoMarginBottom
                         label={__('Titel', 'child')}
                         value={bookTitle}
                         onChange={(value) => setAttributes({ bookTitle: value })}
                     />
-                    <TextControl
+                    <TextControl __next40pxDefaultSize __nextHasNoMarginBottom
                         label={__('Autor', 'child')}
                         value={author}
                         onChange={(value) => setAttributes({ author: value })}
                     />
-                    <TextControl
+                    <TextControl __next40pxDefaultSize __nextHasNoMarginBottom
                         label={__('Cover-URL', 'child')}
                         value={coverUrl}
                         onChange={(value) => setAttributes({ coverUrl: value })}
                         help={__('Optional: Eigene Cover-Grafik einfügen', 'child')}
                     />
-                    <TextControl
+                    <TextControl __next40pxDefaultSize __nextHasNoMarginBottom
                         label={__('Shop-Link', 'child')}
                         value={shopUrl}
                         onChange={(value) => setAttributes({ shopUrl: value })}

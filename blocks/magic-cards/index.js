@@ -255,7 +255,7 @@ function Edit({ attributes, setAttributes }) {
 
 				{displayType === 'moxfield' && (
 					<PanelBody title={__('Moxfield Settings', 'child')} initialOpen={true}>
-						<TextControl
+						<TextControl __next40pxDefaultSize __nextHasNoMarginBottom
 							label={__('Moxfield Deck URL', 'child')}
 							value={moxfieldUrl}
 							onChange={(value) => setAttributes({ moxfieldUrl: value })}
@@ -268,7 +268,7 @@ function Edit({ attributes, setAttributes }) {
 				{displayType === 'single' && (
 					<>
 						<PanelBody title={__('Search for Card', 'child')} initialOpen={true}>
-							<TextControl
+							<TextControl __next40pxDefaultSize __nextHasNoMarginBottom
 								label={__('Card Name', 'child')}
 								value={searchTerm}
 								onChange={setSearchTerm}
@@ -320,13 +320,13 @@ function Edit({ attributes, setAttributes }) {
 
 						{cardName && (
 							<PanelBody title={__('Card Details', 'child')} initialOpen={true}>
-								<TextControl
+								<TextControl __next40pxDefaultSize __nextHasNoMarginBottom
 									label={__('Card Name', 'child')}
 									value={cardName}
 									onChange={(value) => setAttributes({ cardName: value })}
 									disabled
 								/>
-								<TextControl
+								<TextControl __next40pxDefaultSize __nextHasNoMarginBottom
 									label={__('Image URL', 'child')}
 									value={cardImageUrl}
 									onChange={(value) => setAttributes({ cardImageUrl: value })}

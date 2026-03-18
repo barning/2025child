@@ -195,8 +195,8 @@ add_action( 'wp_ajax_child_rawg_search', 'child_handle_rawg_search_ajax' );
  * Provide AJAX data in editor.
  */
 function child_localize_videogame_search(): void {
-	wp_localize_script(
-		'wp-block-editor',
+	child_localize_block_editor_script(
+		'child/videogame-recommendation',
 		'childGameSearch',
 		[
 			'ajaxUrl' => admin_url( 'admin-ajax.php' ),

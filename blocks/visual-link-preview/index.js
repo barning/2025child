@@ -13,7 +13,7 @@ function Edit({ attributes, setAttributes }) {
     <>
       <InspectorControls>
         <PanelBody title={__('Link Preview Settings', 'child')}>
-          <TextControl
+          <TextControl __next40pxDefaultSize __nextHasNoMarginBottom
             label={__('URL', 'child')}
             value={url}
             onChange={(value) => setAttributes({ url: value })}
