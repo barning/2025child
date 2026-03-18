@@ -88,33 +88,6 @@ return function( $attributes ) {
 		return array( $url, $width, $height );
 	};
 
-	$get_remote_image_dimensions = static function( $image_url ) {
-		if ( ! $image_url || ! wp_http_validate_url( $image_url ) ) {
-			return array( 0, 0 );
-		}
-
-		if ( ! function_exists( 'wp_getimagesize' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/image.php';
-		}
-
-		$cache_key = 'child_pixelfed_dim_' . md5( $image_url );
-		$cached = get_transient( $cache_key );
-		if ( is_array( $cached ) && 2 === count( $cached ) ) {
-			return array( (int) $cached[0], (int) $cached[1] );
-		}
-
-		$size = wp_getimagesize( $image_url );
-		if ( is_array( $size ) && isset( $size[0], $size[1] ) ) {
-			$width = (int) $size[0];
-			$height = (int) $size[1];
-			set_transient( $cache_key, array( $width, $height ), HOUR_IN_SECONDS * 24 );
-			return array( $width, $height );
-		}
-
-		set_transient( $cache_key, array( 0, 0 ), HOUR_IN_SECONDS * 6 );
-		return array( 0, 0 );
-	};
-
 	ob_start();
 	?>
 	<div <?php echo get_block_wrapper_attributes(); ?>>
@@ -130,22 +103,22 @@ return function( $attributes ) {
 				$enclosure = $item->get_enclosure();
 				if ( $enclosure && 0 === strpos( (string) $enclosure->get_type(), 'image/' ) ) {
 					$image_url = $enclosure->get_link();
-			$image_width = (int) $enclosure->get_width();
-			$image_height = (int) $enclosure->get_height();
-		}
+					$image_width = (int) $enclosure->get_width();
+					$image_height = (int) $enclosure->get_height();
+				}
 
-		list( $media_url, $media_width, $media_height ) = $get_media_dimensions( $item );
-		if ( ! $image_url && $media_url ) {
-			$image_url = $media_url;
-		}
-		if ( ! $image_width && $media_width ) {
-			$image_width = $media_width;
-		}
-		if ( ! $image_height && $media_height ) {
-			$image_height = $media_height;
-		}
+				list( $media_url, $media_width, $media_height ) = $get_media_dimensions( $item );
+				if ( ! $image_url && $media_url ) {
+					$image_url = $media_url;
+				}
+				if ( ! $image_width && $media_width ) {
+					$image_width = $media_width;
+				}
+				if ( ! $image_height && $media_height ) {
+					$image_height = $media_height;
+				}
 
-		$content = (string) $item->get_content();
+				$content = (string) $item->get_content();
 				if ( ! $image_url && preg_match( '/<img[^>]+src=["\']([^"\']+)["\']/i', $content, $matches ) ) {
 					$image_url = $matches[1];
 				}
@@ -165,10 +138,6 @@ return function( $attributes ) {
 					}
 				}
 
-				if ( $image_url && ( ! $image_width || ! $image_height ) ) {
-					list( $image_width, $image_height ) = $get_remote_image_dimensions( $image_url );
-				}
-
 				if ( ! $image_url || ! $item_link ) {
 					continue;
 				}
@@ -183,15 +152,20 @@ return function( $attributes ) {
 					}
 				}
 
+				$needs_ratio_check = $image_width <= 0 || $image_height <= 0;
+
 				$layout_class = 0 === ( $rendered_count % 7 ) ? 'is-featured-tile' : '';
 				$rendered_count++;
 				?>
-				<a class="child-pixelfed-feed-item <?php echo esc_attr( trim( $ratio_class . ' ' . $layout_class ) ); ?>" href="<?php echo esc_url( $item_link ); ?>" target="_blank" rel="noopener noreferrer">
+				<a class="child-pixelfed-feed-item <?php echo esc_attr( trim( $ratio_class . ' ' . $layout_class ) ); ?>" href="<?php echo esc_url( $item_link ); ?>" target="_blank" rel="noopener noreferrer" <?php echo $needs_ratio_check ? 'data-needs-ratio-check="1"' : ''; ?>>
 					<img
 						class="child-pixelfed-feed-item__image"
 						src="<?php echo esc_url( $image_url ); ?>"
 						alt="<?php echo esc_attr( wp_strip_all_tags( (string) $item->get_title() ) ); ?>"
 						loading="lazy"
+						decoding="async"
+						<?php echo $image_width > 0 ? 'width="' . esc_attr( (string) $image_width ) . '"' : ''; ?>
+						<?php echo $image_height > 0 ? 'height="' . esc_attr( (string) $image_height ) . '"' : ''; ?>
 					/>
 				</a>
 			<?php endforeach; ?>

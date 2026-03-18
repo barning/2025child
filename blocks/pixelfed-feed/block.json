@@ -20,6 +20,7 @@
   },
   "textdomain": "twentyfivetwentyfivechild",
   "editorScript": "file:./index.js",
+  "viewScript": "file:./view.js",
   "editorStyle": "file:./editor.css",
   "style": "file:./style.css"
 }
