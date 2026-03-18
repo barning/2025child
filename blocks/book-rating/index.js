@@ -3,11 +3,11 @@ import { registerBlockType } from '@wordpress/blocks';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, TextControl, Button, Spinner, Notice } from '@wordpress/components';
 import { useState, useEffect } from '@wordpress/element';
+import apiFetch from '@wordpress/api-fetch';
+import { addQueryArgs } from '@wordpress/url';
 import metadata from './block.json';
 import './editor.css';
 import './style.css';
-
-const GOOGLE_BOOKS_API = 'https://www.googleapis.com/books/v1/volumes';
 
 const normalizeCoverUrl = (url) => {
     if (!url) {
@@ -155,13 +155,12 @@ function Edit({ attributes, setAttributes }) {
         setSearchResults([]);
         setSelectedBookId(null);
         try {
-            const response = await fetch(
-                `${GOOGLE_BOOKS_API}?q=${encodeURIComponent(trimmedTerm)}&maxResults=5`
-            );
-            if (!response.ok) {
-                throw new Error('Request failed');
-            }
-            const data = await response.json();
+            const data = await apiFetch({
+                path: addQueryArgs('/child/v1/books', {
+                    q: trimmedTerm,
+                    maxResults: 5
+                })
+            });
 
             const results = (data.items || []).map((item) => {
                 const info = item.volumeInfo || {};
@@ -192,7 +191,18 @@ function Edit({ attributes, setAttributes }) {
             }
         } catch (error) {
             console.error('Fehler beim Suchen:', error);
-            setSearchError(__('Beim Suchen ist ein Fehler aufgetreten. Bitte versuche es erneut.', 'child'));
+            if (error?.code === 'rate_limited' || error?.data?.status === 429) {
+                setSearchError(
+                    __(
+                        'Google Books API-Limit erreicht. Bitte später erneut versuchen oder einen API-Schlüssel hinterlegen.',
+                        'child'
+                    )
+                );
+            } else {
+                setSearchError(
+                    __('Beim Suchen ist ein Fehler aufgetreten. Bitte versuche es erneut.', 'child')
+                );
+            }
             setHasSearched(false);
         }
         setIsSearching(false);
