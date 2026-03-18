@@ -17,7 +17,7 @@ add_action( 'wp_enqueue_scripts', 'child_enqueue_theme_styles' );
  * Load modular includes from /inc.
  */
 function child_load_modules(): void {
-	$cache_key = 'child_inc_files';
+	$cache_key = 'child_inc_files_v2';
 	$inc_files = wp_cache_get( $cache_key, 'child_theme' );
 
 	$build_module_list = static function(): array {
