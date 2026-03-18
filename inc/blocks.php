@@ -74,6 +74,46 @@ function child_register_dynamic_blocks(): void {
 add_action( 'init', 'child_register_dynamic_blocks' );
 
 /**
+ * Ensure theme and block styles are available in the editor for accurate previews.
+ */
+function child_setup_editor_styles(): void {
+	add_theme_support( 'editor-styles' );
+	add_editor_style( 'style.css' );
+}
+add_action( 'after_setup_theme', 'child_setup_editor_styles' );
+
+/**
+ * Enqueue dynamic block styles inside the block editor so previews match the frontend.
+ */
+function child_enqueue_dynamic_block_styles_in_editor(): void {
+	$theme_dir = get_stylesheet_directory();
+	$theme_uri = get_stylesheet_directory_uri();
+
+	foreach ( array_keys( child_get_dynamic_blocks() ) as $slug ) {
+		$editor_css = $theme_dir . '/build/' . $slug . '/index.css';
+		if ( file_exists( $editor_css ) ) {
+			wp_enqueue_style(
+				'child-' . $slug . '-editor',
+				$theme_uri . '/build/' . $slug . '/index.css',
+				[],
+				filemtime( $editor_css )
+			);
+		}
+
+		$frontend_css = $theme_dir . '/build/' . $slug . '/style-index.css';
+		if ( file_exists( $frontend_css ) ) {
+			wp_enqueue_style(
+				'child-' . $slug . '-style-editor',
+				$theme_uri . '/build/' . $slug . '/style-index.css',
+				[],
+				filemtime( $frontend_css )
+			);
+		}
+	}
+}
+add_action( 'enqueue_block_editor_assets', 'child_enqueue_dynamic_block_styles_in_editor', 20 );
+
+/**
  * Global frontend style fallback for dynamic blocks.
  */
 function child_enqueue_dynamic_block_styles_globally(): void {
