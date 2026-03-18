@@ -1,34 +1,58 @@
 <?php
 /**
- * Minimal replacement for Head, Footer and Post Injections plugin:
- * - Adds a Customizer setting for the fediverse:creator handle.
- * - Outputs the <meta name="fediverse:creator"> tag in the <head> if set.
- * - Implements https://blog.joinmastodon.org/2024/07/highlighting-journalism-on-mastodon/
+ * Fediverse creator meta integration.
+ *
+ * @package TwentyTwentyFiveChild
  */
 
-// Add Customizer setting
-add_action( 'customize_register', function( $wp_customize ) {
-    $wp_customize->add_section( 'fediverse_section', [
-        'title'    => __( 'Fediverse Author', 'child' ),
-        'priority' => 30,
-    ] );
-    $wp_customize->add_setting( 'fediverse_creator_handle', [
-        'type' => 'theme_mod',
-        'sanitize_callback' => function( $value ) {
-            return sanitize_text_field( $value );
-        },
-    ] );
-    $wp_customize->add_control( 'fediverse_creator_handle', [
-        'label'   => __( 'Fediverse Creator Handle (e.g. @yourname@mastodon.social)', 'child' ),
-        'section' => 'fediverse_section',
-        'type'    => 'text',
-    ] );
-});
+/**
+ * Sanitize fediverse creator handle.
+ */
+function child_sanitize_fediverse_handle( string $value ): string {
+	return sanitize_text_field( $value );
+}
 
-// Output meta tag in <head>
-add_action( 'wp_head', function() {
-    $handle = get_theme_mod( 'fediverse_creator_handle' );
-    if ( $handle ) {
-        echo '<meta name="fediverse:creator" content="' . esc_attr( $handle ) . '" />' . "\n";
-    }
-});
+/**
+ * Register customizer controls for fediverse metadata.
+ */
+function child_register_fediverse_customizer_settings( WP_Customize_Manager $wp_customize ): void {
+	$wp_customize->add_section(
+		'fediverse_section',
+		[
+			'title'    => __( 'Fediverse Author', 'child' ),
+			'priority' => 30,
+		]
+	);
+
+	$wp_customize->add_setting(
+		'fediverse_creator_handle',
+		[
+			'type'              => 'theme_mod',
+			'sanitize_callback' => 'child_sanitize_fediverse_handle',
+		]
+	);
+
+	$wp_customize->add_control(
+		'fediverse_creator_handle',
+		[
+			'label'   => __( 'Fediverse Creator Handle (e.g. @yourname@mastodon.social)', 'child' ),
+			'section' => 'fediverse_section',
+			'type'    => 'text',
+		]
+	);
+}
+add_action( 'customize_register', 'child_register_fediverse_customizer_settings' );
+
+/**
+ * Print Fediverse creator meta tag in <head> when configured.
+ */
+function child_output_fediverse_meta_tag(): void {
+	$handle = (string) get_theme_mod( 'fediverse_creator_handle' );
+
+	if ( '' === $handle ) {
+		return;
+	}
+
+	echo '<meta name="fediverse:creator" content="' . esc_attr( $handle ) . '" />' . "\n";
+}
+add_action( 'wp_head', 'child_output_fediverse_meta_tag' );
