@@ -1,111 +1,82 @@
-# TwentyTwentyFive Child Theme — Overview
+# TwentyTwentyFive Child Theme
 
-This child theme extends a block-based parent theme with a set of small, maintainable theme modules and custom Gutenberg blocks. It replaces certain plugin functionality with lightweight, theme-integrated code.
+A production-focused child theme for **Twenty Twenty-Five** that keeps customization logic modular, minimizes parent-theme duplication, and uses WordPress hooks/filters over template overrides.
 
-## Summary
+## Refactored Structure
 
-- Child stylesheet is enqueued from `functions.php`.
-- Modular structure: PHP modules live in `inc/` and are autoloaded.
-- Block source is in `blocks/`; compiled assets live in `build/`.
+```text
+.
+├── assets/                      # Reserved for custom static assets.
+├── blocks/                      # Block source (editor JS/CSS + render callbacks).
+├── build/                       # Compiled block assets consumed by register_block_type().
+├── inc/
+│   ├── blocks.php               # Central dynamic block registration + shared style handling.
+│   ├── bootstrap.php            # Child theme bootstrapping + module autoload.
+│   ├── head-footer-injections.php
+│   ├── media-recommendation.php
+│   ├── notes.php
+│   ├── videogame-recommendation.php
+│   └── visual-link-preview-async.php
+├── functions.php                # Thin entrypoint (version constant + bootstrap include).
+└── style.css                    # Child metadata + minimal theme-level styles.
+```
 
-## Included Blocks & Modules
+## Architectural Decisions
 
-- **Book Rating**
-	- Location: `inc/book-rating.php`
-	- Registration: `build/book-rating` (block assets) and server-side renderer at `blocks/book-rating/render.php`.
-	- Purpose: Display a book card (cover, title, author). Rendering is done server-side in PHP.
+- **Single block registry**: all dynamic blocks are registered in one place (`inc/blocks.php`) to eliminate repeated boilerplate.
+- **Hook-based behavior**: settings pages, AJAX endpoints, and front-end enhancements are implemented with core actions/filters.
+- **Minimal `functions.php`**: startup logic is delegated to `inc/bootstrap.php` for maintainability.
+- **No unnecessary template overrides**: the child theme favors extensibility via block render callbacks and hooks.
 
-- **Media Recommendation (Film/Serie)**
-	- Location: `inc/media-recommendation.php`
-	- Registration: `build/media-recommendation` (block assets) and server-side renderer at `blocks/media-recommendation/render.php`.
-	- Purpose: Display movies and TV shows with poster images and titles. Searches both movies and TV shows via TMDB API with server-side AJAX endpoint for security.
-	- Setup: Requires TMDB API key configuration (see `MEDIA_RECOMMENDATION_SETUP.md`).
+## Dynamic Blocks Registered
 
-- **Videogame Recommendation**
-	- Location: `inc/videogame-recommendation.php`
-	- Registration: `build/videogame-recommendation` (block assets) and server-side renderer at `blocks/videogame-recommendation/render.php`.
-	- Purpose: Display video games with cover images and titles. Searches games via RAWG API with server-side AJAX endpoint for security.
-	- Setup: Requires RAWG API key (free from [rawg.io/apidocs](https://rawg.io/apidocs)). Configure via WordPress Admin → Settings → Videogame Recommendation or define `RAWG_API_KEY` in `wp-config.php`.
+- `child/book-rating`
+- `child/magic-cards`
+- `child/media-recommendation`
+- `child/pixelfed-feed`
+- `child/popular-posts`
+- `child/videogame-recommendation`
+- `child/visual-link-preview`
 
-- **Magic Cards**
-	- Location: `inc/magic-cards.php`
-	- Registration: `build/magic-cards` (block assets) and server-side renderer at `blocks/magic-cards/render.php`.
-	- Purpose: Display Magic: The Gathering cards (single cards from Scryfall/Gatherer or Moxfield deck embeds). Features card lookup with alternative print selection and lazy loading for images and iframes.
+Each block:
+- registers from `build/<slug>`
+- uses server-side render callback from `blocks/<slug>/render.php`
+- receives block style enqueueing plus a global style fallback for compatibility
 
-- **Popular Posts**
-	- Location: `inc/popular-posts.php`
-	- Purpose: Provides a Gutenberg block to render a curated list of posts selected by editors.
+## API-backed Features
 
-- **Visual Link Preview**
-	- Location: `inc/visual-link-preview.php` (block) and `inc/visual-link-preview-async.php` (background fetch)
-	- Behavior: Fetches metadata (OG/Twitter) using `wp_safe_remote_get()`, parses HTML with `DOMDocument`/`DOMXPath`, normalizes image URLs, and caches results in a transient (`child_vlp_<md5(url)>`) for approximately 24 hours.
+### Media Recommendation (TMDB)
+- Admin settings page under **Settings → Media Recommendation**.
+- API key lookup order: option `child_tmdb_api_key`, then `TMDB_API_KEY` constant fallback.
+- Editor AJAX endpoint: `wp_ajax_child_tmdb_search`.
 
-- **Head/Footer Injections (Fediverse)**
-	- Location: `inc/head-footer-injections.php`
-	- Purpose: Adds a Customizer setting `fediverse_creator_handle` and outputs the `<meta name="fediverse:creator">` tag in the page head when set.
+### Videogame Recommendation (RAWG)
+- Admin settings page under **Settings → Videogame Recommendation**.
+- API key lookup order: option `child_rawg_api_key`, then `RAWG_API_KEY` constant fallback.
+- Editor AJAX endpoint: `wp_ajax_child_rawg_search`.
 
-- **Notes (Short Posts)**
-	- Location: `inc/notes.php`
-	- Purpose: Registers a `note` custom post type for short, headline-less thoughts.
-	- Editor behavior: Supports content editor without requiring a post title/headline. An internal title is auto-generated on save using the note date/time.
-	- Frontend behavior: The `core/post-title` block is suppressed for notes in Query Loops (so notes render without visible titles).
-	- Query behavior: Notes are not included in the main blog feed unless explicitly queried.
-	- URL behavior: Public post type with archive at `/notes`; rewrite rules are flushed automatically once after deployment/theme switch so archives and permalinks resolve without manual Permalink resave.
+## Notes Custom Post Type
 
-## Files & Folders (quick)
+`inc/notes.php` provides a `note` post type for short-form posts, with:
+- generated internal titles for title-less notes,
+- hidden `core/post-title` output on front end for notes,
+- guarded rewrite flush logic for reliable `/notes` routing.
 
-- `blocks/` — block source (editor scripts, `block.json`, `render.php` where server-side rendering is required)
-- `build/` — compiled, shipped block assets (JS/CSS)
-- `inc/` — PHP modules registering blocks, render callbacks and helpers
-- `functions.php` — bootstraps the theme (loads `inc/*.php`, enqueues child stylesheet)
-
-## Development & Build
-
-Prerequisites (recommended): Node.js, npm
-
-From the theme root run:
+## Development
 
 ```bash
 npm install
 npm run build
 ```
 
-To create a distributable package:
+To create a distribution package:
 
 ```bash
 npm run dist
 ```
 
-Note: After changes to `blocks/` always run `npm run build` to update the `build/` assets — the theme registers assets from that folder.
+## Compatibility & Maintenance
 
-## Automated Builds & Releases
-
-The repository uses GitHub Actions to automatically build and release the theme:
-
-- **Pull Request Merged to main**: Triggers a build and uploads artifacts to the workflow run.
-- **Tag Pushed (v*)**: Triggers a build and automatically creates a GitHub release with the theme zip file attached.
-- **Release Published**: When a GitHub release is manually created/published, automatically builds and uploads the theme zip to that release.
-- **Manual Workflow Dispatch**: Can be triggered manually from the Actions tab.
-
-The automated workflow ensures the `dist/twentytwentyfive-child.zip` file is always available for releases without needing to commit build artifacts to the repository.
-
-## Developer Notes
-
-- Styles: Each module registers `style-index.css` as a block style and also enqueues it globally as a frontend fallback when present.
-- Popular Posts: The block renders a curated list chosen by editors.
-- Visual Link Preview: Background fetch endpoint is `admin_post_child_vlp_fetch` (also available via `admin_post_nopriv_child_vlp_fetch`) and is responsible for fetch/parse/cache.
-
-## Performance Optimizations
-
-The theme includes several performance optimizations to minimize filesystem I/O operations:
-
-- **Cached Module Loading**: `functions.php` caches the result of `glob()` when loading modules from `inc/` to avoid repeated filesystem scans on every page load.
-- **Static CSS Caching**: All block modules (book-rating, popular-posts, media-recommendation, visual-link-preview) use static variables to cache CSS file existence and modification time checks, reducing redundant `file_exists()` and `filemtime()` calls.
-- **Clean Code**: Removed unreachable dead code from the Visual Link Preview render callback to improve code maintainability and execution efficiency.
-
-These optimizations are transparent to users and require no configuration.
-
-## Quick FAQ
-
-- Where do I set the Fediverse meta tag? → Customizer → "Fediverse Author" (setting `fediverse_creator_handle`).
-- Where are server-side renderers? → `blocks/<block>/render.php` and the corresponding `inc/*.php` registration files.
+- Keeps child-theme overrides intentionally minimal.
+- Uses consistent prefixed function names (`child_*`) to avoid collisions.
+- Consolidates duplicated registration/enqueue logic to simplify future parent-theme updates.

@@ -1,178 +1,175 @@
 <?php
 /**
- * Media Recommendation Block Registration
+ * Media recommendation integration (TMDB settings + AJAX).
+ *
+ * @package TwentyTwentyFiveChild
  */
 
-// TMDB API Configuration
-// You can configure the API key in two ways:
-// 1. Via WordPress Admin: Settings > Media Recommendation (recommended)
-// 2. Via wp-config.php: define('TMDB_API_KEY', 'your_api_key_here');
-// Get a free API key at https://www.themoviedb.org/settings/api
+/**
+ * Read TMDB key from option, then constant fallback.
+ */
+function child_get_tmdb_api_key(): string {
+	$api_key = (string) get_option( 'child_tmdb_api_key', '' );
 
-// Helper function to get TMDB API key from settings or constant
-function child_get_tmdb_api_key() {
-    // First, check if it's set in options (from settings page)
-    $api_key = get_option( 'child_tmdb_api_key', '' );
-    
-    // Fallback to wp-config.php constant for backwards compatibility
-    if ( empty( $api_key ) && defined( 'TMDB_API_KEY' ) ) {
-        $api_key = TMDB_API_KEY;
-    }
-    
-    return $api_key;
+	if ( '' === $api_key && defined( 'TMDB_API_KEY' ) ) {
+		$api_key = (string) TMDB_API_KEY;
+	}
+
+	return $api_key;
 }
 
-// Add settings page for TMDB API key
-add_action( 'admin_menu', function() {
-    add_options_page(
-        __( 'Media Recommendation Settings', 'child' ),
-        __( 'Media Recommendation', 'child' ),
-        'manage_options',
-        'child-media-recommendation',
-        function() {
-            ?>
-            <div class="wrap">
-                <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
-                <form action="options.php" method="post">
-                    <?php
-                    settings_fields( 'child_media_recommendation' );
-                    do_settings_sections( 'child-media-recommendation' );
-                    submit_button( __( 'Save Settings', 'child' ) );
-                    ?>
-                </form>
-            </div>
-            <?php
-        }
-    );
-} );
+/**
+ * Render the TMDB settings page.
+ */
+function child_render_media_recommendation_settings_page(): void {
+	?>
+	<div class="wrap">
+		<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+		<form action="options.php" method="post">
+			<?php
+			settings_fields( 'child_media_recommendation' );
+			do_settings_sections( 'child-media-recommendation' );
+			submit_button( __( 'Save Settings', 'child' ) );
+			?>
+		</form>
+	</div>
+	<?php
+}
 
-// Register settings
-add_action( 'admin_init', function() {
-    register_setting( 'child_media_recommendation', 'child_tmdb_api_key', [
-        'type' => 'string',
-        'sanitize_callback' => 'sanitize_text_field',
-        'default' => ''
-    ] );
-    
-    add_settings_section(
-        'child_media_recommendation_section',
-        __( 'TMDB API Configuration', 'child' ),
-        function() {
-            echo '<p>' . sprintf(
-                /* translators: %s: URL to TMDB API settings */
-                __( 'To use the Media Recommendation block, you need a free API key from The Movie Database. Get your API key at <a href="%s" target="_blank" rel="noopener noreferrer">themoviedb.org/settings/api</a>.', 'child' ),
-                'https://www.themoviedb.org/settings/api'
-            ) . '</p>';
-        },
-        'child-media-recommendation'
-    );
-    
-    add_settings_field(
-        'child_tmdb_api_key',
-        __( 'TMDB API Key', 'child' ),
-        function() {
-            $value = get_option( 'child_tmdb_api_key', '' );
-            $has_constant = defined( 'TMDB_API_KEY' ) && ! empty( TMDB_API_KEY );
-            
-            echo '<input type="text" id="child_tmdb_api_key" name="child_tmdb_api_key" value="' . esc_attr( $value ) . '" class="regular-text" placeholder="' . esc_attr__( 'Enter your TMDB API key', 'child' ) . '" />';
-            
-            if ( $has_constant && empty( $value ) ) {
-                echo '<p class="description">' . __( 'Currently using API key from wp-config.php. Enter a key here to override it.', 'child' ) . '</p>';
-            } else {
-                echo '<p class="description">' . __( 'Your API key will be stored securely in the database.', 'child' ) . '</p>';
-            }
-        },
-        'child-media-recommendation',
-        'child_media_recommendation_section'
-    );
-} );
+/**
+ * Register TMDB settings page.
+ */
+function child_register_media_recommendation_settings_page(): void {
+	add_options_page(
+		__( 'Media Recommendation Settings', 'child' ),
+		__( 'Media Recommendation', 'child' ),
+		'manage_options',
+		'child-media-recommendation',
+		'child_render_media_recommendation_settings_page'
+	);
+}
+add_action( 'admin_menu', 'child_register_media_recommendation_settings_page' );
 
-// Register the block + styles similar to other replacements
-add_action( 'init', function() {
-    register_block_type( get_stylesheet_directory() . '/build/media-recommendation', [
-        'render_callback' => require get_stylesheet_directory() . '/blocks/media-recommendation/render.php'
-    ] );
+/**
+ * Register TMDB settings and field.
+ */
+function child_register_media_recommendation_settings(): void {
+	register_setting(
+		'child_media_recommendation',
+		'child_tmdb_api_key',
+		[
+			'type'              => 'string',
+			'sanitize_callback' => 'sanitize_text_field',
+			'default'           => '',
+		]
+	);
 
-    $css_path = get_stylesheet_directory() . '/build/media-recommendation/style-index.css';
-    if ( file_exists( $css_path ) ) {
-        wp_enqueue_block_style( 'child/media-recommendation', [
-            'handle' => 'child-media-recommendation-style',
-            'src'    => get_stylesheet_directory_uri() . '/build/media-recommendation/style-index.css',
-            'path'   => $css_path,
-        ] );
-    }
-} );
+	add_settings_section(
+		'child_media_recommendation_section',
+		__( 'TMDB API Configuration', 'child' ),
+		'child_render_media_recommendation_section_description',
+		'child-media-recommendation'
+	);
 
-// Fallback: ensure frontend always has the CSS even without block supports
-add_action( 'wp_enqueue_scripts', function() {
-    static $css_mtime = null;
-    if ( null === $css_mtime ) {
-        $css_path = get_stylesheet_directory() . '/build/media-recommendation/style-index.css';
-        $css_mtime = file_exists( $css_path ) ? filemtime( $css_path ) : false;
-    }
-    if ( false !== $css_mtime ) {
-        wp_enqueue_style( 'child-media-recommendation-style-global', get_stylesheet_directory_uri() . '/build/media-recommendation/style-index.css', [], $css_mtime );
-    }
-}, 20 );
+	add_settings_field(
+		'child_tmdb_api_key',
+		__( 'TMDB API Key', 'child' ),
+		'child_render_media_recommendation_api_field',
+		'child-media-recommendation',
+		'child_media_recommendation_section'
+	);
+}
+add_action( 'admin_init', 'child_register_media_recommendation_settings' );
 
-// AJAX endpoint for TMDB search (authenticated users)
-add_action( 'wp_ajax_child_tmdb_search', function() {
-    check_ajax_referer( 'child-media-search', 'nonce' );
-    
-    if ( ! current_user_can( 'edit_posts' ) ) {
-        wp_send_json_error( 'Unauthorized', 403 );
-    }
+/**
+ * Render TMDB section text.
+ */
+function child_render_media_recommendation_section_description(): void {
+	echo '<p>' . wp_kses_post(
+		sprintf(
+			/* translators: %s: URL to TMDB API settings */
+			__( 'To use the Media Recommendation block, you need a free API key from The Movie Database. Get your API key at %s.', 'child' ),
+			'<a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer">themoviedb.org/settings/api</a>'
+		)
+	) . '</p>';
+}
 
-    $query = sanitize_text_field( $_GET['query'] ?? '' );
-    if ( empty( $query ) ) {
-        wp_send_json_error( 'Query required', 400 );
-    }
+/**
+ * Render TMDB key input.
+ */
+function child_render_media_recommendation_api_field(): void {
+	$value        = (string) get_option( 'child_tmdb_api_key', '' );
+	$has_constant = defined( 'TMDB_API_KEY' ) && ! empty( TMDB_API_KEY );
 
-    $api_key = child_get_tmdb_api_key();
-    if ( empty( $api_key ) ) {
-        wp_send_json_error( 'TMDB API key not configured. Please configure it in Settings > Media Recommendation or add TMDB_API_KEY to wp-config.php', 500 );
-    }
+	echo '<input type="text" id="child_tmdb_api_key" name="child_tmdb_api_key" value="' . esc_attr( $value ) . '" class="regular-text" placeholder="' . esc_attr__( 'Enter your TMDB API key', 'child' ) . '" />';
 
-    // Get WordPress locale and convert to TMDB format (e.g., de_DE -> de-DE)
-    $wp_locale = get_locale();
-    $tmdb_locale = str_replace( '_', '-', $wp_locale );
-    
-    // Search both movies and TV shows
-    $movie_response = wp_safe_remote_get(
-        'https://api.themoviedb.org/3/search/movie?api_key=' . urlencode( $api_key ) . 
-        '&query=' . urlencode( $query ) . '&language=' . urlencode( $tmdb_locale ),
-        [ 'timeout' => 10 ]
-    );
+	if ( $has_constant && '' === $value ) {
+		echo '<p class="description">' . esc_html__( 'Currently using API key from wp-config.php. Enter a key here to override it.', 'child' ) . '</p>';
+		return;
+	}
 
-    $tv_response = wp_safe_remote_get(
-        'https://api.themoviedb.org/3/search/tv?api_key=' . urlencode( $api_key ) . 
-        '&query=' . urlencode( $query ) . '&language=' . urlencode( $tmdb_locale ),
-        [ 'timeout' => 10 ]
-    );
+	echo '<p class="description">' . esc_html__( 'Your API key will be stored securely in the database.', 'child' ) . '</p>';
+}
 
-    if ( is_wp_error( $movie_response ) || is_wp_error( $tv_response ) ) {
-        wp_send_json_error( 'API request failed', 500 );
-    }
+/**
+ * AJAX endpoint for TMDB searches from block editor.
+ */
+function child_handle_tmdb_search_ajax(): void {
+	check_ajax_referer( 'child-media-search', 'nonce' );
 
-    $movie_data = json_decode( wp_remote_retrieve_body( $movie_response ), true );
-    $tv_data = json_decode( wp_remote_retrieve_body( $tv_response ), true );
+	if ( ! current_user_can( 'edit_posts' ) ) {
+		wp_send_json_error( 'Unauthorized', 403 );
+	}
 
-    $results = [
-        'movies' => $movie_data['results'] ?? [],
-        'tv' => $tv_data['results'] ?? []
-    ];
+	$query = sanitize_text_field( wp_unslash( $_GET['query'] ?? '' ) );
+	if ( '' === $query ) {
+		wp_send_json_error( 'Query required', 400 );
+	}
 
-    wp_send_json_success( $results );
-} );
+	$api_key = child_get_tmdb_api_key();
+	if ( '' === $api_key ) {
+		wp_send_json_error( 'TMDB API key not configured. Please configure it in Settings > Media Recommendation or add TMDB_API_KEY to wp-config.php', 500 );
+	}
 
-// Localize script with AJAX URL and nonce
-add_action( 'enqueue_block_editor_assets', function() {
-    wp_localize_script(
-        'wp-block-editor',
-        'childMediaSearch',
-        [
-            'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-            'nonce' => wp_create_nonce( 'child-media-search' )
-        ]
-    );
-} );
+	$wp_locale   = get_locale();
+	$tmdb_locale = str_replace( '_', '-', $wp_locale );
+
+	$movie_response = wp_safe_remote_get(
+		'https://api.themoviedb.org/3/search/movie?api_key=' . rawurlencode( $api_key ) . '&query=' . rawurlencode( $query ) . '&language=' . rawurlencode( $tmdb_locale ),
+		[ 'timeout' => 10 ]
+	);
+	$tv_response = wp_safe_remote_get(
+		'https://api.themoviedb.org/3/search/tv?api_key=' . rawurlencode( $api_key ) . '&query=' . rawurlencode( $query ) . '&language=' . rawurlencode( $tmdb_locale ),
+		[ 'timeout' => 10 ]
+	);
+
+	if ( is_wp_error( $movie_response ) || is_wp_error( $tv_response ) ) {
+		wp_send_json_error( 'API request failed', 500 );
+	}
+
+	$movie_data = json_decode( wp_remote_retrieve_body( $movie_response ), true );
+	$tv_data    = json_decode( wp_remote_retrieve_body( $tv_response ), true );
+
+	wp_send_json_success(
+		[
+			'movies' => $movie_data['results'] ?? [],
+			'tv'     => $tv_data['results'] ?? [],
+		]
+	);
+}
+add_action( 'wp_ajax_child_tmdb_search', 'child_handle_tmdb_search_ajax' );
+
+/**
+ * Provide AJAX data in editor.
+ */
+function child_localize_media_search(): void {
+	child_localize_block_editor_script(
+		'child/media-recommendation',
+		'childMediaSearch',
+		[
+			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+			'nonce'   => wp_create_nonce( 'child-media-search' ),
+		]
+	);
+}
+add_action( 'enqueue_block_editor_assets', 'child_localize_media_search' );

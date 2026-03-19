@@ -217,7 +217,7 @@ function Edit({ attributes, setAttributes }) {
         <div {...blockProps}>
             <InspectorControls>
                 <PanelBody title={__('Film/Serie suchen', 'child')} initialOpen={true}>
-                    <TextControl
+                    <TextControl __next40pxDefaultSize __nextHasNoMarginBottom
                         label={__('Suche nach Titel', 'child')}
                         value={searchTerm}
                         onChange={setSearchTerm}
@@ -266,23 +266,23 @@ function Edit({ attributes, setAttributes }) {
                         ]}
                         onChange={(value) => setAttributes({ mediaType: value })}
                     />
-                    <TextControl
+                    <TextControl __next40pxDefaultSize __nextHasNoMarginBottom
                         label={__('Titel', 'child')}
                         value={mediaTitle}
                         onChange={(value) => setAttributes({ mediaTitle: value })}
                     />
-                    <TextControl
+                    <TextControl __next40pxDefaultSize __nextHasNoMarginBottom
                         label={__('Jahr', 'child')}
                         value={releaseYear}
                         onChange={(value) => setAttributes({ releaseYear: value })}
                     />
-                    <TextControl
+                    <TextControl __next40pxDefaultSize __nextHasNoMarginBottom
                         label={__('Poster-URL', 'child')}
                         value={posterUrl}
                         onChange={(value) => setAttributes({ posterUrl: value })}
                         help={__('Optional: Eigenes Poster einfügen', 'child')}
                     />
-                    <TextControl
+                    <TextControl __next40pxDefaultSize __nextHasNoMarginBottom
                         label={__('Streaming-Link', 'child')}
                         value={serviceUrl}
                         onChange={(value) => setAttributes({ serviceUrl: value })}

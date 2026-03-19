@@ -3,11 +3,11 @@ import { registerBlockType } from '@wordpress/blocks';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, TextControl, Button, Spinner, Notice } from '@wordpress/components';
 import { useState, useEffect } from '@wordpress/element';
+import apiFetch from '@wordpress/api-fetch';
+import { addQueryArgs } from '@wordpress/url';
 import metadata from './block.json';
 import './editor.css';
 import './style.css';
-
-const GOOGLE_BOOKS_API = 'https://www.googleapis.com/books/v1/volumes';
 
 const normalizeCoverUrl = (url) => {
     if (!url) {
@@ -155,13 +155,12 @@ function Edit({ attributes, setAttributes }) {
         setSearchResults([]);
         setSelectedBookId(null);
         try {
-            const response = await fetch(
-                `${GOOGLE_BOOKS_API}?q=${encodeURIComponent(trimmedTerm)}&maxResults=5`
-            );
-            if (!response.ok) {
-                throw new Error('Request failed');
-            }
-            const data = await response.json();
+            const data = await apiFetch({
+                path: addQueryArgs('/child/v1/books', {
+                    q: trimmedTerm,
+                    maxResults: 5
+                })
+            });
 
             const results = (data.items || []).map((item) => {
                 const info = item.volumeInfo || {};
@@ -192,7 +191,18 @@ function Edit({ attributes, setAttributes }) {
             }
         } catch (error) {
             console.error('Fehler beim Suchen:', error);
-            setSearchError(__('Beim Suchen ist ein Fehler aufgetreten. Bitte versuche es erneut.', 'child'));
+            if (error?.code === 'rate_limited' || error?.data?.status === 429) {
+                setSearchError(
+                    __(
+                        'Google Books API-Limit erreicht. Bitte später erneut versuchen oder einen API-Schlüssel hinterlegen.',
+                        'child'
+                    )
+                );
+            } else {
+                setSearchError(
+                    __('Beim Suchen ist ein Fehler aufgetreten. Bitte versuche es erneut.', 'child')
+                );
+            }
             setHasSearched(false);
         }
         setIsSearching(false);
@@ -215,7 +225,7 @@ function Edit({ attributes, setAttributes }) {
         <div {...blockProps}>
             <InspectorControls>
                 <PanelBody title={__('Buch finden', 'child')} initialOpen={true}>
-                    <TextControl
+                    <TextControl __next40pxDefaultSize __nextHasNoMarginBottom
                         label={__('Suche nach Titel oder Autor', 'child')}
                         value={searchTerm}
                         onChange={setSearchTerm}
@@ -255,23 +265,23 @@ function Edit({ attributes, setAttributes }) {
                 </PanelBody>
 
                 <PanelBody title={__('Buchdetails', 'child')} initialOpen={true}>
-                    <TextControl
+                    <TextControl __next40pxDefaultSize __nextHasNoMarginBottom
                         label={__('Titel', 'child')}
                         value={bookTitle}
                         onChange={(value) => setAttributes({ bookTitle: value })}
                     />
-                    <TextControl
+                    <TextControl __next40pxDefaultSize __nextHasNoMarginBottom
                         label={__('Autor', 'child')}
                         value={author}
                         onChange={(value) => setAttributes({ author: value })}
                     />
-                    <TextControl
+                    <TextControl __next40pxDefaultSize __nextHasNoMarginBottom
                         label={__('Cover-URL', 'child')}
                         value={coverUrl}
                         onChange={(value) => setAttributes({ coverUrl: value })}
                         help={__('Optional: Eigene Cover-Grafik einfügen', 'child')}
                     />
-                    <TextControl
+                    <TextControl __next40pxDefaultSize __nextHasNoMarginBottom
                         label={__('Shop-Link', 'child')}
                         value={shopUrl}
                         onChange={(value) => setAttributes({ shopUrl: value })}
