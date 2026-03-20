@@ -1,0 +1,10 @@
+.wp-block-child-post-likes .child-post-likes__button.is-editor-preview {
+	cursor: default;
+	opacity: 0.9;
+}
+
+.wp-block-child-post-likes .child-post-likes__help {
+	color: #666;
+	font-size: 0.85rem;
+	margin: 0.45rem 0 0;
+}

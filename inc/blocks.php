@@ -28,6 +28,10 @@ function child_get_dynamic_blocks(): array {
 			'block_name'  => 'child/pixelfed-feed',
 			'render_file' => 'blocks/pixelfed-feed/render.php',
 		],
+		'post-likes'              => [
+			'block_name'  => 'child/post-likes',
+			'render_file' => 'blocks/post-likes/render.php',
+		],
 		'popular-posts'            => [
 			'block_name'  => 'child/popular-posts',
 			'render_file' => 'blocks/popular-posts/render.php',

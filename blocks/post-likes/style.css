@@ -1,0 +1,51 @@
+.wp-block-child-post-likes {
+	margin: 1rem 0;
+}
+
+.wp-block-child-post-likes .child-post-likes__button {
+	align-items: center;
+	appearance: none;
+	background: #14060f;
+	border: 1px solid #4f1630;
+	border-radius: 999px;
+	color: #ff5a8b;
+	cursor: pointer;
+	display: inline-flex;
+	font-weight: 700;
+	gap: 0.6rem;
+	line-height: 1;
+	padding: 0.8rem 1.3rem;
+	transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.wp-block-child-post-likes .child-post-likes__button:hover {
+	border-color: #ff5a8b;
+	transform: translateY(-1px);
+}
+
+.wp-block-child-post-likes .child-post-likes__button:focus-visible {
+	outline: 2px solid #ff5a8b;
+	outline-offset: 2px;
+}
+
+.wp-block-child-post-likes .child-post-likes__button.is-liked {
+	background: #2a0a1b;
+	border-color: #ff5a8b;
+}
+
+.wp-block-child-post-likes .child-post-likes__button.is-loading {
+	opacity: 0.8;
+}
+
+.wp-block-child-post-likes .child-post-likes__button.has-error {
+	border-color: #ff9ab6;
+}
+
+.wp-block-child-post-likes .child-post-likes__icon {
+	font-size: 1.2rem;
+}
+
+.wp-block-child-post-likes .child-post-likes__count {
+	font-size: 1.2rem;
+	min-width: 1ch;
+}

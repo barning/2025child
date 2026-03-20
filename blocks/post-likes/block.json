@@ -1,0 +1,16 @@
+{
+  "apiVersion": 3,
+  "name": "child/post-likes",
+  "title": "Post Likes",
+  "category": "widgets",
+  "icon": "heart",
+  "description": "Anonymous like button with server-saved counts.",
+  "supports": {
+    "html": false
+  },
+  "textdomain": "child",
+  "editorScript": "file:./index.js",
+  "viewScript": "file:./view.js",
+  "editorStyle": "file:./editor.css",
+  "style": "file:./style.css"
+}
