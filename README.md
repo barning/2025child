@@ -30,6 +30,7 @@ A production-focused child theme for **Twenty Twenty-Five** that keeps customiza
 
 ## Dynamic Blocks Registered
 
+- `child/activity-embed`
 - `child/book-rating`
 - `child/magic-cards`
 - `child/media-recommendation`
@@ -80,3 +81,19 @@ npm run dist
 - Keeps child-theme overrides intentionally minimal.
 - Uses consistent prefixed function names (`child_*`) to avoid collisions.
 - Consolidates duplicated registration/enqueue logic to simplify future parent-theme updates.
+
+
+## Activity Embed Block
+
+`Activity Embed` (`child/activity-embed`) accepts one URL attribute and supports:
+
+- `https://connect.garmin.com/`
+- `https://www.strava.com/`
+
+It validates the URL server-side, detects the provider, and renders either oEmbed (for Strava when available) or a provider iframe fallback.
+
+Example block markup in post content:
+
+```html
+<!-- wp:child/activity-embed {"url":"https://www.strava.com/activities/1234567890"} /-->
+```

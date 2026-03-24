@@ -1,0 +1,36 @@
+.wp-block-child-activity-embed {
+	margin: 1.5rem 0;
+}
+
+.child-activity-embed__content {
+	position: relative;
+	width: 100%;
+	max-width: 100%;
+	overflow: hidden;
+	border-radius: 12px;
+}
+
+.child-activity-embed__content iframe,
+.child-activity-embed__content embed,
+.child-activity-embed__content object {
+	display: block;
+	width: 100%;
+	max-width: 100%;
+	border: 0;
+}
+
+.child-activity-embed__iframe-wrap {
+	aspect-ratio: 16 / 9;
+}
+
+.child-activity-embed__iframe-wrap iframe {
+	height: 100%;
+}
+
+.child-activity-embed__notice {
+	padding: 0.9rem 1rem;
+	border: 1px dashed color-mix(in srgb, currentColor 20%, transparent);
+	border-radius: 10px;
+	font-size: 0.95rem;
+	color: color-mix(in srgb, currentColor 75%, transparent);
+}

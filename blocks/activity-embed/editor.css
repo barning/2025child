@@ -1,0 +1,5 @@
+@import './style.css';
+
+.wp-block-child-activity-embed .components-placeholder {
+	margin-bottom: 1rem;
+}

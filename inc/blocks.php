@@ -12,6 +12,10 @@
  */
 function child_get_dynamic_blocks(): array {
 	return [
+		'activity-embed'           => [
+			'block_name'  => 'child/activity-embed',
+			'render_file' => 'blocks/activity-embed/render.php',
+		],
 		'book-rating'              => [
 			'block_name'  => 'child/book-rating',
 			'render_file' => 'blocks/book-rating/render.php',

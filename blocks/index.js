@@ -1,3 +1,4 @@
+import './activity-embed';
 import './popular-posts';
 import './visual-link-preview';
 import './book-rating';
