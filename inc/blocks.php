@@ -159,3 +159,14 @@ function child_localize_block_editor_script( string $block_name, string $object_
 		wp_localize_script( $handle, $object_name, $data );
 	}
 }
+
+
+/**
+ * Register static blocks that do not require frontend PHP render callbacks.
+ */
+function child_register_static_blocks(): void {
+	$theme_dir = get_stylesheet_directory();
+
+	register_block_type( $theme_dir . '/build/responsive-navigation' );
+}
+add_action( 'init', 'child_register_static_blocks' );

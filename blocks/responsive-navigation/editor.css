@@ -1,0 +1,8 @@
+.wp-block-child-responsive-navigation {
+	outline: 1px dashed #d0d7de;
+	padding: 0.75rem;
+}
+
+.wp-block-child-responsive-navigation .components-notice {
+	margin-bottom: 0.75rem;
+}
