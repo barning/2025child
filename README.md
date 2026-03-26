@@ -55,6 +55,11 @@ Each block:
 - API key lookup order: option `child_rawg_api_key`, then `RAWG_API_KEY` constant fallback.
 - Editor AJAX endpoint: `wp_ajax_child_rawg_search`.
 
+### Open Stories
+- Adds an **Open Stories** custom post type in wp-admin for authoring story items.
+- Adds an **Open Stories** settings page under **Settings → Open Stories** for feed metadata defaults.
+- Publishes an Open Stories-compatible JSON feed at `/open-stories.json`.
+
 ## Notes Custom Post Type
 
 `inc/notes.php` provides a `note` post type for short-form posts, with:
