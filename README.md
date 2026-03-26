@@ -33,6 +33,7 @@ A production-focused child theme for **Twenty Twenty-Five** that keeps customiza
 - `child/book-rating`
 - `child/magic-cards`
 - `child/media-recommendation`
+- `child/open-stories-viewer`
 - `child/pixelfed-feed`
 - `child/popular-posts`
 - `child/videogame-recommendation`
@@ -59,6 +60,7 @@ Each block:
 - Adds an **Open Stories** custom post type in wp-admin for authoring story items.
 - Adds an **Open Stories** settings page under **Settings → Open Stories** for feed metadata defaults.
 - Publishes an Open Stories-compatible JSON feed at `/open-stories.json`.
+- Includes a Gutenberg **Open Stories Viewer** block (`child/open-stories-viewer`) that renders the `open-stories-element` web component for playback.
 
 ## Notes Custom Post Type
 

@@ -1,0 +1,41 @@
+{
+  "apiVersion": 3,
+  "name": "child/open-stories-viewer",
+  "title": "Open Stories Viewer",
+  "category": "widgets",
+  "icon": "format-video",
+  "description": "Display an Open Stories feed using the open-stories-element web component.",
+  "supports": {
+    "html": false
+  },
+  "attributes": {
+    "feedUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "buttonText": {
+      "type": "string",
+      "default": "View Stories"
+    },
+    "loading": {
+      "type": "string",
+      "default": "eager"
+    },
+    "duration": {
+      "type": "number",
+      "default": 5
+    },
+    "showMetadata": {
+      "type": "boolean",
+      "default": false
+    },
+    "isHighlight": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "textdomain": "child",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./editor.css",
+  "style": "file:./style.css"
+}
