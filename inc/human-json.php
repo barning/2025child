@@ -9,6 +9,7 @@
  * Option name for storing newline-separated human.json vouch URLs.
  */
 const CHILD_HUMAN_JSON_VOUCHES_OPTION = 'child_human_json_vouches';
+const CHILD_HUMAN_JSON_REWRITE_VERSION = '1';
 
 /**
  * Sanitize human.json vouch list entered as newline-separated URLs.
@@ -151,6 +152,21 @@ function child_register_json_rewrite_rules(): void {
 	);
 }
 add_action( 'init', 'child_register_json_rewrite_rules' );
+
+/**
+ * Flush rewrite rules once when the /json rewrite definition changes.
+ */
+function child_maybe_flush_json_rewrite_rules(): void {
+	$current_version = (string) get_option( 'child_human_json_rewrite_version', '' );
+
+	if ( CHILD_HUMAN_JSON_REWRITE_VERSION === $current_version ) {
+		return;
+	}
+
+	flush_rewrite_rules( false );
+	update_option( 'child_human_json_rewrite_version', CHILD_HUMAN_JSON_REWRITE_VERSION );
+}
+add_action( 'init', 'child_maybe_flush_json_rewrite_rules', 20 );
 
 /**
  * Register custom query variable for /json route.
