@@ -32,7 +32,6 @@ function child_sanitize_human_json_vouches( string $value ): string {
 			continue;
 		}
 
-		$url = trailingslashit( $url );
 		$key = strtolower( $url );
 
 		if ( isset( $seen_urls[ $key ] ) ) {
@@ -169,6 +168,16 @@ function child_maybe_flush_json_rewrite_rules(): void {
 add_action( 'init', 'child_maybe_flush_json_rewrite_rules', 20 );
 
 /**
+ * Ensure rewrites are regenerated when the theme is activated.
+ */
+function child_flush_json_rewrite_rules_on_switch(): void {
+	delete_option( 'child_human_json_rewrite_version' );
+	flush_rewrite_rules( false );
+	update_option( 'child_human_json_rewrite_version', CHILD_HUMAN_JSON_REWRITE_VERSION );
+}
+add_action( 'after_switch_theme', 'child_flush_json_rewrite_rules_on_switch' );
+
+/**
  * Register custom query variable for /json route.
  *
  * @param string[] $vars Existing query vars.
@@ -205,7 +214,7 @@ function child_get_human_json_vouch_urls(): array {
 			continue;
 		}
 
-		$urls[] = trailingslashit( $url );
+		$urls[] = $url;
 	}
 
 	$urls = array_values( array_unique( $urls ) );
