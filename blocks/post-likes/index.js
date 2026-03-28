@@ -180,10 +180,12 @@ function Edit( { attributes, setAttributes } ) {
 					{ ctaTextValue !== '' && (
 						<span className="child-post-likes__cta">{ ctaTextValue }</span>
 					) }
-					<span className="child-post-likes__icon" aria-hidden="true">
-						{ reactionEmoji }
+					<span className="child-post-likes__pill">
+						<span className="child-post-likes__icon" aria-hidden="true">
+							{ reactionEmoji }
+						</span>
+						<span className="child-post-likes__count">0</span>
 					</span>
-					<span className="child-post-likes__count">0</span>
 				</button>
 				<p className="child-post-likes__help">
 					{ __( 'Frontend visitors can toggle likes on this post.', 'child' ) }

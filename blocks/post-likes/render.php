@@ -98,8 +98,10 @@ return function( array $attributes ): string {
 			<?php if ( $cta_text !== '' ) : ?>
 				<span class="child-post-likes__cta"><?php echo esc_html( $cta_text ); ?></span>
 			<?php endif; ?>
-			<span class="child-post-likes__icon" aria-hidden="true"><?php echo esc_html( $reaction_emoji ); ?></span>
-			<span class="child-post-likes__count"><?php echo esc_html( (string) $count ); ?></span>
+			<span class="child-post-likes__pill">
+				<span class="child-post-likes__icon" aria-hidden="true"><?php echo esc_html( $reaction_emoji ); ?></span>
+				<span class="child-post-likes__count"><?php echo esc_html( (string) $count ); ?></span>
+			</span>
 		</button>
 	</div>
 	<?php
