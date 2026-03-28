@@ -115,22 +115,13 @@ function Edit( { attributes, setAttributes } ) {
 							'child'
 						) }
 					/>
-					<SelectControl
+					<TextControl
 						label={ __( 'Emoji', 'child' ) }
 						value={ reactionEmoji }
-						options={ [
-							{ label: '❤️ Heart', value: '❤️' },
-							{ label: '💖 Sparkling Heart', value: '💖' },
-							{ label: '👍 Thumbs Up', value: '👍' },
-							{ label: '🔥 Fire', value: '🔥' },
-							{ label: '😂 Laugh', value: '😂' },
-							{ label: '🎉 Party', value: '🎉' },
-							{ label: '🍰 Cake', value: '🍰' },
-							{ label: '⭐ Star', value: '⭐' },
-						] }
 						onChange={ ( value ) =>
 							setAttributes( { reactionEmoji: value } )
 						}
+						help={ __( 'Paste any emoji you want to use.', 'child' ) }
 					/>
 				</PanelBody>
 				<PanelColorSettings
