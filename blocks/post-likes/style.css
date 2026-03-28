@@ -48,6 +48,10 @@
 	font-size: 1.1em;
 }
 
+.wp-block-child-post-likes .child-post-likes__cta {
+	font-weight: 600;
+}
+
 .wp-block-child-post-likes .child-post-likes__count {
 	font-size: 1.1em;
 	min-width: 1ch;

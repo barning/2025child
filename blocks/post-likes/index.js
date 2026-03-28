@@ -7,7 +7,7 @@ import {
 	PanelColorSettings,
 	useBlockProps,
 } from '@wordpress/block-editor';
-import { PanelBody, SelectControl } from '@wordpress/components';
+import { PanelBody, SelectControl, TextControl } from '@wordpress/components';
 import metadata from './block.json';
 import './editor.css';
 import './style.css';
@@ -41,6 +41,8 @@ function Edit( { attributes, setAttributes } ) {
 		buttonLikedBackground,
 		buttonFocusOutline,
 		buttonErrorBorder,
+		ctaText,
+		reactionEmoji,
 	} = attributes;
 
 	const style = {};
@@ -101,6 +103,32 @@ function Edit( { attributes, setAttributes } ) {
 							setAttributes( { buttonSize: value } )
 						}
 					/>
+					<TextControl
+						label={ __( 'CTA Message', 'child' ) }
+						value={ ctaText }
+						onChange={ ( value ) => setAttributes( { ctaText: value } ) }
+						help={ __(
+							'Short prompt shown before the emoji and like count.',
+							'child'
+						) }
+					/>
+					<SelectControl
+						label={ __( 'Emoji', 'child' ) }
+						value={ reactionEmoji }
+						options={ [
+							{ label: '❤️ Heart', value: '❤️' },
+							{ label: '💖 Sparkling Heart', value: '💖' },
+							{ label: '👍 Thumbs Up', value: '👍' },
+							{ label: '🔥 Fire', value: '🔥' },
+							{ label: '😂 Laugh', value: '😂' },
+							{ label: '🎉 Party', value: '🎉' },
+							{ label: '🍰 Cake', value: '🍰' },
+							{ label: '⭐ Star', value: '⭐' },
+						] }
+						onChange={ ( value ) =>
+							setAttributes( { reactionEmoji: value } )
+						}
+					/>
 				</PanelBody>
 				<PanelColorSettings
 					title={ __( 'Button Colors', 'child' ) }
@@ -155,8 +183,9 @@ function Edit( { attributes, setAttributes } ) {
 				className="child-post-likes__button is-editor-preview"
 				disabled
 			>
+				<span className="child-post-likes__cta">{ ctaText }</span>
 				<span className="child-post-likes__icon" aria-hidden="true">
-					❤
+					{ reactionEmoji }
 				</span>
 				<span className="child-post-likes__count">0</span>
 			</button>

@@ -41,6 +41,14 @@
     "buttonErrorBorder": {
       "type": "string",
       "default": "#ff9ab6"
+    },
+    "ctaText": {
+      "type": "string",
+      "default": "Do you like this?"
+    },
+    "reactionEmoji": {
+      "type": "string",
+      "default": "❤️"
     }
   },
   "supports": {
