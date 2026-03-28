@@ -79,6 +79,11 @@ return function( array $attributes ): string {
 	$wrapper_attributes = $style_string
 		? get_block_wrapper_attributes( [ 'style' => $style_string ] )
 		: get_block_wrapper_attributes();
+	$cta_text           = $attributes['ctaText'] ?? 'Do you like this?';
+	$cta_text           = is_string( $cta_text ) ? trim( wp_strip_all_tags( $cta_text ) ) : 'Do you like this?';
+	$reaction_emoji     = $attributes['reactionEmoji'] ?? '❤️';
+	$reaction_emoji     = is_string( $reaction_emoji ) ? trim( wp_strip_all_tags( $reaction_emoji ) ) : '❤️';
+	$reaction_emoji     = $reaction_emoji !== '' ? $reaction_emoji : '❤️';
 
 	ob_start();
 	?>
@@ -90,8 +95,13 @@ return function( array $attributes ): string {
 			aria-label="<?php esc_attr_e( 'Toggle like', 'child' ); ?>"
 			aria-pressed="<?php echo $liked ? 'true' : 'false'; ?>"
 		>
-			<span class="child-post-likes__icon" aria-hidden="true">❤</span>
-			<span class="child-post-likes__count"><?php echo esc_html( (string) $count ); ?></span>
+			<?php if ( $cta_text !== '' ) : ?>
+				<span class="child-post-likes__cta"><?php echo esc_html( $cta_text ); ?></span>
+			<?php endif; ?>
+			<span class="child-post-likes__pill">
+				<span class="child-post-likes__icon" aria-hidden="true"><?php echo esc_html( $reaction_emoji ); ?></span>
+				<span class="child-post-likes__count"><?php echo esc_html( (string) $count ); ?></span>
+			</span>
 		</button>
 	</div>
 	<?php

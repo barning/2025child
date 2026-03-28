@@ -7,7 +7,7 @@ import {
 	PanelColorSettings,
 	useBlockProps,
 } from '@wordpress/block-editor';
-import { PanelBody, SelectControl } from '@wordpress/components';
+import { PanelBody, SelectControl, TextControl } from '@wordpress/components';
 import metadata from './block.json';
 import './editor.css';
 import './style.css';
@@ -41,6 +41,8 @@ function Edit( { attributes, setAttributes } ) {
 		buttonLikedBackground,
 		buttonFocusOutline,
 		buttonErrorBorder,
+		ctaText,
+		reactionEmoji,
 	} = attributes;
 
 	const style = {};
@@ -77,6 +79,9 @@ function Edit( { attributes, setAttributes } ) {
 
 	const blockProps = useBlockProps( { style } );
 
+	const ctaTextValue =
+		typeof ctaText === 'string' ? ctaText.trim() : '';
+
 	return (
 		<>
 			<BlockControls>
@@ -100,6 +105,23 @@ function Edit( { attributes, setAttributes } ) {
 						onChange={ ( value ) =>
 							setAttributes( { buttonSize: value } )
 						}
+					/>
+					<TextControl
+						label={ __( 'CTA Message', 'child' ) }
+						value={ ctaText }
+						onChange={ ( value ) => setAttributes( { ctaText: value } ) }
+						help={ __(
+							'Short prompt shown before the emoji and like count.',
+							'child'
+						) }
+					/>
+					<TextControl
+						label={ __( 'Emoji', 'child' ) }
+						value={ reactionEmoji }
+						onChange={ ( value ) =>
+							setAttributes( { reactionEmoji: value } )
+						}
+						help={ __( 'Paste any emoji you want to use.', 'child' ) }
 					/>
 				</PanelBody>
 				<PanelColorSettings
@@ -150,19 +172,24 @@ function Edit( { attributes, setAttributes } ) {
 				/>
 			</InspectorControls>
 			<div { ...blockProps }>
-			<button
-				type="button"
-				className="child-post-likes__button is-editor-preview"
-				disabled
-			>
-				<span className="child-post-likes__icon" aria-hidden="true">
-					❤
-				</span>
-				<span className="child-post-likes__count">0</span>
-			</button>
-			<p className="child-post-likes__help">
-				{ __( 'Frontend visitors can toggle likes on this post.', 'child' ) }
-			</p>
+				<button
+					type="button"
+					className="child-post-likes__button is-editor-preview"
+					disabled
+				>
+					{ ctaTextValue !== '' && (
+						<span className="child-post-likes__cta">{ ctaTextValue }</span>
+					) }
+					<span className="child-post-likes__pill">
+						<span className="child-post-likes__icon" aria-hidden="true">
+							{ reactionEmoji }
+						</span>
+						<span className="child-post-likes__count">0</span>
+					</span>
+				</button>
+				<p className="child-post-likes__help">
+					{ __( 'Frontend visitors can toggle likes on this post.', 'child' ) }
+				</p>
 			</div>
 		</>
 	);
