@@ -79,6 +79,9 @@ function Edit( { attributes, setAttributes } ) {
 
 	const blockProps = useBlockProps( { style } );
 
+	const ctaTextValue =
+		typeof ctaText === 'string' ? ctaText.trim() : '';
+
 	return (
 		<>
 			<BlockControls>
@@ -178,20 +181,22 @@ function Edit( { attributes, setAttributes } ) {
 				/>
 			</InspectorControls>
 			<div { ...blockProps }>
-			<button
-				type="button"
-				className="child-post-likes__button is-editor-preview"
-				disabled
-			>
-				<span className="child-post-likes__cta">{ ctaText }</span>
-				<span className="child-post-likes__icon" aria-hidden="true">
-					{ reactionEmoji }
-				</span>
-				<span className="child-post-likes__count">0</span>
-			</button>
-			<p className="child-post-likes__help">
-				{ __( 'Frontend visitors can toggle likes on this post.', 'child' ) }
-			</p>
+				<button
+					type="button"
+					className="child-post-likes__button is-editor-preview"
+					disabled
+				>
+					{ ctaTextValue !== '' && (
+						<span className="child-post-likes__cta">{ ctaTextValue }</span>
+					) }
+					<span className="child-post-likes__icon" aria-hidden="true">
+						{ reactionEmoji }
+					</span>
+					<span className="child-post-likes__count">0</span>
+				</button>
+				<p className="child-post-likes__help">
+					{ __( 'Frontend visitors can toggle likes on this post.', 'child' ) }
+				</p>
 			</div>
 		</>
 	);
