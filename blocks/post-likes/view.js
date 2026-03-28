@@ -48,9 +48,11 @@ const initLikeButton = ( button ) => {
 		setLoadingState( button, true );
 
 		try {
+			const desiredState = ! button.classList.contains( 'is-liked' );
 			const payload = await apiFetch( {
 				path: `/child/v1/post-likes/${ postId }`,
 				method: 'POST',
+				data: { liked: desiredState },
 			} );
 
 			updateButtonState( button, payload );

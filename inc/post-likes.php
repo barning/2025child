@@ -128,27 +128,42 @@ function child_post_likes_has_current_visitor_liked( int $post_id ): bool {
 }
 
 /**
- * Toggle like status for current visitor on post.
+ * Normalize desired like state input.
+ */
+function child_post_likes_normalize_desired_state( $value ): ?bool {
+	if ( is_bool( $value ) ) {
+		return $value;
+	}
+
+	if ( is_numeric( $value ) ) {
+		return (int) $value === 1;
+	}
+
+	if ( is_string( $value ) ) {
+		$normalized = strtolower( trim( $value ) );
+		if ( in_array( $normalized, [ '1', 'true', 'yes' ], true ) ) {
+			return true;
+		}
+		if ( in_array( $normalized, [ '0', 'false', 'no' ], true ) ) {
+			return false;
+		}
+	}
+
+	return null;
+}
+
+/**
+ * Set like status for current visitor on post.
  *
  * @return array{liked:bool,count:int}
  */
-function child_post_likes_toggle( int $post_id ): array {
+function child_post_likes_set_state( int $post_id, bool $desired_state ): array {
 	global $wpdb;
 	$table_name = child_post_likes_get_table_name();
 	$visitor_hash = child_post_likes_get_visitor_hash();
 	$liked = child_post_likes_has_current_visitor_liked( $post_id );
 
-	if ( $liked ) {
-		$wpdb->delete(
-			$table_name,
-			[
-				'post_id'      => $post_id,
-				'visitor_hash' => $visitor_hash,
-			],
-			[ '%d', '%s' ]
-		);
-		$liked = false;
-	} else {
+	if ( $desired_state && ! $liked ) {
 		$wpdb->insert(
 			$table_name,
 			[
@@ -158,6 +173,16 @@ function child_post_likes_toggle( int $post_id ): array {
 			[ '%d', '%s' ]
 		);
 		$liked = true;
+	} elseif ( ! $desired_state && $liked ) {
+		$wpdb->delete(
+			$table_name,
+			[
+				'post_id'      => $post_id,
+				'visitor_hash' => $visitor_hash,
+			],
+			[ '%d', '%s' ]
+		);
+		$liked = false;
 	}
 
 	return [
@@ -208,13 +233,21 @@ function child_post_likes_register_rest_routes(): void {
 				'permission_callback' => '__return_true',
 				'callback'            => static function( WP_REST_Request $request ): WP_REST_Response {
 					$post_id = (int) $request->get_param( 'post_id' );
+					$desired_state = child_post_likes_normalize_desired_state( $request->get_param( 'liked' ) );
 
-					return rest_ensure_response( child_post_likes_toggle( $post_id ) );
+					if ( null === $desired_state ) {
+						$desired_state = ! child_post_likes_has_current_visitor_liked( $post_id );
+					}
+
+					return rest_ensure_response( child_post_likes_set_state( $post_id, $desired_state ) );
 				},
 				'args'                => [
 					'post_id' => [
 						'required'          => true,
 						'validate_callback' => 'child_post_likes_validate_post_id',
+					],
+					'liked'   => [
+						'required' => false,
 					],
 				],
 			],
