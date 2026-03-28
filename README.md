@@ -1,32 +1,35 @@
 # TwentyTwentyFive Child Theme
 
-A production-focused child theme for **Twenty Twenty-Five** that keeps customization logic modular, minimizes parent-theme duplication, and uses WordPress hooks/filters over template overrides.
+A production-focused child theme for **Twenty Twenty-Five** that keeps customization logic modular, minimizes parent-theme duplication, and prefers WordPress hooks/filters over template overrides.
 
-## Refactored Structure
+## Project Structure
 
 ```text
 .
 ├── assets/                      # Reserved for custom static assets.
-├── blocks/                      # Block source (editor JS/CSS + render callbacks).
-├── build/                       # Compiled block assets consumed by register_block_type().
+├── blocks/                      # Block source files (editor JS/CSS + render callbacks).
+├── build/                       # Compiled block assets used by register_block_type().
 ├── inc/
-│   ├── blocks.php               # Central dynamic block registration + shared style handling.
+│   ├── blocks.php               # Central dynamic block registration + shared styles.
 │   ├── bootstrap.php            # Child theme bootstrapping + module autoload.
+│   ├── book-rating.php
 │   ├── head-footer-injections.php
+│   ├── human-json.php
 │   ├── media-recommendation.php
 │   ├── notes.php
+│   ├── post-likes.php
 │   ├── videogame-recommendation.php
 │   └── visual-link-preview-async.php
 ├── functions.php                # Thin entrypoint (version constant + bootstrap include).
-└── style.css                    # Child metadata + minimal theme-level styles.
+└── style.css                    # Child theme metadata + minimal global styles.
 ```
 
 ## Architectural Decisions
 
-- **Single block registry**: all dynamic blocks are registered in one place (`inc/blocks.php`) to eliminate repeated boilerplate.
-- **Hook-based behavior**: settings pages, AJAX endpoints, and front-end enhancements are implemented with core actions/filters.
-- **Minimal `functions.php`**: startup logic is delegated to `inc/bootstrap.php` for maintainability.
-- **No unnecessary template overrides**: the child theme favors extensibility via block render callbacks and hooks.
+- **Single block registry:** Dynamic blocks are registered in one place (`inc/blocks.php`) to reduce repeated boilerplate.
+- **Hook-based behavior:** Settings pages, AJAX endpoints, and front-end enhancements use core WordPress actions/filters.
+- **Minimal `functions.php`:** Startup logic is delegated to `inc/bootstrap.php` for maintainability.
+- **Minimal template overrides:** The child theme favors extensibility through block render callbacks and hooks.
 
 ## Dynamic Blocks Registered
 
@@ -35,22 +38,25 @@ A production-focused child theme for **Twenty Twenty-Five** that keeps customiza
 - `child/media-recommendation`
 - `child/pixelfed-feed`
 - `child/popular-posts`
+- `child/post-likes`
 - `child/videogame-recommendation`
 - `child/visual-link-preview`
 
 Each block:
 - registers from `build/<slug>`
-- uses server-side render callback from `blocks/<slug>/render.php`
+- uses a server-side render callback from `blocks/<slug>/render.php` (where applicable)
 - receives block style enqueueing plus a global style fallback for compatibility
 
-## API-backed Features
+## API-Backed Features
 
 ### Media Recommendation (TMDB)
+
 - Admin settings page under **Settings → Media Recommendation**.
 - API key lookup order: option `child_tmdb_api_key`, then `TMDB_API_KEY` constant fallback.
 - Editor AJAX endpoint: `wp_ajax_child_tmdb_search`.
 
 ### Videogame Recommendation (RAWG)
+
 - Admin settings page under **Settings → Videogame Recommendation**.
 - API key lookup order: option `child_rawg_api_key`, then `RAWG_API_KEY` constant fallback.
 - Editor AJAX endpoint: `wp_ajax_child_rawg_search`.
@@ -58,9 +64,10 @@ Each block:
 ## Notes Custom Post Type
 
 `inc/notes.php` provides a `note` post type for short-form posts, with:
-- generated internal titles for title-less notes,
-- hidden `core/post-title` output on front end for notes,
-- guarded rewrite flush logic for reliable `/notes` routing.
+
+- generated internal titles for title-less notes
+- hidden `core/post-title` output on the front end for notes
+- guarded rewrite flush logic for reliable `/notes` routing
 
 ## Development
 
@@ -75,7 +82,7 @@ To create a distribution package:
 npm run dist
 ```
 
-## Compatibility & Maintenance
+## Compatibility and Maintenance
 
 - Keeps child-theme overrides intentionally minimal.
 - Uses consistent prefixed function names (`child_*`) to avoid collisions.
