@@ -1,0 +1,54 @@
+{
+  "apiVersion": 3,
+  "name": "child/post-likes",
+  "title": "Post Likes",
+  "category": "widgets",
+  "icon": "heart",
+  "description": "Anonymous like button with server-saved counts.",
+  "attributes": {
+    "buttonBackground": {
+      "type": "string",
+      "default": "#14060f"
+    },
+    "buttonBorder": {
+      "type": "string",
+      "default": "#4f1630"
+    },
+    "buttonText": {
+      "type": "string",
+      "default": "#ff5a8b"
+    },
+    "buttonHoverBorder": {
+      "type": "string",
+      "default": "#ff5a8b"
+    },
+    "buttonSize": {
+      "type": "string",
+      "default": "md"
+    },
+    "buttonAlign": {
+      "type": "string",
+      "default": "left"
+    },
+    "buttonLikedBackground": {
+      "type": "string",
+      "default": "#2a0a1b"
+    },
+    "buttonFocusOutline": {
+      "type": "string",
+      "default": "#ff5a8b"
+    },
+    "buttonErrorBorder": {
+      "type": "string",
+      "default": "#ff9ab6"
+    }
+  },
+  "supports": {
+    "html": false
+  },
+  "textdomain": "child",
+  "editorScript": "file:./index.js",
+  "viewScript": "file:./view.js",
+  "editorStyle": "file:./editor.css",
+  "style": "file:./style.css"
+}
