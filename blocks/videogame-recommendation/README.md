@@ -1,67 +1,72 @@
 # Videogame Recommendation Block
 
-Ein WordPress Gutenberg Block zur Anzeige von Videospiel-Empfehlungen mit RAWG API Integration.
+A WordPress Gutenberg block for displaying videogame recommendations with RAWG API integration.
 
-## Funktionen
+## Features
 
-- **RAWG API Integration**: Durchsuche Videospiele und importiere automatisch Metadaten
-- **Light Mode Design**: Moderne Karten-UI im RAWG-Stil
-- **Plattform-Chips**: Farbcodierte Badges für Gaming-Plattformen
-- **Metadaten**: Release-Datum und Genres
-- **Responsive**: Optimiert für alle Bildschirmgrößen
-- **Performance**: Lazy Loading und optimierte Assets
+- **RAWG API integration:** Search games and import metadata automatically.
+- **Light mode design:** Modern card UI inspired by RAWG.
+- **Platform chips:** Color-coded badges for gaming platforms.
+- **Metadata:** Release date and genre display.
+- **Responsive layout:** Optimized for all screen sizes.
+- **Performance:** Lazy loading and optimized assets.
 
-## Struktur
+## Structure
 
-```
+```text
 videogame-recommendation/
-├── index.js              # Haupt-Block-Registrierung
-├── block.json            # Block-Konfiguration
-├── render.php            # Server-side Rendering
-├── style.css             # Frontend & Editor Styles
-├── editor.css            # Editor-spezifische Styles
-├── utils.js              # JavaScript Utilities
-├── utils.php             # PHP Utilities
+├── index.js              # Main block registration
+├── block.json            # Block configuration
+├── render.php            # Server-side rendering
+├── style.css             # Frontend + editor styles
+├── editor.css            # Editor-specific styles
+├── utils.js              # JavaScript utilities
+├── utils.php             # PHP utilities
 ├── components/
-│   ├── GamePreview.js    # Spielkarten-Komponente
-│   └── SearchResults.js  # Suchergebnis-Komponente
+│   ├── GamePreview.js    # Game card component
+│   └── SearchResults.js  # Search result component
 └── hooks/
-    └── useGameSearch.js  # Such-Hook
+    └── useGameSearch.js  # Search hook
 ```
 
-## Komponenten
+## Components
 
 ### GamePreview
-Zeigt die Spielkarte mit Cover, Plattformen, Titel und Metadaten an.
+
+Displays the game card with cover image, platforms, title, and metadata.
 
 ### SearchResults
-Zeigt Suchergebnisse in der Seitenleiste an.
+
+Displays search results in the editor sidebar.
 
 ### useGameSearch Hook
-Custom Hook für die Spielsuche-Logik.
+
+Custom hook for game-search logic.
 
 ## Utilities
 
-### utils.js
-- `getPlatformInfo()`: Platform-Name zu Display-Name und Farbe
-- `formatReleaseDate()`: Datum-Formatierung
-- `transformGameData()`: API-Daten zu Block-Format
+### `utils.js`
 
-### utils.php
-- `child_get_platform_info()`: PHP Version der Platform-Info-Funktion
+- `getPlatformInfo()`: Maps platform names to display names and colors.
+- `formatReleaseDate()`: Formats release dates.
+- `transformGameData()`: Transforms API data into block-friendly shape.
 
-## Plattform-Farben
+### `utils.php`
 
-| Plattform | Farbe |
-|-----------|-------|
-| PlayStation | #003087 |
-| Xbox | #107C10 |
-| Nintendo Switch | #E60012 |
-| PC | #0078D4 |
-| iOS | #555555 |
-| Android | #3DDC84 |
-| Linux | #FCC624 |
-| macOS | #999999 |
+- `child_get_platform_info()`: PHP equivalent of platform info mapping.
+
+## Platform Colors
+
+| Platform | Color |
+| --- | --- |
+| PlayStation | `#003087` |
+| Xbox | `#107C10` |
+| Nintendo Switch | `#E60012` |
+| PC | `#0078D4` |
+| iOS | `#555555` |
+| Android | `#3DDC84` |
+| Linux | `#FCC624` |
+| macOS | `#999999` |
 
 ## Development
 
@@ -75,4 +80,4 @@ npm run start
 
 ## API
 
-Verwendet die RAWG API für Spieldaten. API-Key in WordPress Admin unter Settings > Videogame Recommendation konfigurieren.
+Uses the RAWG API for game data. Configure the API key in WordPress Admin under **Settings → Videogame Recommendation**.
