@@ -95,10 +95,10 @@ return function( array $attributes ): string {
 			aria-label="<?php esc_attr_e( 'Toggle like', 'child' ); ?>"
 			aria-pressed="<?php echo $liked ? 'true' : 'false'; ?>"
 		>
-			<?php if ( $cta_text !== '' ) : ?>
-				<span class="child-post-likes__cta"><?php echo esc_html( $cta_text ); ?></span>
-			<?php endif; ?>
 			<span class="child-post-likes__pill">
+				<?php if ( $cta_text !== '' ) : ?>
+					<span class="child-post-likes__cta"><?php echo esc_html( $cta_text ); ?></span>
+				<?php endif; ?>
 				<span class="child-post-likes__icon" aria-hidden="true"><?php echo esc_html( $reaction_emoji ); ?></span>
 				<span class="child-post-likes__count"><?php echo esc_html( (string) $count ); ?></span>
 			</span>

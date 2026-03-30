@@ -177,10 +177,10 @@ function Edit( { attributes, setAttributes } ) {
 					className="child-post-likes__button is-editor-preview"
 					disabled
 				>
-					{ ctaTextValue !== '' && (
-						<span className="child-post-likes__cta">{ ctaTextValue }</span>
-					) }
 					<span className="child-post-likes__pill">
+						{ ctaTextValue !== '' && (
+							<span className="child-post-likes__cta">{ ctaTextValue }</span>
+						) }
 						<span className="child-post-likes__icon" aria-hidden="true">
 							{ reactionEmoji }
 						</span>
