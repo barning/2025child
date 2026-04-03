@@ -1,0 +1,4 @@
+.wp-block-child-apple-music-player {
+	outline: 1px dashed color-mix(in srgb, currentColor 35%, transparent);
+	outline-offset: 4px;
+}

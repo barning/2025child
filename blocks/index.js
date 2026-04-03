@@ -1,3 +1,4 @@
+import './apple-music-player';
 import './popular-posts';
 import './visual-link-preview';
 import './book-rating';

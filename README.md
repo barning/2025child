@@ -33,6 +33,7 @@ A production-focused child theme for **Twenty Twenty-Five** that keeps customiza
 
 ## Dynamic Blocks Registered
 
+- `child/apple-music-player`
 - `child/book-rating`
 - `child/magic-cards`
 - `child/media-recommendation`

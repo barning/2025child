@@ -1,0 +1,29 @@
+.wp-block-child-apple-music-player .child-apple-music-player {
+	padding: 1rem;
+	border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+	border-radius: 0.75rem;
+	display: grid;
+	gap: 0.75rem;
+	max-width: 28rem;
+}
+
+.wp-block-child-apple-music-player .child-apple-music-player__button {
+	padding: 0.7rem 1rem;
+	border-radius: 999px;
+	border: none;
+	font-weight: 600;
+	cursor: pointer;
+	background: #fa233b;
+	color: #fff;
+}
+
+.wp-block-child-apple-music-player .child-apple-music-player__button:disabled {
+	opacity: 0.75;
+	cursor: wait;
+}
+
+.wp-block-child-apple-music-player .child-apple-music-player__status {
+	margin: 0;
+	font-size: 0.92rem;
+	opacity: 0.85;
+}

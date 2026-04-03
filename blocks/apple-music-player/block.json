@@ -1,0 +1,34 @@
+{
+  "apiVersion": 3,
+  "name": "child/apple-music-player",
+  "title": "Apple Music Player",
+  "category": "widgets",
+  "icon": "format-audio",
+  "description": "Embeds a MusicKit-powered Apple Music player for a song, album, or playlist.",
+  "supports": {
+    "html": false
+  },
+  "attributes": {
+    "resourceType": {
+      "type": "string",
+      "default": "song"
+    },
+    "resourceId": {
+      "type": "string",
+      "default": ""
+    },
+    "storefront": {
+      "type": "string",
+      "default": "us"
+    },
+    "buttonLabel": {
+      "type": "string",
+      "default": "Play on Apple Music"
+    }
+  },
+  "textdomain": "twentyfivetwentyfivechild",
+  "editorScript": "file:./index.js",
+  "viewScript": "file:./view.js",
+  "editorStyle": "file:./editor.css",
+  "style": "file:./style.css"
+}

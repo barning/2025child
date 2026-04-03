@@ -12,6 +12,10 @@
  */
 function child_get_dynamic_blocks(): array {
 	return [
+		'apple-music-player'       => [
+			'block_name'  => 'child/apple-music-player',
+			'render_file' => 'blocks/apple-music-player/render.php',
+		],
 		'book-rating'              => [
 			'block_name'  => 'child/book-rating',
 			'render_file' => 'blocks/book-rating/render.php',
