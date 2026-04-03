@@ -11,10 +11,70 @@ Template: twentytwentyfive
 .overflow-image {
 	overflow: hidden;
 }
+
 .is-clickable {
 	transition: all .2s;
 }
+
 .is-clickable:hover {
 	box-shadow: var(--wp--preset--shadow--deep);
 	translate: 0 -2px 0;
+}
+
+/*
+ * Progressive enhancement for browsers that support cross-document view transitions.
+ * https://developer.mozilla.org/en-US/docs/Web/API/View_Transition_API/Using
+ */
+@media (prefers-reduced-motion: no-preference) {
+	@view-transition {
+		navigation: auto;
+	}
+
+	:root {
+		view-transition-name: root;
+	}
+
+	main,
+	.wp-site-blocks > main,
+	.wp-site-blocks {
+		view-transition-name: page-content;
+	}
+
+	::view-transition-old(root),
+	::view-transition-new(root) {
+		animation-duration: 220ms;
+		animation-timing-function: ease;
+	}
+
+	::view-transition-old(page-content) {
+		animation: page-content-fade-out 180ms ease forwards;
+	}
+
+	::view-transition-new(page-content) {
+		animation: page-content-fade-in 260ms ease 40ms both;
+	}
+}
+
+@keyframes page-content-fade-out {
+	from {
+		opacity: 1;
+		transform: translateY(0);
+	}
+
+	to {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+}
+
+@keyframes page-content-fade-in {
+	from {
+		opacity: 0;
+		transform: translateY(-8px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
