@@ -18,3 +18,56 @@ Template: twentytwentyfive
 	box-shadow: var(--wp--preset--shadow--deep);
 	translate: 0 -2px 0;
 }
+
+.wp-block-navigation.is-style-child-feature-nav {
+	position: sticky;
+	top: clamp(0.5rem, 2vw, 1rem);
+	z-index: 40;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	padding: 0.75rem 1rem;
+	border: 1px solid color-mix(in srgb, currentColor 14%, transparent);
+	border-radius: 999px;
+	background: color-mix(in srgb, var(--wp--preset--color--base, #ffffff) 80%, transparent);
+	backdrop-filter: blur(12px);
+	width: fit-content;
+	max-width: 100%;
+}
+
+.wp-block-navigation.is-style-child-feature-nav .wp-block-navigation__container {
+	gap: 0.85rem;
+}
+
+.wp-block-navigation.is-style-child-feature-nav .wp-block-navigation-item__content {
+	position: relative;
+	font-size: 0.92rem;
+	letter-spacing: 0.02em;
+	text-decoration: none;
+}
+
+.wp-block-navigation.is-style-child-feature-nav .wp-block-navigation-item__content::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	bottom: -0.25rem;
+	width: 100%;
+	height: 1px;
+	background: currentColor;
+	transform: scaleX(0);
+	transform-origin: left;
+	transition: transform 0.2s ease;
+}
+
+.wp-block-navigation.is-style-child-feature-nav .wp-block-navigation-item__content:hover::after,
+.wp-block-navigation.is-style-child-feature-nav .wp-block-navigation-item__content:focus-visible::after,
+.wp-block-navigation.is-style-child-feature-nav .wp-block-navigation-item__content[aria-current='page']::after {
+	transform: scaleX(1);
+}
+
+@media (max-width: 781px) {
+	.wp-block-navigation.is-style-child-feature-nav {
+		width: 100%;
+		justify-content: space-between;
+	}
+}
