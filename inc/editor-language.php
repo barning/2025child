@@ -41,7 +41,7 @@ function child_register_editor_language_meta(): void {
 		);
 	}
 }
-add_action( 'init', 'child_register_editor_language_meta' );
+add_action( 'init', 'child_register_editor_language_meta', 20 );
 
 /**
  * Enqueue block editor panel for choosing HTML language.
