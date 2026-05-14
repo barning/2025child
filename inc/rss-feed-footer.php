@@ -35,7 +35,7 @@ function child_append_rss_footer_links( string $content ): string {
 	}
 
 	$footer  = '<hr />';
-	$footer .= '<p><a href="' . esc_url( $permalink ) . '">→ This looks better on the web</a></p>';
+	$footer .= '<p><a href="' . esc_url( $permalink ) . '">→ View on site</a></p>';
 	$footer .= '<p><a href="mailto:moin@niklasbarning.de">→ Reply via email</a></p>';
 
 	return $content . $footer;
