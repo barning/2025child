@@ -9,6 +9,7 @@ A production-focused child theme for **Twenty Twenty-Five** that keeps customiza
 ├── assets/                      # Reserved for custom static assets.
 ├── blocks/                      # Block source files (editor JS/CSS + render callbacks).
 ├── build/                       # Compiled block assets used by register_block_type().
+├── releases/                    # Versioned release notes.
 ├── inc/
 │   ├── blocks.php               # Central dynamic block registration + shared styles.
 │   ├── bootstrap.php            # Child theme bootstrapping + module autoload.
@@ -18,9 +19,11 @@ A production-focused child theme for **Twenty Twenty-Five** that keeps customiza
 │   ├── media-recommendation.php
 │   ├── notes.php
 │   ├── post-likes.php
+│   ├── rss-feed-footer.php
 │   ├── videogame-recommendation.php
 │   └── visual-link-preview-async.php
 ├── functions.php                # Thin entrypoint (version constant + bootstrap include).
+├── package.json                 # Build, watch, and distribution scripts.
 └── style.css                    # Child theme metadata + minimal global styles.
 ```
 
@@ -30,6 +33,7 @@ A production-focused child theme for **Twenty Twenty-Five** that keeps customiza
 - **Hook-based behavior:** Settings pages, AJAX endpoints, and front-end enhancements use core WordPress actions/filters.
 - **Minimal `functions.php`:** Startup logic is delegated to `inc/bootstrap.php` for maintainability.
 - **Minimal template overrides:** The child theme favors extensibility through block render callbacks and hooks.
+- **README as project guide:** High-level project documentation now lives here, while release-specific details live in `releases/`.
 
 ## Dynamic Blocks Registered
 
@@ -61,6 +65,10 @@ Each block:
 - API key lookup order: option `child_rawg_api_key`, then `RAWG_API_KEY` constant fallback.
 - Editor AJAX endpoint: `wp_ajax_child_rawg_search`.
 
+## RSS Feed Footer
+
+`inc/rss-feed-footer.php` appends lightweight links to feed-only post content so RSS readers include a route back to the original post and a mail reply option.
+
 ## Notes Custom Post Type
 
 `inc/notes.php` provides a `note` post type for short-form posts, with:
@@ -71,16 +79,26 @@ Each block:
 
 ## Development
 
+Install dependencies and build compiled block assets:
+
 ```bash
 npm install
 npm run build
 ```
 
-To create a distribution package:
+Watch block sources during development:
+
+```bash
+npm run start
+```
+
+Create a distribution package with a fresh build:
 
 ```bash
 npm run dist
 ```
+
+Release notes are tracked in `releases/` instead of a running devlog.
 
 ## Compatibility and Maintenance
 
