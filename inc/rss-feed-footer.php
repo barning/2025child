@@ -130,4 +130,3 @@ function child_append_rss_footer_links( string $content, string $feed_type = '' 
 	return $content . $footer;
 }
 add_filter( 'the_content_feed', 'child_append_rss_footer_links', 10, 2 );
-add_filter( 'the_excerpt_rss', 'child_append_rss_footer_links', 10, 2 );
