@@ -6,12 +6,14 @@ on:
     tags: [ 'v*' ]
   pull_request:
     branches: [ main ]
-  release:
-    types: [ published ]
   workflow_dispatch: {}
 
 permissions:
-  contents: write  # Required for creating releases and uploading assets
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -25,8 +27,9 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
-          node-version: '24'
-          cache: 'npm'
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -34,56 +37,33 @@ jobs:
       - name: Build and package
         run: npm run dist
 
-      - name: Upload artifact (theme folder)
-        uses: actions/upload-artifact@v7
-        with:
-          name: twentytwentyfive-child
-          path: dist/twentytwentyfive-child/
-
-      - name: Upload artifact (zip)
+      - name: Upload release package
         uses: actions/upload-artifact@v7
         with:
           name: twentytwentyfive-child-zip
           path: dist/twentytwentyfive-child.zip
+          if-no-files-found: error
+          retention-days: 14
 
   release:
-    # Creates a new GitHub release when a tag is pushed
+    # Tag pushes are the single release path. Published-release events are intentionally
+    # not handled here to avoid duplicate builds/uploads for the same version.
     if: startsWith(github.ref, 'refs/tags/v')
     needs: build
     name: Create GitHub Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
-      - name: Download artifact
+      - name: Download release package
         uses: actions/download-artifact@v7
         with:
           name: twentytwentyfive-child-zip
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
-          files: |
-            twentytwentyfive-child.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  upload-to-release:
-    # Uploads build to an existing release that was manually published
-    if: github.event_name == 'release'
-    needs: build
-    name: Upload Build to Release
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v7
-        with:
-          name: twentytwentyfive-child-zip
-
-      - name: Upload to Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            twentytwentyfive-child.zip
+          files: twentytwentyfive-child.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
