@@ -68,6 +68,7 @@ Each block:
 ## RSS Feed Footer
 
 `inc/rss-feed-footer.php` appends lightweight links to feed-only post content so RSS readers include a route back to the original post and a mail reply option.
+Posts can include a custom RSS footer message via a post editor metabox.
 
 ## Notes Custom Post Type
 
