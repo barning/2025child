@@ -1,0 +1,35 @@
+.wp-block-child-media-cover-grid .child-media-cover-grid__editor-note,
+.child-media-cover-grid-block .child-media-cover-grid__editor-note {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  margin-block-end: 1rem;
+  padding: 0.75rem 1rem;
+}
+
+.wp-block-child-media-cover-grid .child-media-cover-grid__cover,
+.child-media-cover-grid-block .child-media-cover-grid__cover {
+  background: linear-gradient(135deg, #f2f0ec, #d7d1c8);
+}
+
+.wp-block-child-media-cover-grid .child-media-cover-grid__cover span,
+.child-media-cover-grid-block .child-media-cover-grid__cover span {
+  color: #5c5348;
+  font-size: 3rem;
+  font-weight: 800;
+}
+
+.wp-block-child-media-cover-grid .child-media-cover-grid__cover--movie,
+.child-media-cover-grid-block .child-media-cover-grid__cover--movie {
+  background: linear-gradient(135deg, #ece7ff, #b6a7ff);
+}
+
+.wp-block-child-media-cover-grid .child-media-cover-grid__cover--tv,
+.child-media-cover-grid-block .child-media-cover-grid__cover--tv {
+  background: linear-gradient(135deg, #e3f4ff, #8bc4ee);
+}
+
+.wp-block-child-media-cover-grid .child-media-cover-grid__cover--game,
+.child-media-cover-grid-block .child-media-cover-grid__cover--game {
+  background: linear-gradient(135deg, #e6f8ec, #79d498);
+}

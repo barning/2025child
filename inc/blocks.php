@@ -24,6 +24,10 @@ function child_get_dynamic_blocks(): array {
 			'block_name'  => 'child/media-recommendation',
 			'render_file' => 'blocks/media-recommendation/render.php',
 		],
+		'media-cover-grid'         => [
+			'block_name'  => 'child/media-cover-grid',
+			'render_file' => 'blocks/media-cover-grid/render.php',
+		],
 		'pixelfed-feed'            => [
 			'block_name'  => 'child/pixelfed-feed',
 			'render_file' => 'blocks/pixelfed-feed/render.php',

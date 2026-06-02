@@ -1,0 +1,50 @@
+{
+  "apiVersion": 3,
+  "name": "child/media-cover-grid",
+  "title": "Medien-Cover-Grid",
+  "category": "widgets",
+  "icon": "screenoptions",
+  "description": "Zeigt automatisch Cover aus Buch-, Film/Serien- und Videospiel-Blöcken in veröffentlichten Beiträgen.",
+  "supports": {
+    "html": false,
+    "align": ["wide", "full"]
+  },
+  "attributes": {
+    "mediaTypes": {
+      "type": "array",
+      "default": ["book", "movie", "tv", "game"]
+    },
+    "maxItems": {
+      "type": "number",
+      "default": 48
+    },
+    "linkTo": {
+      "type": "string",
+      "default": "post"
+    },
+    "sortOrder": {
+      "type": "string",
+      "default": "newest"
+    },
+    "showTitle": {
+      "type": "boolean",
+      "default": true
+    },
+    "showMeta": {
+      "type": "boolean",
+      "default": true
+    },
+    "showType": {
+      "type": "boolean",
+      "default": true
+    },
+    "allowDuplicates": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "textdomain": "twentyfivetwentyfivechild",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./editor.css",
+  "style": "file:./style.css"
+}
