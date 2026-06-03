@@ -72,7 +72,8 @@ return function( array $attributes ): string {
 					$meta         = (string) ( $item['meta'] ?? '' );
 					$cover_url    = (string) ( $item['coverUrl'] ?? '' );
 					$type_label   = child_get_media_cover_grid_type_label( $type );
-					$source_title = (string) ( $item['sourcePostTitle'] ?? '' );
+					$source_title  = (string) ( $item['sourcePostTitle'] ?? '' );
+					$mention_count = max( 1, absint( $item['mentionCount'] ?? 1 ) );
 
 					if ( 'post' === $link_to ) {
 						$link_url = (string) ( $item['sourcePostUrl'] ?? '' );
@@ -107,11 +108,19 @@ return function( array $attributes ): string {
 								<?php if ( $show_meta && $source_title ) : ?>
 									<p class="child-media-cover-grid__source">
 										<?php
-										printf(
-											/* translators: %s: source post title */
-											esc_html__( 'Aus: %s', 'child' ),
-											esc_html( $source_title )
-										);
+										if ( $mention_count > 1 ) {
+											printf(
+												/* translators: %d: number of source posts */
+												esc_html( _n( 'Erwähnt in %d Beitrag', 'Erwähnt in %d Beiträgen', $mention_count, 'child' ) ),
+												(int) $mention_count
+											);
+										} else {
+											printf(
+												/* translators: %s: source post title */
+												esc_html__( 'Aus: %s', 'child' ),
+												esc_html( $source_title )
+											);
+										}
 										?>
 									</p>
 								<?php endif; ?>

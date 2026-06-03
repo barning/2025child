@@ -134,7 +134,8 @@ function Edit({ attributes, setAttributes }) {
                         onChange={(value) => setAttributes({ showType: value })}
                     />
                     <ToggleControl
-                        label={__('Doppelte Einträge erlauben', 'child')}
+                        label={__('Doppelte Erwähnungen einzeln anzeigen', 'child')}
+                        help={__('Ausgeschaltet: dasselbe Medium erscheint nur einmal, auch wenn es in mehreren Beiträgen erwähnt wird.', 'child')}
                         checked={allowDuplicates}
                         onChange={(value) => setAttributes({ allowDuplicates: value })}
                     />
