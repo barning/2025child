@@ -51,6 +51,17 @@ Each block:
 - uses a server-side render callback from `blocks/<slug>/render.php` (where applicable)
 - receives block style enqueueing plus a global style fallback for compatibility
 
+
+### Dynamic Block Feature Structure
+
+When adding or changing a dynamic block, mirror the existing examples in `blocks/post-likes`, `blocks/media-cover-grid`, and `blocks/media-recommendation`:
+
+- Put block-owned assets under `blocks/{slug}/`. A feature should include `block.json` and `index.js`, then add `render.php` for dynamic output, `style.css` for front-end styles, `editor.css` for editor-only styles, and `view.js` only when the front end needs interactive behavior.
+- Put server-side helper modules in `inc/{slug}.php`. Keep `blocks/{slug}/render.php` focused on rendering sanitized markup and delegate reusable queries, REST/AJAX handlers, settings, cache helpers, and data normalization to the matching `inc/` file.
+- Expose render-time behavior through stable, public `child_*` functions instead of anonymous helper logic that other blocks cannot reuse. For example, `blocks/media-cover-grid/render.php` calls the public helpers from `inc/media-cover-grid.php`, while `blocks/post-likes/render.php` reads counts through the post-likes helper API.
+- Localize editor data from `inc/blocks.php` with `child_localize_block_editor_script( $block_name, $object_name, $data )` on `enqueue_block_editor_assets`, as `inc/media-recommendation.php` does for the Media Recommendation editor AJAX URL and nonce.
+- Name cache keys with a `child_{slug}_{purpose}_v{n}` convention, define them as constants in the owning `inc/{slug}.php`, and bump the version when the cached shape changes. Invalidate through explicit `child_flush_{slug}_cache()` helpers on all relevant write hooks, following `inc/media-cover-grid.php`; modules with write paths such as `inc/post-likes.php` should clear any future cached counts or aggregates immediately after inserts/deletes so REST responses and render callbacks stay consistent.
+
 ## API-Backed Features
 
 ### Media Recommendation (TMDB)
