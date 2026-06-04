@@ -6,6 +6,113 @@
  */
 
 /**
+ * Read Google Books API key from option, then constant fallback.
+ */
+function child_get_google_books_api_key(): string {
+	$api_key = (string) get_option( 'child_google_books_api_key', '' );
+
+	if ( '' === $api_key && defined( 'CHILD_GOOGLE_BOOKS_API_KEY' ) ) {
+		$api_key = (string) CHILD_GOOGLE_BOOKS_API_KEY;
+	}
+
+	return $api_key;
+}
+
+/**
+ * Render the Google Books settings page.
+ */
+function child_render_book_rating_settings_page(): void {
+	?>
+	<div class="wrap">
+		<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+		<form action="options.php" method="post">
+			<?php
+			settings_fields( 'child_book_rating' );
+			do_settings_sections( 'child-book-rating' );
+			submit_button( __( 'Save Settings', 'child' ) );
+			?>
+		</form>
+	</div>
+	<?php
+}
+
+/**
+ * Register Google Books settings page.
+ */
+function child_register_book_rating_settings_page(): void {
+	add_options_page(
+		__( 'Book Rating Settings', 'child' ),
+		__( 'Book Rating', 'child' ),
+		'manage_options',
+		'child-book-rating',
+		'child_render_book_rating_settings_page'
+	);
+}
+add_action( 'admin_menu', 'child_register_book_rating_settings_page' );
+
+/**
+ * Register Google Books settings and field.
+ */
+function child_register_book_rating_settings(): void {
+	register_setting(
+		'child_book_rating',
+		'child_google_books_api_key',
+		[
+			'type'              => 'string',
+			'sanitize_callback' => 'sanitize_text_field',
+			'default'           => '',
+		]
+	);
+
+	add_settings_section(
+		'child_book_rating_section',
+		__( 'Google Books API Configuration', 'child' ),
+		'child_render_book_rating_section_description',
+		'child-book-rating'
+	);
+
+	add_settings_field(
+		'child_google_books_api_key',
+		__( 'Google Books API Key', 'child' ),
+		'child_render_book_rating_api_field',
+		'child-book-rating',
+		'child_book_rating_section'
+	);
+}
+add_action( 'admin_init', 'child_register_book_rating_settings' );
+
+/**
+ * Render Google Books section text.
+ */
+function child_render_book_rating_section_description(): void {
+	echo '<p>' . wp_kses_post(
+		sprintf(
+			/* translators: %s: URL to Google Books API settings */
+			__( 'To avoid API rate limits, you can provide a Google Books API key. Get a free API key at %s. This is optional but recommended.', 'child' ),
+			'<a href="https://developers.google.com/books/docs/v1/using" target="_blank" rel="noopener noreferrer">developers.google.com/books/docs/v1/using</a>'
+		)
+	) . '</p>';
+}
+
+/**
+ * Render Google Books key input.
+ */
+function child_render_book_rating_api_field(): void {
+	$value = esc_attr( get_option( 'child_google_books_api_key', '' ) );
+	?>
+	<input
+		type="password"
+		name="child_google_books_api_key"
+		value="<?php echo $value; ?>"
+		class="regular-text"
+	/>
+	<p class="description">
+		<?php esc_html_e( 'Your API key will be used to search books without hitting rate limits.', 'child' ); ?>
+	</p>
+	<?php
+}
+
+/**
  * Register a REST endpoint for Google Books lookups to avoid client-side rate limits.
  */
 function child_register_books_lookup_route(): void {
@@ -54,17 +161,18 @@ function child_books_lookup_callback( WP_REST_Request $request ) {
 		return rest_ensure_response( $cached );
 	}
 
-	$api_url = add_query_arg(
-		[
-			'q'          => $query,
-			'maxResults' => $max_results,
-		],
-		'https://www.googleapis.com/books/v1/volumes'
-	);
+	// Build API URL with query parameters
+	$api_params = [
+		'q'          => $query,
+		'maxResults' => $max_results,
+	];
 
-	if ( defined( 'CHILD_GOOGLE_BOOKS_API_KEY' ) && CHILD_GOOGLE_BOOKS_API_KEY ) {
-		$api_url = add_query_arg( 'key', CHILD_GOOGLE_BOOKS_API_KEY, $api_url );
+	$api_key = child_get_google_books_api_key();
+	if ( '' !== $api_key ) {
+		$api_params['key'] = $api_key;
 	}
+
+	$api_url = 'https://www.googleapis.com/books/v1/volumes?' . http_build_query( $api_params );
 
 	$response = wp_remote_get(
 		$api_url,
@@ -83,15 +191,27 @@ function child_books_lookup_callback( WP_REST_Request $request ) {
 	if ( 429 === $status ) {
 		return new WP_Error(
 			'rate_limited',
-			__( 'Google Books API-Limit erreicht.', 'child' ),
+			__( 'Google Books API-Limit erreicht. Bitte einen API-Schlüssel in den Einstellungen hinterlegen.', 'child' ),
 			[ 'status' => 429 ]
+		);
+	}
+
+	if ( 400 === $status || 401 === $status || 403 === $status ) {
+		return new WP_Error(
+			'api_auth_failed',
+			__( 'API-Authentifizierung fehlgeschlagen. Bitte überprüfe deinen API-Schlüssel in den Einstellungen.', 'child' ),
+			[ 'status' => $status ]
 		);
 	}
 
 	if ( $status < 200 || $status >= 300 ) {
 		return new WP_Error(
 			'books_lookup_failed',
-			__( 'Die Buchsuche konnte nicht geladen werden.', 'child' ),
+			sprintf(
+				/* translators: %d: HTTP status code */
+				__( 'Die Buchsuche konnte nicht geladen werden. (Fehler: %d)', 'child' ),
+				$status
+			),
 			[ 'status' => $status ]
 		);
 	}

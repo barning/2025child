@@ -191,18 +191,15 @@ function Edit({ attributes, setAttributes }) {
             }
         } catch (error) {
             console.error('Fehler beim Suchen:', error);
+            let errorMessage = __('Beim Suchen ist ein Fehler aufgetreten. Bitte versuche es erneut.', 'child');
+            
             if (error?.code === 'rate_limited' || error?.data?.status === 429) {
-                setSearchError(
-                    __(
-                        'Google Books API-Limit erreicht. Bitte später erneut versuchen oder einen API-Schlüssel hinterlegen.',
-                        'child'
-                    )
-                );
-            } else {
-                setSearchError(
-                    __('Beim Suchen ist ein Fehler aufgetreten. Bitte versuche es erneut.', 'child')
-                );
+                errorMessage = __('Google Books API-Limit erreicht. Bitte einen API-Schlüssel in den Einstellungen hinterlegen.', 'child');
+            } else if (error?.data?.status === 400 || error?.data?.status === 401 || error?.data?.status === 403) {
+                errorMessage = __('API-Authentifizierung fehlgeschlagen. Bitte überprüfe deinen API-Schlüssel in den Einstellungen.', 'child');
             }
+            
+            setSearchError(errorMessage);
             setHasSearched(false);
         }
         setIsSearching(false);
