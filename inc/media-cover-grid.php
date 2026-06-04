@@ -7,9 +7,6 @@
 
 const CHILD_MEDIA_COVER_GRID_CACHE_KEY = 'child_media_cover_grid_items_v2';
 
-require_once get_stylesheet_directory() . '/inc/media-cover-grid-dedupe.php';
-require_once get_stylesheet_directory() . '/inc/media-cover-grid-normalizers.php';
-
 /**
  * Get the translated display label for a media-grid item type.
  *
