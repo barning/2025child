@@ -11,44 +11,46 @@
  * @return array<string, array{block_name:string, render_file:string}>
  */
 function child_get_dynamic_blocks(): array {
-	return [
-		'book-rating'              => [
-			'block_name'  => 'child/book-rating',
-			'render_file' => 'blocks/book-rating/render.php',
-		],
-		'magic-cards'              => [
-			'block_name'  => 'child/magic-cards',
-			'render_file' => 'blocks/magic-cards/render.php',
-		],
-		'media-recommendation'     => [
-			'block_name'  => 'child/media-recommendation',
-			'render_file' => 'blocks/media-recommendation/render.php',
-		],
-		'media-cover-grid'         => [
-			'block_name'  => 'child/media-cover-grid',
-			'render_file' => 'blocks/media-cover-grid/render.php',
-		],
-		'pixelfed-feed'            => [
-			'block_name'  => 'child/pixelfed-feed',
-			'render_file' => 'blocks/pixelfed-feed/render.php',
-		],
-		'post-likes'              => [
-			'block_name'  => 'child/post-likes',
-			'render_file' => 'blocks/post-likes/render.php',
-		],
-		'popular-posts'            => [
-			'block_name'  => 'child/popular-posts',
-			'render_file' => 'blocks/popular-posts/render.php',
-		],
-		'videogame-recommendation' => [
-			'block_name'  => 'child/videogame-recommendation',
-			'render_file' => 'blocks/videogame-recommendation/render.php',
-		],
-		'visual-link-preview'      => [
-			'block_name'  => 'child/visual-link-preview',
-			'render_file' => 'blocks/visual-link-preview/render.php',
-		],
-	];
+	$theme_dir = get_stylesheet_directory();
+	$slugs     = [];
+
+	foreach ( [ 'blocks', 'build' ] as $blocks_dir ) {
+		$block_json_files = glob( $theme_dir . '/' . $blocks_dir . '/*/block.json' );
+
+		if ( false === $block_json_files ) {
+			continue;
+		}
+
+		foreach ( $block_json_files as $block_json_file ) {
+			$slug = basename( dirname( $block_json_file ) );
+
+			if ( '' === $slug ) {
+				continue;
+			}
+
+			$slugs[ $slug ] = true;
+		}
+	}
+
+	$slugs = array_keys( $slugs );
+	sort( $slugs );
+
+	$dynamic_blocks = [];
+
+	foreach ( $slugs as $slug ) {
+		$render_file = 'blocks/' . $slug . '/render.php';
+
+		if ( ! is_readable( $theme_dir . '/' . $render_file ) ) {
+			continue;
+		}
+
+		$dynamic_blocks[ $slug ] = [
+			'block_name'  => 'child/' . $slug,
+			'render_file' => $render_file,
+		];
+	}
+
+	return $dynamic_blocks;
 }
 
 /**
