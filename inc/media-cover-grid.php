@@ -19,6 +19,7 @@ function child_get_media_cover_grid_type_label( string $type ): string {
 		'movie' => __( 'Film', 'child' ),
 		'tv'    => __( 'Serie', 'child' ),
 		'game'  => __( 'Videospiel', 'child' ),
+		'music' => __( 'Musik', 'child' ),
 	];
 
 	return $labels[ $type ] ?? __( 'Medium', 'child' );

@@ -16,7 +16,8 @@ const MEDIA_TYPE_OPTIONS = [
     { value: 'book', label: __('Bücher', 'child') },
     { value: 'movie', label: __('Filme', 'child') },
     { value: 'tv', label: __('Serien', 'child') },
-    { value: 'game', label: __('Videospiele', 'child') }
+    { value: 'game', label: __('Videospiele', 'child') },
+    { value: 'music', label: __('Musik', 'child') }
 ];
 
 const PREVIEW_ITEMS = [
@@ -43,6 +44,12 @@ const PREVIEW_ITEMS = [
         typeLabel: __('Videospiel', 'child'),
         title: __('Beispielspiel', 'child'),
         meta: __('PC, Switch', 'child')
+    },
+    {
+        type: 'music',
+        typeLabel: __('Musik', 'child'),
+        title: __('Beispielsong', 'child'),
+        meta: __('Künstler:in', 'child')
     }
 ];
 

@@ -1,0 +1,58 @@
+{
+  "apiVersion": 3,
+  "name": "child/music-recommendation",
+  "title": "Musik",
+  "category": "widgets",
+  "icon": "format-audio",
+  "description": "Ein Block zur Anzeige von Alben und Songs mit legaler Hörprobe.",
+  "supports": {
+    "html": false
+  },
+  "attributes": {
+    "musicType": {
+      "type": "string",
+      "default": "song"
+    },
+    "title": {
+      "type": "string",
+      "default": ""
+    },
+    "artist": {
+      "type": "string",
+      "default": ""
+    },
+    "albumTitle": {
+      "type": "string",
+      "default": ""
+    },
+    "releaseYear": {
+      "type": "string",
+      "default": ""
+    },
+    "coverUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "provider": {
+      "type": "string",
+      "default": "Apple/iTunes"
+    },
+    "providerId": {
+      "type": "string",
+      "default": ""
+    },
+    "providerUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "previewUrl": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "textdomain": "twentyfivetwentyfivechild",
+  "editorScript": "file:./index.js",
+  "viewScript": "file:./view.js",
+  "editorStyle": "file:./editor.css",
+  "style": "file:./style.css"
+}

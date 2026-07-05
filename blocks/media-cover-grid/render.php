@@ -10,7 +10,7 @@ return function( array $attributes ): string {
 		return '';
 	}
 
-	$default_types     = [ 'book', 'movie', 'tv', 'game' ];
+	$default_types     = [ 'book', 'movie', 'tv', 'game', 'music' ];
 	$media_types       = $attributes['mediaTypes'] ?? $default_types;
 	$allowed_types     = array_values( array_intersect( $default_types, is_array( $media_types ) ? $media_types : $default_types ) );
 	$max_items         = max( 1, min( 120, absint( $attributes['maxItems'] ?? 48 ) ) );
