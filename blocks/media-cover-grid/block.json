@@ -4,7 +4,7 @@
   "title": "Medien-Cover-Grid",
   "category": "widgets",
   "icon": "screenoptions",
-  "description": "Zeigt automatisch Cover aus Buch-, Film/Serien- und Videospiel-Blöcken in veröffentlichten Beiträgen.",
+  "description": "Zeigt automatisch Cover aus Buch-, Film/Serien-, Videospiel- und Musik-Blöcken in veröffentlichten Beiträgen.",
   "supports": {
     "html": false,
     "align": ["wide", "full"]
@@ -12,7 +12,7 @@
   "attributes": {
     "mediaTypes": {
       "type": "array",
-      "default": ["book", "movie", "tv", "game"]
+      "default": ["book", "movie", "tv", "game", "music"]
     },
     "maxItems": {
       "type": "number",

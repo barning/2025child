@@ -15,6 +15,7 @@ function child_get_media_cover_grid_normalizers(): array {
 		'child/book-rating' => 'child_normalize_media_cover_grid_book_block',
 		'child/media-recommendation' => 'child_normalize_media_cover_grid_media_recommendation_block',
 		'child/videogame-recommendation' => 'child_normalize_media_cover_grid_videogame_block',
+		'child/music-recommendation' => 'child_normalize_media_cover_grid_music_block',
 	];
 
 	/**
@@ -126,6 +127,34 @@ function child_normalize_media_cover_grid_videogame_block( array $attrs ): ?arra
 		'coverUrl'    => esc_url_raw( (string) ( $attrs['coverUrl'] ?? '' ) ),
 		'externalUrl' => esc_url_raw( (string) ( $attrs['shopUrl'] ?? '' ) ),
 		'rawgId'      => absint( $attrs['rawgId'] ?? 0 ),
+	];
+}
+
+
+/**
+ * Normalize music recommendation block attributes.
+ *
+ * @param array<string, mixed> $attrs Parsed block attributes.
+ * @return array<string, mixed>|null
+ */
+function child_normalize_media_cover_grid_music_block( array $attrs ): ?array {
+	$title = trim( (string) ( $attrs['title'] ?? '' ) );
+	if ( '' === $title ) {
+		return null;
+	}
+
+	$artist       = trim( (string) ( $attrs['artist'] ?? '' ) );
+	$album_title  = trim( (string) ( $attrs['albumTitle'] ?? '' ) );
+	$release_year = trim( (string) ( $attrs['releaseYear'] ?? '' ) );
+	$meta_parts   = array_filter( [ $artist, 'song' === ( $attrs['musicType'] ?? '' ) ? $album_title : '', $release_year ] );
+
+	return [
+		'type'        => 'music',
+		'title'       => $title,
+		'meta'        => implode( ' · ', $meta_parts ),
+		'coverUrl'    => esc_url_raw( (string) ( $attrs['coverUrl'] ?? '' ) ),
+		'externalUrl' => esc_url_raw( (string) ( $attrs['providerUrl'] ?? '' ) ),
+		'providerId'  => sanitize_text_field( (string) ( $attrs['providerId'] ?? '' ) ),
 	];
 }
 

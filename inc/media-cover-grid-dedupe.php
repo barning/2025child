@@ -24,6 +24,10 @@ function child_get_media_cover_grid_dedupe_key( array $item ): string {
 		return 'game:rawg:' . (int) $item['rawgId'];
 	}
 
+	if ( 'music' === $type && ! empty( $item['providerId'] ) ) {
+		return 'music:provider:' . child_normalize_media_cover_grid_key_part( (string) $item['providerId'] );
+	}
+
 	if ( 'book' === $type && '' !== $title ) {
 		$author = $meta;
 

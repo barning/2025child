@@ -1,0 +1,96 @@
+.wp-block-child-music-recommendation {
+    margin: 1.5rem 0;
+}
+
+.child-music-card {
+    display: grid;
+    grid-template-columns: minmax(120px, 180px) 1fr;
+    gap: 1.25rem;
+    align-items: start;
+    padding: 1rem;
+    border: 1px solid currentColor;
+    border-radius: 0.75rem;
+}
+
+.child-music-card__media {
+    aspect-ratio: 1;
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.child-music-card__cover {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.child-music-card__placeholder {
+    display: grid;
+    min-height: 100%;
+    place-items: center;
+    font-size: 3rem;
+}
+
+.child-music-card__type {
+    display: inline-block;
+    margin-block-end: 0.35rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.child-music-card__title {
+    margin: 0 0 0.35rem;
+}
+
+.child-music-card__artist,
+.child-music-card__album,
+.child-music-card__year,
+.child-music-card__privacy-note {
+    margin: 0 0 0.5rem;
+}
+
+.child-music-card__privacy-note {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.child-music-card__preview-button,
+.child-music-card__provider-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-block-start: 0.5rem;
+    padding: 0.55rem 0.8rem;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    line-height: 1.2;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.child-music-card__provider-link {
+    margin-inline-start: 0.5rem;
+}
+
+.child-music-card__audio {
+    display: block;
+    width: 100%;
+    margin-block-start: 0.75rem;
+}
+
+@media (max-width: 600px) {
+    .child-music-card {
+        grid-template-columns: 1fr;
+    }
+
+    .child-music-card__media {
+        max-width: 220px;
+    }
+}
