@@ -50,3 +50,44 @@
 .music-preview--empty {
     opacity: 0.75;
 }
+
+/* Keep provider artwork usable inside the block editor, even when theme/editor image rules are broad. */
+.wp-block-child-music-recommendation .music-search-results {
+    max-width: 100%;
+}
+
+.wp-block-child-music-recommendation .components-button.music-search-result {
+    display: grid !important;
+    grid-template-columns: 56px minmax(0, 1fr);
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+    min-height: 72px;
+    overflow: hidden;
+    white-space: normal;
+}
+
+.wp-block-child-music-recommendation .music-search-result__thumb,
+.wp-block-child-music-recommendation .music-search-result__thumb img {
+    width: 56px !important;
+    height: 56px !important;
+    max-width: 56px !important;
+    max-height: 56px !important;
+}
+
+.wp-block-child-music-recommendation .music-search-result__thumb {
+    min-width: 56px;
+    border-radius: 4px;
+}
+
+.wp-block-child-music-recommendation .music-search-result__details {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.wp-block-child-music-recommendation .music-search-result__title,
+.wp-block-child-music-recommendation .music-search-result__artist,
+.wp-block-child-music-recommendation .music-search-result__year {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
