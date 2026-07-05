@@ -52,6 +52,23 @@ function child_get_media_cover_grid_cover_format( array $item ): string {
 	return 'portrait';
 }
 
+
+/**
+ * Get the translated display label for a media-grid cover format.
+ *
+ * @param string $format Cover format.
+ * @return string
+ */
+function child_get_media_cover_grid_cover_format_label( string $format ): string {
+	$labels = [
+		'portrait'  => __( 'Hochformat', 'child' ),
+		'square'    => __( 'Quadratisch', 'child' ),
+		'landscape' => __( 'Querformat', 'child' ),
+	];
+
+	return $labels[ $format ] ?? __( 'Format', 'child' );
+}
+
 /**
  * Build the media item cache from published posts.
  *

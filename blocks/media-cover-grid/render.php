@@ -64,6 +64,28 @@ return function( array $attributes ): string {
 	);
 
 	$items = array_slice( $items, 0, $max_items );
+	$item_types = array_values(
+		array_filter(
+			array_unique(
+				array_map(
+					static function( array $item ): string {
+						return (string) ( $item['type'] ?? '' );
+					},
+					$items
+				)
+			)
+		)
+	);
+	$item_formats = array_values(
+		array_unique(
+			array_map(
+				static function( array $item ): string {
+					return child_get_media_cover_grid_cover_format( $item );
+				},
+				$items
+			)
+		)
+	);
 
 	ob_start();
 	?>
@@ -71,6 +93,30 @@ return function( array $attributes ): string {
 		<?php if ( [] === $items ) : ?>
 			<p class="child-media-cover-grid__empty"><?php echo esc_html__( 'Noch keine Medien gefunden.', 'child' ); ?></p>
 		<?php else : ?>
+			<div class="child-media-cover-grid__controls" aria-label="<?php echo esc_attr__( 'Medien filtern', 'child' ); ?>">
+				<?php if ( count( $item_types ) > 1 ) : ?>
+					<div class="child-media-cover-grid__control-group" role="group" aria-label="<?php echo esc_attr__( 'Medientypen', 'child' ); ?>">
+						<span class="child-media-cover-grid__control-label"><?php echo esc_html__( 'Typ', 'child' ); ?></span>
+						<?php foreach ( $item_types as $item_type ) : ?>
+							<button class="child-media-cover-grid__filter is-active" type="button" data-child-media-filter-group="type" data-child-media-filter-value="<?php echo esc_attr( $item_type ); ?>" aria-pressed="true">
+								<?php echo esc_html( child_get_media_cover_grid_type_label( $item_type ) ); ?>
+							</button>
+						<?php endforeach; ?>
+					</div>
+				<?php endif; ?>
+
+				<?php if ( count( $item_formats ) > 1 ) : ?>
+					<div class="child-media-cover-grid__control-group" role="group" aria-label="<?php echo esc_attr__( 'Cover-Formate', 'child' ); ?>">
+						<span class="child-media-cover-grid__control-label"><?php echo esc_html__( 'Format', 'child' ); ?></span>
+						<?php foreach ( $item_formats as $item_format ) : ?>
+							<button class="child-media-cover-grid__filter is-active" type="button" data-child-media-filter-group="format" data-child-media-filter-value="<?php echo esc_attr( $item_format ); ?>" aria-pressed="true">
+								<?php echo esc_html( child_get_media_cover_grid_cover_format_label( $item_format ) ); ?>
+							</button>
+						<?php endforeach; ?>
+					</div>
+				<?php endif; ?>
+			</div>
+			<p class="child-media-cover-grid__empty child-media-cover-grid__empty--filtered" hidden><?php echo esc_html__( 'Keine Medien für diese Filter gefunden.', 'child' ); ?></p>
 			<div class="child-media-cover-grid" role="list">
 				<?php foreach ( $items as $item ) : ?>
 					<?php
@@ -96,7 +142,7 @@ return function( array $attributes ): string {
 
 					$tag_name = $link_url ? 'a' : 'div';
 					?>
-					<<?php echo tag_escape( $tag_name ); ?> class="child-media-cover-grid__item child-media-cover-grid__item--<?php echo esc_attr( $type ); ?>"<?php echo $link_url ? ' href="' . esc_url( $link_url ) . '"' . $link_target . $link_rel : ''; ?> role="listitem" aria-label="<?php echo esc_attr( $title ); ?>">
+					<<?php echo tag_escape( $tag_name ); ?> class="child-media-cover-grid__item child-media-cover-grid__item--<?php echo esc_attr( $type ); ?>" data-child-media-type="<?php echo esc_attr( $type ); ?>" data-child-media-format="<?php echo esc_attr( $cover_format ); ?>"<?php echo $link_url ? ' href="' . esc_url( $link_url ) . '"' . $link_target . $link_rel : ''; ?> role="listitem" aria-label="<?php echo esc_attr( $title ); ?>">
 						<div class="child-media-cover-grid__cover child-media-cover-grid__cover--<?php echo esc_attr( $cover_format ); ?>">
 							<?php if ( $cover_url ) : ?>
 								<img src="<?php echo esc_url( $cover_url ); ?>" alt="<?php echo esc_attr( $title ); ?>" loading="lazy" />

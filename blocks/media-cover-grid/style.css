@@ -3,17 +3,70 @@
   margin-block: 1.5rem;
 }
 
+.child-media-cover-grid__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin-block-end: clamp(1rem, 2vw, 1.5rem);
+}
+
+.child-media-cover-grid__control-group {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.child-media-cover-grid__control-label {
+  color: color-mix(in srgb, currentColor 62%, transparent);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-inline-end: 0.1rem;
+  text-transform: uppercase;
+}
+
+.child-media-cover-grid__filter {
+  background: color-mix(in srgb, currentColor 6%, transparent);
+  border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+  border-radius: 999px;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.2;
+  padding: 0.45rem 0.75rem;
+}
+
+.child-media-cover-grid__filter:is(:hover, :focus-visible),
+.child-media-cover-grid__filter.is-active {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  border-color: color-mix(in srgb, currentColor 44%, transparent);
+}
+
+.child-media-cover-grid__filter:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--wp--preset--color--contrast, currentColor) 45%, transparent);
+  outline-offset: 2px;
+}
+
 .child-media-cover-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: clamp(1rem, 2vw, 1.5rem);
+  column-gap: clamp(1rem, 2vw, 1.5rem);
+  column-width: 150px;
 }
 
 .child-media-cover-grid__item {
+  break-inside: avoid;
   color: inherit;
-  display: block;
+  display: inline-block;
+  margin-block-end: clamp(1rem, 2vw, 1.5rem);
   min-width: 0;
   text-decoration: none;
+  width: 100%;
+}
+
+.child-media-cover-grid__item[hidden] {
+  display: none;
 }
 
 .child-media-cover-grid__item:is(a):hover .child-media-cover-grid__cover,
@@ -111,6 +164,7 @@
 
 @media (max-width: 600px) {
   .child-media-cover-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-count: 2;
+    column-width: auto;
   }
 }
