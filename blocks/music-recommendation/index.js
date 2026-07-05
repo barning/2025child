@@ -35,16 +35,6 @@ const MusicPreview = ({ attributes }) => {
                     <p className="child-music-card__album">{albumTitle}</p>
                 ) : null}
                 {releaseYear ? <p className="child-music-card__year">{releaseYear}</p> : null}
-                {previewUrl ? (
-                    <p className="child-music-card__privacy-note">
-                        {__('Die Hörprobe wird erst nach einem Klick geladen. Dabei kann eine Verbindung zum Anbieter hergestellt werden.', 'child')}
-                    </p>
-                ) : null}
-                {providerUrl ? (
-                    <a className="child-music-card__provider-link" href={providerUrl} target="_blank" rel="noopener noreferrer">
-                        {__('Bei Anbieter öffnen', 'child')} ({provider || 'Apple/iTunes'})
-                    </a>
-                ) : null}
             </div>
         </div>
     );

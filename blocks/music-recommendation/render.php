@@ -17,8 +17,6 @@ return function( array $attributes ): string {
 	$album_title  = trim( (string) ( $attributes['albumTitle'] ?? '' ) );
 	$release_year = trim( (string) ( $attributes['releaseYear'] ?? '' ) );
 	$cover_url    = esc_url( (string) ( $attributes['coverUrl'] ?? '' ) );
-	$provider     = trim( (string) ( $attributes['provider'] ?? 'Apple/iTunes' ) );
-	$provider_url = esc_url( (string) ( $attributes['providerUrl'] ?? '' ) );
 	$preview_url  = 'song' === $music_type ? esc_url( (string) ( $attributes['previewUrl'] ?? '' ) ) : '';
 
 	ob_start();
@@ -30,6 +28,20 @@ return function( array $attributes ): string {
 					<img src="<?php echo $cover_url; ?>" alt="<?php echo esc_attr( $title ); ?>" class="child-music-card__cover" loading="lazy" />
 				<?php else : ?>
 					<div class="child-music-card__placeholder" aria-hidden="true">♪</div>
+				<?php endif; ?>
+
+				<?php if ( $preview_url ) : ?>
+					<button
+						type="button"
+						class="child-music-card__preview-button"
+						data-preview-url="<?php echo esc_url( $preview_url ); ?>"
+						data-play-label="<?php echo esc_attr__( 'Hörprobe abspielen', 'child' ); ?>"
+						data-pause-label="<?php echo esc_attr__( 'Hörprobe pausieren', 'child' ); ?>"
+						aria-label="<?php echo esc_attr__( 'Hörprobe abspielen', 'child' ); ?>"
+						aria-pressed="false"
+					>
+						<span class="child-music-card__preview-icon" aria-hidden="true">▶</span>
+					</button>
 				<?php endif; ?>
 			</div>
 
@@ -46,28 +58,6 @@ return function( array $attributes ): string {
 					<p class="child-music-card__year"><?php echo esc_html( $release_year ); ?></p>
 				<?php endif; ?>
 
-				<?php if ( $preview_url ) : ?>
-					<p class="child-music-card__privacy-note">
-						<?php esc_html_e( 'Die Hörprobe wird erst nach deinem Klick geladen. Dabei kann eine Verbindung zum Anbieter hergestellt werden.', 'child' ); ?>
-					</p>
-					<div class="child-music-card__preview" data-preview-url="<?php echo esc_url( $preview_url ); ?>">
-						<button type="button" class="child-music-card__preview-button">
-							<?php esc_html_e( 'Hörprobe laden', 'child' ); ?>
-						</button>
-					</div>
-				<?php endif; ?>
-
-				<?php if ( $provider_url ) : ?>
-					<a class="child-music-card__provider-link" href="<?php echo $provider_url; ?>" target="_blank" rel="noopener noreferrer">
-						<?php
-						printf(
-							/* translators: %s: provider name. */
-							esc_html__( 'Bei %s öffnen', 'child' ),
-							esc_html( $provider ?: 'Apple/iTunes' )
-						);
-						?>
-					</a>
-				<?php endif; ?>
 			</div>
 		</div>
 	</div>
