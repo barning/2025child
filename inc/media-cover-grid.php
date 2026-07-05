@@ -5,7 +5,7 @@
  * @package TwentyTwentyFiveChild
  */
 
-const CHILD_MEDIA_COVER_GRID_CACHE_KEY = 'child_media_cover_grid_items_v2';
+const CHILD_MEDIA_COVER_GRID_CACHE_KEY = 'child_media_cover_grid_items_v3';
 
 /**
  * Get the translated display label for a media-grid item type.
@@ -23,6 +23,33 @@ function child_get_media_cover_grid_type_label( string $type ): string {
 	];
 
 	return $labels[ $type ] ?? __( 'Medium', 'child' );
+}
+
+
+/**
+ * Get the validated cover format for a media-grid item.
+ *
+ * @param array<string, mixed> $item Media item.
+ * @return string
+ */
+function child_get_media_cover_grid_cover_format( array $item ): string {
+	$format = (string) ( $item['coverFormat'] ?? '' );
+
+	if ( in_array( $format, [ 'portrait', 'square', 'landscape' ], true ) ) {
+		return $format;
+	}
+
+	$type = (string) ( $item['type'] ?? '' );
+
+	if ( 'music' === $type ) {
+		return 'square';
+	}
+
+	if ( 'game' === $type ) {
+		return 'landscape';
+	}
+
+	return 'portrait';
 }
 
 /**

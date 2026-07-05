@@ -14,6 +14,10 @@
       "type": "array",
       "default": ["book", "movie", "tv", "game", "music"]
     },
+    "coverFormats": {
+      "type": "array",
+      "default": ["portrait", "square", "landscape"]
+    },
     "maxItems": {
       "type": "number",
       "default": 48

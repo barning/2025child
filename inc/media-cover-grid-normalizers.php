@@ -71,6 +71,7 @@ function child_normalize_media_cover_grid_book_block( array $attrs ): ?array {
 		'title'       => $title,
 		'meta'        => trim( (string) ( $attrs['author'] ?? '' ) ),
 		'coverUrl'    => esc_url_raw( (string) ( $attrs['coverUrl'] ?? '' ) ),
+		'coverFormat' => 'portrait',
 		'externalUrl' => esc_url_raw( (string) ( $attrs['shopUrl'] ?? '' ) ),
 	];
 }
@@ -94,6 +95,7 @@ function child_normalize_media_cover_grid_media_recommendation_block( array $att
 		'title'       => $title,
 		'meta'        => trim( (string) ( $attrs['releaseYear'] ?? '' ) ),
 		'coverUrl'    => esc_url_raw( (string) ( $attrs['posterUrl'] ?? '' ) ),
+		'coverFormat' => 'portrait',
 		'externalUrl' => esc_url_raw( (string) ( $attrs['serviceUrl'] ?? '' ) ),
 		'tmdbId'      => absint( $attrs['tmdbId'] ?? 0 ),
 	];
@@ -125,6 +127,7 @@ function child_normalize_media_cover_grid_videogame_block( array $attrs ): ?arra
 		'title'       => $title,
 		'meta'        => implode( ' · ', $meta_parts ),
 		'coverUrl'    => esc_url_raw( (string) ( $attrs['coverUrl'] ?? '' ) ),
+		'coverFormat' => 'landscape',
 		'externalUrl' => esc_url_raw( (string) ( $attrs['shopUrl'] ?? '' ) ),
 		'rawgId'      => absint( $attrs['rawgId'] ?? 0 ),
 	];
@@ -153,6 +156,7 @@ function child_normalize_media_cover_grid_music_block( array $attrs ): ?array {
 		'title'       => $title,
 		'meta'        => implode( ' · ', $meta_parts ),
 		'coverUrl'    => esc_url_raw( (string) ( $attrs['coverUrl'] ?? '' ) ),
+		'coverFormat' => 'square',
 		'externalUrl' => esc_url_raw( (string) ( $attrs['providerUrl'] ?? '' ) ),
 		'providerId'  => sanitize_text_field( (string) ( $attrs['providerId'] ?? '' ) ),
 	];

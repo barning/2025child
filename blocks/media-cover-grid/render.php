@@ -11,8 +11,11 @@ return function( array $attributes ): string {
 	}
 
 	$default_types     = [ 'book', 'movie', 'tv', 'game', 'music' ];
+	$default_formats   = [ 'portrait', 'square', 'landscape' ];
 	$media_types       = $attributes['mediaTypes'] ?? $default_types;
 	$allowed_types     = array_values( array_intersect( $default_types, is_array( $media_types ) ? $media_types : $default_types ) );
+	$cover_formats     = $attributes['coverFormats'] ?? $default_formats;
+	$allowed_formats   = array_values( array_intersect( $default_formats, is_array( $cover_formats ) ? $cover_formats : $default_formats ) );
 	$max_items         = max( 1, min( 120, absint( $attributes['maxItems'] ?? 48 ) ) );
 	$link_to           = in_array( $attributes['linkTo'] ?? 'post', [ 'post', 'external', 'none' ], true ) ? $attributes['linkTo'] : 'post';
 	$sort_order        = in_array( $attributes['sortOrder'] ?? 'newest', [ 'newest', 'oldest', 'title' ], true ) ? $attributes['sortOrder'] : 'newest';
@@ -21,11 +24,15 @@ return function( array $attributes ): string {
 	$show_type         = (bool) ( $attributes['showType'] ?? true );
 	$allow_duplicates  = (bool) ( $attributes['allowDuplicates'] ?? false );
 
-	if ( [] === $allowed_types ) {
+	if ( [] === $allowed_types || [] === $allowed_formats ) {
+		$empty_message = [] === $allowed_types
+			? esc_html__( 'Bitte wähle mindestens einen Medientyp aus.', 'child' )
+			: esc_html__( 'Bitte wähle mindestens ein Format aus.', 'child' );
+
 		return sprintf(
 			'<div %s><p class="child-media-cover-grid__empty">%s</p></div>',
 			get_block_wrapper_attributes( [ 'class' => 'child-media-cover-grid-block' ] ),
-			esc_html__( 'Bitte wähle mindestens einen Medientyp aus.', 'child' )
+			$empty_message
 		);
 	}
 
@@ -33,8 +40,11 @@ return function( array $attributes ): string {
 	$items = array_values(
 		array_filter(
 			$items,
-			static function( array $item ) use ( $allowed_types ): bool {
-				return in_array( $item['type'] ?? '', $allowed_types, true );
+			static function( array $item ) use ( $allowed_types, $allowed_formats ): bool {
+				$type         = (string) ( $item['type'] ?? '' );
+				$cover_format = child_get_media_cover_grid_cover_format( $item );
+
+				return in_array( $type, $allowed_types, true ) && in_array( $cover_format, $allowed_formats, true );
 			}
 		)
 	);
@@ -71,6 +81,7 @@ return function( array $attributes ): string {
 					$title        = (string) ( $item['title'] ?? '' );
 					$meta         = (string) ( $item['meta'] ?? '' );
 					$cover_url    = (string) ( $item['coverUrl'] ?? '' );
+					$cover_format = child_get_media_cover_grid_cover_format( $item );
 					$type_label   = child_get_media_cover_grid_type_label( $type );
 					$source_title  = (string) ( $item['sourcePostTitle'] ?? '' );
 					$mention_count = max( 1, absint( $item['mentionCount'] ?? 1 ) );
@@ -86,7 +97,7 @@ return function( array $attributes ): string {
 					$tag_name = $link_url ? 'a' : 'div';
 					?>
 					<<?php echo tag_escape( $tag_name ); ?> class="child-media-cover-grid__item child-media-cover-grid__item--<?php echo esc_attr( $type ); ?>"<?php echo $link_url ? ' href="' . esc_url( $link_url ) . '"' . $link_target . $link_rel : ''; ?> role="listitem" aria-label="<?php echo esc_attr( $title ); ?>">
-						<div class="child-media-cover-grid__cover">
+						<div class="child-media-cover-grid__cover child-media-cover-grid__cover--<?php echo esc_attr( $cover_format ); ?>">
 							<?php if ( $cover_url ) : ?>
 								<img src="<?php echo esc_url( $cover_url ); ?>" alt="<?php echo esc_attr( $title ); ?>" loading="lazy" />
 							<?php else : ?>
