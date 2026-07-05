@@ -19,9 +19,9 @@ function child_vlp_get_cache_key( string $url ): string {
 }
 
 /**
- * Validate and normalize preview URLs before fetching or rendering.
+ * Normalize preview URLs without DNS resolution so cache lookups stay fast and reliable.
  */
-function child_vlp_normalize_url( string $url ): string {
+function child_vlp_normalize_url_for_cache( string $url ): string {
 	$url = esc_url_raw( trim( $url ), [ 'http', 'https' ] );
 
 	if ( '' === $url ) {
@@ -37,13 +37,26 @@ function child_vlp_normalize_url( string $url ): string {
 		return '';
 	}
 
-	if ( ! child_vlp_host_is_public( (string) $parts['host'] ) ) {
+	return $url;
+}
+
+/**
+ * Validate and normalize preview URLs before fetching or rendering.
+ */
+function child_vlp_normalize_url( string $url ): string {
+	$url = child_vlp_normalize_url_for_cache( $url );
+
+	if ( '' === $url ) {
+		return '';
+	}
+
+	$parts = wp_parse_url( $url );
+	if ( ! is_array( $parts ) || empty( $parts['host'] ) || ! child_vlp_host_is_public( (string) $parts['host'] ) ) {
 		return '';
 	}
 
 	return $url;
 }
-
 
 /**
  * Determine whether a hostname resolves only to public IP addresses.
@@ -235,15 +248,20 @@ function child_vlp_handle_background_fetch(): void {
 		wp_die( 'rate-limited', '', [ 'response' => 429 ] );
 	}
 
-	$url = isset( $_POST['url'] ) ? child_vlp_normalize_url( wp_unslash( $_POST['url'] ) ) : '';
-	if ( '' === $url ) {
+	$cache_url = isset( $_POST['url'] ) ? child_vlp_normalize_url_for_cache( wp_unslash( $_POST['url'] ) ) : '';
+	if ( '' === $cache_url ) {
 		wp_die( 'no-url', '', [ 'response' => 400 ] );
 	}
 
-	$cache_key = child_vlp_get_cache_key( $url );
+	$cache_key = child_vlp_get_cache_key( $cache_url );
 	$cached    = get_transient( $cache_key );
 	if ( is_array( $cached ) ) {
 		wp_die( 'cached' );
+	}
+
+	$url = child_vlp_normalize_url( $cache_url );
+	if ( '' === $url ) {
+		wp_die( 'no-url', '', [ 'response' => 400 ] );
 	}
 
 	$metadata = child_vlp_fetch_metadata( $url );

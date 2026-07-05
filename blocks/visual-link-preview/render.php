@@ -6,15 +6,20 @@
  */
 
 return function( $attributes ) {
-	$url = isset( $attributes['url'] ) ? child_vlp_normalize_url( (string) $attributes['url'] ) : '';
-	if ( '' === $url ) {
+	$cache_url = isset( $attributes['url'] ) ? child_vlp_normalize_url_for_cache( (string) $attributes['url'] ) : '';
+	if ( '' === $cache_url ) {
 		return '';
 	}
 
-	$cache_key = child_vlp_get_cache_key( $url );
+	$cache_key = child_vlp_get_cache_key( $cache_url );
 	$cached    = get_transient( $cache_key );
 	if ( is_array( $cached ) ) {
 		return child_vlp_render_card( $cached['url'], $cached['title'], $cached['desc'], $cached['image'] );
+	}
+
+	$url = child_vlp_normalize_url( $cache_url );
+	if ( '' === $url ) {
+		return '';
 	}
 
 	$metadata = child_vlp_fetch_metadata( $url );
