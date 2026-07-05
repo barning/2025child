@@ -1,61 +1,96 @@
 .wp-block-child-music-recommendation {
-    margin: 1.5rem 0;
+    margin: clamp(1.5rem, 4vw, 3rem) 0;
 }
 
 .child-music-card {
-    display: grid;
-    grid-template-columns: minmax(120px, 180px) 1fr;
-    gap: 1.25rem;
-    align-items: start;
-    padding: 1rem;
-    border: 1px solid currentColor;
-    border-radius: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
 }
 
 .child-music-card__media {
-    aspect-ratio: 1;
-    background: rgba(0, 0, 0, 0.08);
-    border-radius: 0.5rem;
-    overflow: hidden;
+    position: relative;
+    width: min(100%, clamp(160px, 65vw, 280px));
+    max-width: 100%;
+    border-radius: 12px;
+    background: #fff;
+    display: flex;
+    justify-content: center;
 }
 
 .child-music-card__cover {
-    display: block;
     width: 100%;
-    height: 100%;
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 1;
     object-fit: cover;
+    border-radius: 10px;
+    display: block;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15),
+                0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .child-music-card__placeholder {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 10px;
+    background: repeating-linear-gradient(
+        135deg,
+        rgba(220, 211, 196, 0.55),
+        rgba(220, 211, 196, 0.55) 12px,
+        rgba(255, 255, 255, 0.55) 12px,
+        rgba(255, 255, 255, 0.55) 24px
+    );
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15),
+                0 2px 8px rgba(0, 0, 0, 0.1);
     display: grid;
-    min-height: 100%;
     place-items: center;
     font-size: 3rem;
 }
 
+.child-music-card__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+}
+
 .child-music-card__type {
-    display: inline-block;
-    margin-block-end: 0.35rem;
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+    display: none;
 }
 
 .child-music-card__title {
-    margin: 0 0 0.35rem;
+    margin: 0;
+    font-size: clamp(1.5rem, 2vw, 2rem);
+    font-weight: 700;
+    color: var(--wp--preset--color--contrast, #241f1a);
+    line-height: 1.2;
+    text-align: center;
 }
 
 .child-music-card__artist,
 .child-music-card__album,
 .child-music-card__year,
 .child-music-card__privacy-note {
-    margin: 0 0 0.5rem;
+    margin: 0;
+    font-size: 1.1rem;
+    font-style: italic;
+    color: color-mix(in srgb, var(--wp--preset--color--contrast, #241f1a) 65%, transparent);
+    text-align: center;
 }
 
 .child-music-card__privacy-note {
+    max-width: 32rem;
+    margin-top: 0.35rem;
     font-size: 0.9rem;
-    opacity: 0.8;
+    font-style: normal;
+}
+
+.child-music-card__preview,
+.child-music-card__audio {
+    width: min(100%, 280px);
 }
 
 .child-music-card__preview-button,
@@ -64,7 +99,7 @@
     align-items: center;
     justify-content: center;
     margin-block-start: 0.5rem;
-    padding: 0.55rem 0.8rem;
+    padding: 0.45rem 0.75rem;
     border: 1px solid currentColor;
     border-radius: 999px;
     background: transparent;
@@ -73,24 +108,17 @@
     line-height: 1.2;
     text-decoration: none;
     cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.child-music-card__provider-link {
-    margin-inline-start: 0.5rem;
+.child-music-card__preview-button:hover,
+.child-music-card__preview-button:focus-visible,
+.child-music-card__provider-link:hover,
+.child-music-card__provider-link:focus-visible {
+    transform: translateY(-2px);
 }
 
 .child-music-card__audio {
     display: block;
-    width: 100%;
     margin-block-start: 0.75rem;
-}
-
-@media (max-width: 600px) {
-    .child-music-card {
-        grid-template-columns: 1fr;
-    }
-
-    .child-music-card__media {
-        max-width: 220px;
-    }
 }

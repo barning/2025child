@@ -18,4 +18,11 @@ document.addEventListener('click', (event) => {
 
     preview.replaceChildren(audio);
     audio.focus();
+
+    const playPromise = audio.play();
+    if (playPromise?.catch) {
+        playPromise.catch(() => {
+            // Keep the controls visible when the browser refuses immediate playback.
+        });
+    }
 });
