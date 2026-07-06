@@ -1,6 +1,9 @@
+<?php
 /**
  * Platform utilities for PHP render
  * Shared platform configuration between JS and PHP
+ *
+ * @package TwentyTwentyFiveChild
  */
 
 /**
@@ -8,6 +11,7 @@
  * @param string $platform_name - Raw platform name from API
  * @return array - ['name' => string, 'color' => string]
  */
+if ( ! function_exists( 'child_get_platform_info' ) ) {
 function child_get_platform_info( $platform_name ) {
 	$name = strtolower( $platform_name );
 	
@@ -36,4 +40,5 @@ function child_get_platform_info( $platform_name ) {
 	}
 	
 	return ['name' => $platform_name, 'color' => '#666666'];
+}
 }

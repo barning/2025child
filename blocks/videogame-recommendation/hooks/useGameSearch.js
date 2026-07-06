@@ -1,31 +1,22 @@
 import { __ } from '@wordpress/i18n';
-import { useState } from '@wordpress/element';
+import { useSearchState } from '../../shared/media/useSearchState';
 import { transformGameData } from '../utils';
 
 /**
  * Custom hook for game search functionality
  */
 export const useGameSearch = () => {
-	const [searchTerm, setSearchTerm] = useState('');
-	const [isSearching, setIsSearching] = useState(false);
-	const [searchResults, setSearchResults] = useState([]);
-	const [selectedGameId, setSelectedGameId] = useState(null);
-	const [searchError, setSearchError] = useState('');
-	const [hasSearched, setHasSearched] = useState(false);
+	const search = useSearchState();
 
 	const searchGames = async () => {
-		const trimmedTerm = searchTerm.trim();
+		const trimmedTerm = search.searchTerm.trim();
 		
 		if (!trimmedTerm) {
-			setSearchError(__('Bitte gib einen Suchbegriff ein.', 'child'));
-			setHasSearched(false);
+			search.failSearch(__('Bitte gib einen Suchbegriff ein.', 'child'));
 			return;
 		}
 
-		setIsSearching(true);
-		setSearchError('');
-		setSearchResults([]);
-		setSelectedGameId(null);
+		search.beginSearch();
 		
 		try {
 			const ajaxUrl = window.childGameSearch?.ajaxUrl || '/wp-admin/admin-ajax.php';
@@ -48,38 +39,30 @@ export const useGameSearch = () => {
 			const { games = [] } = data.data;
 			const gameResults = games.slice(0, 6).map(transformGameData);
 
-			setSearchResults(gameResults);
-			setHasSearched(true);
-			
-			if (!gameResults.length) {
-				setSearchError(__('Keine Ergebnisse gefunden.', 'child'));
-			}
+			search.completeSearch(gameResults, __('Keine Ergebnisse gefunden.', 'child'));
 		} catch (error) {
 			console.error('Fehler beim Suchen:', error);
-			setSearchError(
+			search.failSearch(
 				error.message || 
 				__('Beim Suchen ist ein Fehler aufgetreten. Bitte versuche es erneut.', 'child')
 			);
-			setHasSearched(false);
 		} finally {
-			setIsSearching(false);
+			search.finishSearch();
 		}
 	};
 
 	const selectGame = (game) => {
-		setSelectedGameId(game.id);
-		setSearchTerm(game.title);
-		return game;
+		return search.selectResult(game);
 	};
 
 	return {
-		searchTerm,
-		setSearchTerm,
-		isSearching,
-		searchResults,
-		selectedGameId,
-		searchError,
-		hasSearched,
+		searchTerm: search.searchTerm,
+		setSearchTerm: search.setSearchTerm,
+		isSearching: search.isSearching,
+		searchResults: search.searchResults,
+		selectedGameId: search.selectedId,
+		searchError: search.searchError,
+		hasSearched: search.hasSearched,
 		searchGames,
 		selectGame
 	};
