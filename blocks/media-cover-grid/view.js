@@ -1,15 +1,8 @@
 const BLOCK_SELECTOR = '.wp-block-child-media-cover-grid, .child-media-cover-grid-block';
 const FILTER_SELECTOR = '[data-child-media-filter-group="type"]';
 const ITEM_SELECTOR = '[data-child-media-type]';
-
-const schedule = ( callback ) => {
-	if ( typeof window.requestAnimationFrame === 'function' ) {
-		window.requestAnimationFrame( callback );
-		return;
-	}
-
-	window.setTimeout( callback, 1 );
-};
+const YEAR_SELECTOR = '[data-child-media-year]';
+const ALL_FILTER_VALUE = 'all';
 
 const getActiveTypes = ( block ) => {
 	const buttons = Array.from( block.querySelectorAll( FILTER_SELECTOR ) );
@@ -18,33 +11,23 @@ const getActiveTypes = ( block ) => {
 		return null;
 	}
 
-	return new Set(
-		buttons
-			.filter( ( button ) => button.classList.contains( 'is-active' ) )
-			.map( ( button ) => button.dataset.childMediaFilterValue )
-	);
-};
+	const activeValues = buttons
+		.filter( ( button ) => button.classList.contains( 'is-active' ) )
+		.map( ( button ) => button.dataset.childMediaFilterValue );
 
-const layoutMasonryGrid = ( block ) => {
-	const grid = block.querySelector( '.child-media-cover-grid' );
-	if ( ! grid ) {
-		return;
+	if ( activeValues.length === 0 || activeValues.includes( ALL_FILTER_VALUE ) ) {
+		return null;
 	}
 
-	const styles = window.getComputedStyle( grid );
-	const rowSize = Number.parseFloat( styles.getPropertyValue( 'grid-auto-rows' ) ) || 8;
-	const rowGap = Number.parseFloat( styles.getPropertyValue( 'row-gap' ) ) || 0;
+	return new Set( activeValues );
+};
 
-	grid.querySelectorAll( ITEM_SELECTOR ).forEach( ( item ) => {
-		item.style.gridRowEnd = '';
+const syncFilterButtons = ( block, activeValues ) => {
+	block.querySelectorAll( FILTER_SELECTOR ).forEach( ( button ) => {
+		const isActive = activeValues.has( button.dataset.childMediaFilterValue );
 
-		if ( item.hidden ) {
-			return;
-		}
-
-		const itemHeight = item.getBoundingClientRect().height;
-		const rowSpan = Math.max( 1, Math.ceil( ( itemHeight + rowGap ) / ( rowSize + rowGap ) ) );
-		item.style.gridRowEnd = `span ${ rowSpan }`;
+		button.classList.toggle( 'is-active', isActive );
+		button.setAttribute( 'aria-pressed', isActive ? 'true' : 'false' );
 	} );
 };
 
@@ -68,7 +51,37 @@ const updateGrid = ( block ) => {
 		emptyMessage.hidden = visibleItems > 0;
 	}
 
-	schedule( () => layoutMasonryGrid( block ) );
+	const grid = block.querySelector( '.child-media-cover-grid' );
+	if ( ! grid ) {
+		return;
+	}
+
+	let currentYear = null;
+	let currentYearHasVisibleItems = false;
+
+	const flushYearVisibility = () => {
+		if ( ! currentYear ) {
+			return;
+		}
+
+		currentYear.hidden = ! currentYearHasVisibleItems;
+		currentYear.setAttribute( 'aria-hidden', currentYearHasVisibleItems ? 'false' : 'true' );
+	};
+
+	Array.from( grid.children ).forEach( ( child ) => {
+		if ( child.matches( YEAR_SELECTOR ) ) {
+			flushYearVisibility();
+			currentYear = child;
+			currentYearHasVisibleItems = false;
+			return;
+		}
+
+		if ( child.matches( ITEM_SELECTOR ) && ! child.hidden ) {
+			currentYearHasVisibleItems = true;
+		}
+	} );
+
+	flushYearVisibility();
 };
 
 const initFilterButton = ( block, button ) => {
@@ -79,10 +92,33 @@ const initFilterButton = ( block, button ) => {
 	button.dataset.childMediaFilterInitialized = '1';
 
 	button.addEventListener( 'click', () => {
-		const isActive = ! button.classList.contains( 'is-active' );
+		const value = button.dataset.childMediaFilterValue;
+		const buttons = Array.from( block.querySelectorAll( FILTER_SELECTOR ) );
+		const activeValues = new Set(
+			buttons
+				.filter( ( currentButton ) => currentButton.classList.contains( 'is-active' ) )
+				.map( ( currentButton ) => currentButton.dataset.childMediaFilterValue )
+		);
 
-		button.classList.toggle( 'is-active', isActive );
-		button.setAttribute( 'aria-pressed', isActive ? 'true' : 'false' );
+		if ( value === ALL_FILTER_VALUE ) {
+			syncFilterButtons( block, new Set( [ ALL_FILTER_VALUE ] ) );
+			updateGrid( block );
+			return;
+		}
+
+		activeValues.delete( ALL_FILTER_VALUE );
+
+		if ( activeValues.has( value ) ) {
+			activeValues.delete( value );
+		} else {
+			activeValues.add( value );
+		}
+
+		if ( activeValues.size === 0 ) {
+			activeValues.add( ALL_FILTER_VALUE );
+		}
+
+		syncFilterButtons( block, activeValues );
 		updateGrid( block );
 	} );
 };
@@ -94,14 +130,7 @@ const initMediaCoverGrid = ( block ) => {
 
 	block.dataset.childMediaCoverGridInitialized = '1';
 	block.querySelectorAll( FILTER_SELECTOR ).forEach( ( button ) => initFilterButton( block, button ) );
-
-	block.querySelectorAll( '.child-media-cover-grid__cover img' ).forEach( ( image ) => {
-		if ( image.complete ) {
-			return;
-		}
-
-		image.addEventListener( 'load', () => schedule( () => layoutMasonryGrid( block ) ), { once: true } );
-	} );
+	syncFilterButtons( block, new Set( [ ALL_FILTER_VALUE ] ) );
 
 	updateGrid( block );
 };
@@ -115,9 +144,3 @@ if ( document.readyState === 'loading' ) {
 } else {
 	initializeMediaCoverGrids();
 }
-
-window.addEventListener( 'resize', () => {
-	schedule( () => {
-		document.querySelectorAll( BLOCK_SELECTOR ).forEach( layoutMasonryGrid );
-	} );
-} );

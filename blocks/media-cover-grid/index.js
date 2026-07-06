@@ -162,7 +162,7 @@ function Edit({ attributes, setAttributes }) {
             <div className="child-media-cover-grid">
                 {previewItems.length ? (
                     previewItems.map((item) => (
-                        <div key={item.type} className="child-media-cover-grid__item">
+                        <div key={item.type} className={`child-media-cover-grid__item child-media-cover-grid__item--${item.type}`}>
                             <div className={`child-media-cover-grid__cover child-media-cover-grid__cover--${item.type} child-media-cover-grid__cover--${item.coverFormat}`} aria-hidden="true">
                                 <span>{item.typeLabel.charAt(0)}</span>
                             </div>
