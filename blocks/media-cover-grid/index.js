@@ -20,11 +20,6 @@ const MEDIA_TYPE_OPTIONS = [
     { value: 'music', label: __('Musik', 'child') }
 ];
 
-const COVER_FORMAT_OPTIONS = [
-    { value: 'portrait', label: __('Hochformat', 'child') },
-    { value: 'square', label: __('Quadratisch', 'child') },
-    { value: 'landscape', label: __('Querformat', 'child') }
-];
 
 const PREVIEW_ITEMS = [
     {
@@ -64,20 +59,19 @@ const PREVIEW_ITEMS = [
     }
 ];
 
-const updateSelectedValues = (values, value, checked) => {
-    const normalizedValues = Array.isArray(values) ? values : [];
+const updateMediaTypes = (mediaTypes, value, checked) => {
+    const normalizedTypes = Array.isArray(mediaTypes) ? mediaTypes : [];
 
     if (checked) {
-        return [...new Set([...normalizedValues, value])];
+        return [...new Set([...normalizedTypes, value])];
     }
 
-    return normalizedValues.filter((selectedValue) => selectedValue !== value);
+    return normalizedTypes.filter((type) => type !== value);
 };
 
 function Edit({ attributes, setAttributes }) {
     const {
         mediaTypes = metadata.attributes.mediaTypes.default,
-        coverFormats = metadata.attributes.coverFormats.default,
         maxItems = metadata.attributes.maxItems.default,
         linkTo = metadata.attributes.linkTo.default,
         sortOrder = metadata.attributes.sortOrder.default,
@@ -89,10 +83,7 @@ function Edit({ attributes, setAttributes }) {
 
     const blockProps = useBlockProps({ className: 'child-media-cover-grid-block' });
     const enabledTypes = Array.isArray(mediaTypes) ? mediaTypes : [];
-    const enabledFormats = Array.isArray(coverFormats) ? coverFormats : [];
-    const previewItems = PREVIEW_ITEMS.filter(
-        (item) => enabledTypes.includes(item.type) && enabledFormats.includes(item.coverFormat)
-    );
+    const previewItems = PREVIEW_ITEMS.filter((item) => enabledTypes.includes(item.type));
 
     return (
         <div {...blockProps}>
@@ -105,27 +96,11 @@ function Edit({ attributes, setAttributes }) {
                             checked={enabledTypes.includes(option.value)}
                             onChange={(checked) =>
                                 setAttributes({
-                                    mediaTypes: updateSelectedValues(enabledTypes, option.value, checked)
+                                    mediaTypes: updateMediaTypes(enabledTypes, option.value, checked)
                                 })
                             }
                         />
                     ))}
-
-                    <div className="child-media-cover-grid__filter-group">
-                        <p className="child-media-cover-grid__filter-label">{__('Formate', 'child')}</p>
-                        {COVER_FORMAT_OPTIONS.map((option) => (
-                            <CheckboxControl
-                                key={option.value}
-                                label={option.label}
-                                checked={enabledFormats.includes(option.value)}
-                                onChange={(checked) =>
-                                    setAttributes({
-                                        coverFormats: updateSelectedValues(enabledFormats, option.value, checked)
-                                    })
-                                }
-                            />
-                        ))}
-                    </div>
 
                     <RangeControl
                         label={__('Maximale Anzahl', 'child')}
@@ -202,7 +177,7 @@ function Edit({ attributes, setAttributes }) {
                     ))
                 ) : (
                     <p className="child-media-cover-grid__empty">
-                        {__('Wähle mindestens einen Medientyp und ein Format aus.', 'child')}
+                        {__('Wähle mindestens einen Medientyp aus.', 'child')}
                     </p>
                 )}
             </div>

@@ -11,11 +11,8 @@ return function( array $attributes ): string {
 	}
 
 	$default_types     = [ 'book', 'movie', 'tv', 'game', 'music' ];
-	$default_formats   = [ 'portrait', 'square', 'landscape' ];
 	$media_types       = $attributes['mediaTypes'] ?? $default_types;
 	$allowed_types     = array_values( array_intersect( $default_types, is_array( $media_types ) ? $media_types : $default_types ) );
-	$cover_formats     = $attributes['coverFormats'] ?? $default_formats;
-	$allowed_formats   = array_values( array_intersect( $default_formats, is_array( $cover_formats ) ? $cover_formats : $default_formats ) );
 	$max_items         = max( 1, min( 120, absint( $attributes['maxItems'] ?? 48 ) ) );
 	$link_to           = in_array( $attributes['linkTo'] ?? 'post', [ 'post', 'external', 'none' ], true ) ? $attributes['linkTo'] : 'post';
 	$sort_order        = in_array( $attributes['sortOrder'] ?? 'newest', [ 'newest', 'oldest', 'title' ], true ) ? $attributes['sortOrder'] : 'newest';
@@ -24,15 +21,11 @@ return function( array $attributes ): string {
 	$show_type         = (bool) ( $attributes['showType'] ?? true );
 	$allow_duplicates  = (bool) ( $attributes['allowDuplicates'] ?? false );
 
-	if ( [] === $allowed_types || [] === $allowed_formats ) {
-		$empty_message = [] === $allowed_types
-			? esc_html__( 'Bitte wähle mindestens einen Medientyp aus.', 'child' )
-			: esc_html__( 'Bitte wähle mindestens ein Format aus.', 'child' );
-
+	if ( [] === $allowed_types ) {
 		return sprintf(
 			'<div %s><p class="child-media-cover-grid__empty">%s</p></div>',
 			get_block_wrapper_attributes( [ 'class' => 'child-media-cover-grid-block' ] ),
-			$empty_message
+			esc_html__( 'Bitte wähle mindestens einen Medientyp aus.', 'child' )
 		);
 	}
 
@@ -40,11 +33,8 @@ return function( array $attributes ): string {
 	$items = array_values(
 		array_filter(
 			$items,
-			static function( array $item ) use ( $allowed_types, $allowed_formats ): bool {
-				$type         = (string) ( $item['type'] ?? '' );
-				$cover_format = child_get_media_cover_grid_cover_format( $item );
-
-				return in_array( $type, $allowed_types, true ) && in_array( $cover_format, $allowed_formats, true );
+			static function( array $item ) use ( $allowed_types ): bool {
+				return in_array( $item['type'] ?? '', $allowed_types, true );
 			}
 		)
 	);
@@ -76,16 +66,6 @@ return function( array $attributes ): string {
 			)
 		)
 	);
-	$item_formats = array_values(
-		array_unique(
-			array_map(
-				static function( array $item ): string {
-					return child_get_media_cover_grid_cover_format( $item );
-				},
-				$items
-			)
-		)
-	);
 
 	ob_start();
 	?>
@@ -93,8 +73,8 @@ return function( array $attributes ): string {
 		<?php if ( [] === $items ) : ?>
 			<p class="child-media-cover-grid__empty"><?php echo esc_html__( 'Noch keine Medien gefunden.', 'child' ); ?></p>
 		<?php else : ?>
-			<div class="child-media-cover-grid__controls" aria-label="<?php echo esc_attr__( 'Medien filtern', 'child' ); ?>">
-				<?php if ( count( $item_types ) > 1 ) : ?>
+			<?php if ( count( $item_types ) > 1 ) : ?>
+				<div class="child-media-cover-grid__controls" aria-label="<?php echo esc_attr__( 'Medien filtern', 'child' ); ?>">
 					<div class="child-media-cover-grid__control-group" role="group" aria-label="<?php echo esc_attr__( 'Medientypen', 'child' ); ?>">
 						<span class="child-media-cover-grid__control-label"><?php echo esc_html__( 'Typ', 'child' ); ?></span>
 						<?php foreach ( $item_types as $item_type ) : ?>
@@ -103,19 +83,8 @@ return function( array $attributes ): string {
 							</button>
 						<?php endforeach; ?>
 					</div>
-				<?php endif; ?>
-
-				<?php if ( count( $item_formats ) > 1 ) : ?>
-					<div class="child-media-cover-grid__control-group" role="group" aria-label="<?php echo esc_attr__( 'Cover-Formate', 'child' ); ?>">
-						<span class="child-media-cover-grid__control-label"><?php echo esc_html__( 'Format', 'child' ); ?></span>
-						<?php foreach ( $item_formats as $item_format ) : ?>
-							<button class="child-media-cover-grid__filter is-active" type="button" data-child-media-filter-group="format" data-child-media-filter-value="<?php echo esc_attr( $item_format ); ?>" aria-pressed="true">
-								<?php echo esc_html( child_get_media_cover_grid_cover_format_label( $item_format ) ); ?>
-							</button>
-						<?php endforeach; ?>
-					</div>
-				<?php endif; ?>
-			</div>
+				</div>
+			<?php endif; ?>
 			<p class="child-media-cover-grid__empty child-media-cover-grid__empty--filtered" hidden><?php echo esc_html__( 'Keine Medien für diese Filter gefunden.', 'child' ); ?></p>
 			<div class="child-media-cover-grid" role="list">
 				<?php foreach ( $items as $item ) : ?>
@@ -142,7 +111,7 @@ return function( array $attributes ): string {
 
 					$tag_name = $link_url ? 'a' : 'div';
 					?>
-					<<?php echo tag_escape( $tag_name ); ?> class="child-media-cover-grid__item child-media-cover-grid__item--<?php echo esc_attr( $type ); ?>" data-child-media-type="<?php echo esc_attr( $type ); ?>" data-child-media-format="<?php echo esc_attr( $cover_format ); ?>"<?php echo $link_url ? ' href="' . esc_url( $link_url ) . '"' . $link_target . $link_rel : ''; ?> role="listitem" aria-label="<?php echo esc_attr( $title ); ?>">
+					<<?php echo tag_escape( $tag_name ); ?> class="child-media-cover-grid__item child-media-cover-grid__item--<?php echo esc_attr( $type ); ?>" data-child-media-type="<?php echo esc_attr( $type ); ?>"<?php echo $link_url ? ' href="' . esc_url( $link_url ) . '"' . $link_target . $link_rel : ''; ?> role="listitem" aria-label="<?php echo esc_attr( $title ); ?>">
 						<div class="child-media-cover-grid__cover child-media-cover-grid__cover--<?php echo esc_attr( $cover_format ); ?>">
 							<?php if ( $cover_url ) : ?>
 								<img src="<?php echo esc_url( $cover_url ); ?>" alt="<?php echo esc_attr( $title ); ?>" loading="lazy" />

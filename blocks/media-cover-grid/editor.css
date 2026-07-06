@@ -8,24 +8,6 @@
 }
 
 
-.child-media-cover-grid__filter-group,
-.wp-block-child-media-cover-grid .child-media-cover-grid__filter-group,
-.child-media-cover-grid-block .child-media-cover-grid__filter-group {
-  border-block-start: 1px solid color-mix(in srgb, currentColor 14%, transparent);
-  margin-block-start: 0.75rem;
-  padding-block-start: 0.75rem;
-}
-
-.child-media-cover-grid__filter-label,
-.wp-block-child-media-cover-grid .child-media-cover-grid__filter-label,
-.child-media-cover-grid-block .child-media-cover-grid__filter-label {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  margin: 0 0 0.5rem;
-  text-transform: uppercase;
-}
-
 .wp-block-child-media-cover-grid .child-media-cover-grid__cover,
 .child-media-cover-grid-block .child-media-cover-grid__cover {
   background: linear-gradient(135deg, #f2f0ec, #d7d1c8);

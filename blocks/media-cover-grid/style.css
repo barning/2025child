@@ -51,18 +51,20 @@
 }
 
 .child-media-cover-grid {
-  column-gap: clamp(1rem, 2vw, 1.5rem);
-  column-width: 150px;
+  --child-media-cover-grid-gap: clamp(1rem, 2vw, 1.5rem);
+  --child-media-cover-grid-row: 8px;
+  display: grid;
+  gap: var(--child-media-cover-grid-gap);
+  grid-auto-flow: row;
+  grid-auto-rows: var(--child-media-cover-grid-row);
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
 }
 
 .child-media-cover-grid__item {
-  break-inside: avoid;
   color: inherit;
-  display: inline-block;
-  margin-block-end: clamp(1rem, 2vw, 1.5rem);
+  display: block;
   min-width: 0;
   text-decoration: none;
-  width: 100%;
 }
 
 .child-media-cover-grid__item[hidden] {
@@ -164,7 +166,6 @@
 
 @media (max-width: 600px) {
   .child-media-cover-grid {
-    column-count: 2;
-    column-width: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

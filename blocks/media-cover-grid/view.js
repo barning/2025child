@@ -1,20 +1,18 @@
 const BLOCK_SELECTOR = '.wp-block-child-media-cover-grid, .child-media-cover-grid-block';
-const FILTER_SELECTOR = '[data-child-media-filter-group]';
-const ITEM_SELECTOR = '[data-child-media-type][data-child-media-format]';
+const FILTER_SELECTOR = '[data-child-media-filter-group="type"]';
+const ITEM_SELECTOR = '[data-child-media-type]';
 
 const schedule = ( callback ) => {
-	if ( typeof window.requestIdleCallback === 'function' ) {
-		window.requestIdleCallback( callback, { timeout: 900 } );
+	if ( typeof window.requestAnimationFrame === 'function' ) {
+		window.requestAnimationFrame( callback );
 		return;
 	}
 
 	window.setTimeout( callback, 1 );
 };
 
-const getActiveValues = ( block, group ) => {
-	const buttons = Array.from(
-		block.querySelectorAll( `${ FILTER_SELECTOR }[data-child-media-filter-group="${ group }"]` )
-	);
+const getActiveTypes = ( block ) => {
+	const buttons = Array.from( block.querySelectorAll( FILTER_SELECTOR ) );
 
 	if ( buttons.length === 0 ) {
 		return null;
@@ -27,15 +25,35 @@ const getActiveValues = ( block, group ) => {
 	);
 };
 
+const layoutMasonryGrid = ( block ) => {
+	const grid = block.querySelector( '.child-media-cover-grid' );
+	if ( ! grid ) {
+		return;
+	}
+
+	const styles = window.getComputedStyle( grid );
+	const rowSize = Number.parseFloat( styles.getPropertyValue( 'grid-auto-rows' ) ) || 8;
+	const rowGap = Number.parseFloat( styles.getPropertyValue( 'row-gap' ) ) || 0;
+
+	grid.querySelectorAll( ITEM_SELECTOR ).forEach( ( item ) => {
+		item.style.gridRowEnd = '';
+
+		if ( item.hidden ) {
+			return;
+		}
+
+		const itemHeight = item.getBoundingClientRect().height;
+		const rowSpan = Math.max( 1, Math.ceil( ( itemHeight + rowGap ) / ( rowSize + rowGap ) ) );
+		item.style.gridRowEnd = `span ${ rowSpan }`;
+	} );
+};
+
 const updateGrid = ( block ) => {
-	const activeTypes = getActiveValues( block, 'type' );
-	const activeFormats = getActiveValues( block, 'format' );
+	const activeTypes = getActiveTypes( block );
 	let visibleItems = 0;
 
 	block.querySelectorAll( ITEM_SELECTOR ).forEach( ( item ) => {
-		const typeMatches = activeTypes === null || activeTypes.has( item.dataset.childMediaType );
-		const formatMatches = activeFormats === null || activeFormats.has( item.dataset.childMediaFormat );
-		const isVisible = typeMatches && formatMatches;
+		const isVisible = activeTypes === null || activeTypes.has( item.dataset.childMediaType );
 
 		item.hidden = ! isVisible;
 		item.setAttribute( 'aria-hidden', isVisible ? 'false' : 'true' );
@@ -49,6 +67,8 @@ const updateGrid = ( block ) => {
 	if ( emptyMessage ) {
 		emptyMessage.hidden = visibleItems > 0;
 	}
+
+	schedule( () => layoutMasonryGrid( block ) );
 };
 
 const initFilterButton = ( block, button ) => {
@@ -74,6 +94,15 @@ const initMediaCoverGrid = ( block ) => {
 
 	block.dataset.childMediaCoverGridInitialized = '1';
 	block.querySelectorAll( FILTER_SELECTOR ).forEach( ( button ) => initFilterButton( block, button ) );
+
+	block.querySelectorAll( '.child-media-cover-grid__cover img' ).forEach( ( image ) => {
+		if ( image.complete ) {
+			return;
+		}
+
+		image.addEventListener( 'load', () => schedule( () => layoutMasonryGrid( block ) ), { once: true } );
+	} );
+
 	updateGrid( block );
 };
 
@@ -82,7 +111,13 @@ const initializeMediaCoverGrids = () => {
 };
 
 if ( document.readyState === 'loading' ) {
-	document.addEventListener( 'DOMContentLoaded', () => schedule( initializeMediaCoverGrids ), { once: true } );
+	document.addEventListener( 'DOMContentLoaded', initializeMediaCoverGrids, { once: true } );
 } else {
-	schedule( initializeMediaCoverGrids );
+	initializeMediaCoverGrids();
 }
+
+window.addEventListener( 'resize', () => {
+	schedule( () => {
+		document.querySelectorAll( BLOCK_SELECTOR ).forEach( layoutMasonryGrid );
+	} );
+} );
