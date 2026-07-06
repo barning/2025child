@@ -72,6 +72,41 @@
     color: #3c434a;
 }
 
+.wp-block-child-book-rating .book-search-results {
+    max-width: 100%;
+}
+
+.wp-block-child-book-rating .components-button.book-search-result {
+    display: grid !important;
+    grid-template-columns: 44px minmax(0, 1fr);
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+    min-height: 82px;
+    overflow: hidden;
+    white-space: normal;
+}
+
+.wp-block-child-book-rating .book-search-result__thumb,
+.wp-block-child-book-rating .book-search-result__thumb img {
+    width: 44px !important;
+    height: 64px !important;
+    max-width: 44px !important;
+    max-height: 64px !important;
+}
+
+.wp-block-child-book-rating .book-search-result__details {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.wp-block-child-book-rating .book-search-result__title,
+.wp-block-child-book-rating .book-search-result__subtitle,
+.wp-block-child-book-rating .book-search-result__author {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .book-preview--empty {
     margin-top: 1.5rem;
     padding: 2rem;

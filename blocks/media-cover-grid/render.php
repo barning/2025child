@@ -54,6 +54,18 @@ return function( array $attributes ): string {
 	);
 
 	$items = array_slice( $items, 0, $max_items );
+	$item_types = array_values(
+		array_filter(
+			array_unique(
+				array_map(
+					static function( array $item ): string {
+						return (string) ( $item['type'] ?? '' );
+					},
+					$items
+				)
+			)
+		)
+	);
 
 	ob_start();
 	?>
@@ -61,7 +73,24 @@ return function( array $attributes ): string {
 		<?php if ( [] === $items ) : ?>
 			<p class="child-media-cover-grid__empty"><?php echo esc_html__( 'Noch keine Medien gefunden.', 'child' ); ?></p>
 		<?php else : ?>
+			<?php if ( count( $item_types ) > 1 ) : ?>
+				<div class="child-media-cover-grid__controls" aria-label="<?php echo esc_attr__( 'Medien filtern', 'child' ); ?>">
+					<div class="child-media-cover-grid__control-group" role="group" aria-label="<?php echo esc_attr__( 'Medientypen', 'child' ); ?>">
+						<span class="child-media-cover-grid__control-label"><?php echo esc_html__( 'Typ', 'child' ); ?></span>
+						<button class="child-media-cover-grid__filter is-active" type="button" data-child-media-filter-group="type" data-child-media-filter-value="all" aria-pressed="true">
+							<?php echo esc_html__( 'Alle', 'child' ); ?>
+						</button>
+						<?php foreach ( $item_types as $item_type ) : ?>
+							<button class="child-media-cover-grid__filter" type="button" data-child-media-filter-group="type" data-child-media-filter-value="<?php echo esc_attr( $item_type ); ?>" aria-pressed="false">
+								<?php echo esc_html( child_get_media_cover_grid_type_label( $item_type ) ); ?>
+							</button>
+						<?php endforeach; ?>
+					</div>
+				</div>
+			<?php endif; ?>
+			<p class="child-media-cover-grid__empty child-media-cover-grid__empty--filtered" hidden><?php echo esc_html__( 'Keine Medien für diese Filter gefunden.', 'child' ); ?></p>
 			<div class="child-media-cover-grid" role="list">
+				<?php $current_year = null; ?>
 				<?php foreach ( $items as $item ) : ?>
 					<?php
 					$link_url     = '';
@@ -71,8 +100,11 @@ return function( array $attributes ): string {
 					$title        = (string) ( $item['title'] ?? '' );
 					$meta         = (string) ( $item['meta'] ?? '' );
 					$cover_url    = (string) ( $item['coverUrl'] ?? '' );
+					$cover_format = child_get_media_cover_grid_cover_format( $item );
 					$type_label   = child_get_media_cover_grid_type_label( $type );
 					$source_title  = (string) ( $item['sourcePostTitle'] ?? '' );
+					$source_timestamp = (int) ( $item['sourcePostTimestamp'] ?? 0 );
+					$item_year        = $source_timestamp ? wp_date( 'Y', $source_timestamp ) : esc_html__( 'Unbekannt', 'child' );
 					$mention_count = max( 1, absint( $item['mentionCount'] ?? 1 ) );
 
 					if ( 'post' === $link_to ) {
@@ -85,8 +117,14 @@ return function( array $attributes ): string {
 
 					$tag_name = $link_url ? 'a' : 'div';
 					?>
-					<<?php echo tag_escape( $tag_name ); ?> class="child-media-cover-grid__item child-media-cover-grid__item--<?php echo esc_attr( $type ); ?>"<?php echo $link_url ? ' href="' . esc_url( $link_url ) . '"' . $link_target . $link_rel : ''; ?> role="listitem" aria-label="<?php echo esc_attr( $title ); ?>">
-						<div class="child-media-cover-grid__cover">
+					<?php if ( $item_year !== $current_year ) : ?>
+						<div class="child-media-cover-grid__year" data-child-media-year="<?php echo esc_attr( $item_year ); ?>" aria-hidden="false">
+							<span class="child-media-cover-grid__year-label"><?php echo esc_html( $item_year ); ?></span>
+						</div>
+						<?php $current_year = $item_year; ?>
+					<?php endif; ?>
+					<<?php echo tag_escape( $tag_name ); ?> class="child-media-cover-grid__item child-media-cover-grid__item--<?php echo esc_attr( $type ); ?>" data-child-media-type="<?php echo esc_attr( $type ); ?>"<?php echo $link_url ? ' href="' . esc_url( $link_url ) . '"' . $link_target . $link_rel : ''; ?> role="listitem" aria-label="<?php echo esc_attr( $title ); ?>">
+						<div class="child-media-cover-grid__cover child-media-cover-grid__cover--<?php echo esc_attr( $cover_format ); ?>">
 							<?php if ( $cover_url ) : ?>
 								<img src="<?php echo esc_url( $cover_url ); ?>" alt="<?php echo esc_attr( $title ); ?>" loading="lazy" />
 							<?php else : ?>

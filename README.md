@@ -8,6 +8,7 @@ A production-focused child theme for **Twenty Twenty-Five** that keeps customiza
 .
 ├── assets/                      # Reserved for custom static assets.
 ├── blocks/                      # Block source files (editor JS/CSS + render callbacks).
+│   └── shared/                  # Shared block-editor utilities used by multiple blocks.
 ├── build/                       # Compiled block assets used by register_block_type().
 ├── releases/                    # Versioned release notes.
 ├── inc/
@@ -16,7 +17,11 @@ A production-focused child theme for **Twenty Twenty-Five** that keeps customiza
 │   ├── book-rating.php
 │   ├── head-footer-injections.php
 │   ├── human-json.php
+│   ├── media-cover-grid.php
+│   ├── media-cover-grid-dedupe.php
+│   ├── media-cover-grid-normalizers.php
 │   ├── media-recommendation.php
+│   ├── music-recommendation.php
 │   ├── notes.php
 │   ├── post-likes.php
 │   ├── rss-feed-footer.php
@@ -39,7 +44,9 @@ A production-focused child theme for **Twenty Twenty-Five** that keeps customiza
 
 - `child/book-rating`
 - `child/magic-cards`
+- `child/media-cover-grid`
 - `child/media-recommendation`
+- `child/music-recommendation`
 - `child/pixelfed-feed`
 - `child/popular-posts`
 - `child/post-likes`
@@ -57,6 +64,7 @@ Each block:
 When adding or changing a dynamic block, mirror the existing examples in `blocks/post-likes`, `blocks/media-cover-grid`, and `blocks/media-recommendation`:
 
 - Put block-owned assets under `blocks/{slug}/`. A feature should include `block.json` and `index.js`, then add `render.php` for dynamic output, `style.css` for front-end styles, `editor.css` for editor-only styles, and `view.js` only when the front end needs interactive behavior.
+- Put shared editor-only helpers under `blocks/shared/` when multiple block editors need the same state or UI primitive. Current shared media helpers cover search state, search feedback, and reusable search-result row rendering.
 - Put server-side helper modules in `inc/{slug}.php`. Keep `blocks/{slug}/render.php` focused on rendering sanitized markup and delegate reusable queries, REST/AJAX handlers, settings, cache helpers, and data normalization to the matching `inc/` file.
 - Expose render-time behavior through stable, public `child_*` functions instead of anonymous helper logic that other blocks cannot reuse. For example, `blocks/media-cover-grid/render.php` calls the public helpers from `inc/media-cover-grid.php`, while `blocks/post-likes/render.php` reads counts through the post-likes helper API.
 - Localize editor data from `inc/blocks.php` with `child_localize_block_editor_script( $block_name, $object_name, $data )` on `enqueue_block_editor_assets`, as `inc/media-recommendation.php` does for the Media Recommendation editor AJAX URL and nonce.
@@ -64,17 +72,50 @@ When adding or changing a dynamic block, mirror the existing examples in `blocks
 
 ## API-Backed Features
 
+### Media Recommendation Blocks
+
+The recommendation blocks keep their saved attribute schemas independent, but share editor primitives where possible:
+
+- `blocks/shared/media/useSearchState.js` centralizes search term, loading, result, selection, and error state.
+- `blocks/shared/media/SearchFeedback.js` centralizes loading/error output.
+- `blocks/shared/media/SearchResultsList.js` centralizes result row button rendering while each block keeps its own result markup and CSS classes.
+- Provider-specific search and mapping stays in each feature block so Books, TMDB, Apple/iTunes, and RAWG can evolve independently.
+
+### Media Cover Grid
+
+`child/media-cover-grid` auto-builds a cover grid from published recommendation blocks. It uses:
+
+- `inc/media-cover-grid.php` for post scanning, caching, and shared grid helpers.
+- `inc/media-cover-grid-normalizers.php` to normalize book, movie/series, videogame, and music block attributes into a shared media item contract.
+- `inc/media-cover-grid-dedupe.php` to merge duplicate recommendations while preserving source-post metadata.
+- `blocks/media-cover-grid/view.js` for front-end filtering. The default filter state is **Alle**, individual media type filters hide empty year sections automatically, and year separators are rendered from each item’s source post year.
+
+The grid intentionally keeps the recommendation block schemas unchanged and treats the grid item shape as a derived view model.
+
+### Book Recommendation (Google Books)
+
+- Admin settings page under **Settings → Book Rating**.
+- API key lookup order: option `child_google_books_api_key`, then `CHILD_GOOGLE_BOOKS_API_KEY` constant fallback.
+- Editor REST endpoint: `/child/v1/books`.
+
 ### Media Recommendation (TMDB)
 
 - Admin settings page under **Settings → Media Recommendation**.
 - API key lookup order: option `child_tmdb_api_key`, then `TMDB_API_KEY` constant fallback.
 - Editor AJAX endpoint: `wp_ajax_child_tmdb_search`.
 
+### Music Recommendation (Apple/iTunes)
+
+- Editor REST endpoint: `/child/v1/music`.
+- Supports songs and albums while only loading audio previews on explicit front-end interaction.
+- Keeps legal/privacy messaging in the block editor.
+
 ### Videogame Recommendation (RAWG)
 
 - Admin settings page under **Settings → Videogame Recommendation**.
 - API key lookup order: option `child_rawg_api_key`, then `RAWG_API_KEY` constant fallback.
 - Editor AJAX endpoint: `wp_ajax_child_rawg_search`.
+- Platform chip display helpers live in `blocks/videogame-recommendation/utils.php` for PHP rendering.
 
 ## RSS Feed Footer
 

@@ -75,6 +75,40 @@
 	color: #50575e;
 }
 
+.wp-block-child-videogame-recommendation .game-search-results {
+	max-width: 100%;
+}
+
+.wp-block-child-videogame-recommendation .components-button.game-search-result {
+	display: grid !important;
+	grid-template-columns: 80px minmax(0, 1fr);
+	align-items: center;
+	width: 100%;
+	max-width: 100%;
+	min-height: 64px;
+	overflow: hidden;
+	white-space: normal;
+}
+
+.wp-block-child-videogame-recommendation .game-search-result__thumb,
+.wp-block-child-videogame-recommendation .game-search-result__thumb img {
+	width: 80px !important;
+	height: 45px !important;
+	max-width: 80px !important;
+	max-height: 45px !important;
+}
+
+.wp-block-child-videogame-recommendation .game-search-result__details {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.wp-block-child-videogame-recommendation .game-search-result__title,
+.wp-block-child-videogame-recommendation .game-search-result__year {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
 /* Empty State */
 .game-preview--empty {
 	margin-top: 1.5rem;

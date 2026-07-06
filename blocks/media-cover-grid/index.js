@@ -20,33 +20,39 @@ const MEDIA_TYPE_OPTIONS = [
     { value: 'music', label: __('Musik', 'child') }
 ];
 
+
 const PREVIEW_ITEMS = [
     {
         type: 'book',
+        coverFormat: 'portrait',
         typeLabel: __('Buch', 'child'),
         title: __('Beispielbuch', 'child'),
         meta: __('Autor:in', 'child')
     },
     {
         type: 'movie',
+        coverFormat: 'portrait',
         typeLabel: __('Film', 'child'),
         title: __('Beispielfilm', 'child'),
         meta: '2025'
     },
     {
         type: 'tv',
+        coverFormat: 'portrait',
         typeLabel: __('Serie', 'child'),
         title: __('Beispielserie', 'child'),
         meta: '2024'
     },
     {
         type: 'game',
+        coverFormat: 'landscape',
         typeLabel: __('Videospiel', 'child'),
         title: __('Beispielspiel', 'child'),
         meta: __('PC, Switch', 'child')
     },
     {
         type: 'music',
+        coverFormat: 'square',
         typeLabel: __('Musik', 'child'),
         title: __('Beispielsong', 'child'),
         meta: __('Künstler:in', 'child')
@@ -95,6 +101,7 @@ function Edit({ attributes, setAttributes }) {
                             }
                         />
                     ))}
+
                     <RangeControl
                         label={__('Maximale Anzahl', 'child')}
                         value={maxItems}
@@ -155,8 +162,8 @@ function Edit({ attributes, setAttributes }) {
             <div className="child-media-cover-grid">
                 {previewItems.length ? (
                     previewItems.map((item) => (
-                        <div key={item.type} className="child-media-cover-grid__item">
-                            <div className={`child-media-cover-grid__cover child-media-cover-grid__cover--${item.type}`} aria-hidden="true">
+                        <div key={item.type} className={`child-media-cover-grid__item child-media-cover-grid__item--${item.type}`}>
+                            <div className={`child-media-cover-grid__cover child-media-cover-grid__cover--${item.type} child-media-cover-grid__cover--${item.coverFormat}`} aria-hidden="true">
                                 <span>{item.typeLabel.charAt(0)}</span>
                             </div>
                             {(showType || showTitle || showMeta) && (

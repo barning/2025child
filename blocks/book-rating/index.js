@@ -1,11 +1,13 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { registerBlockType } from '@wordpress/blocks';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, TextControl, Button, Spinner, Notice } from '@wordpress/components';
+import { PanelBody, TextControl, Button } from '@wordpress/components';
 import { useState, useEffect } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 import metadata from './block.json';
+import { SearchFeedback } from '../shared/media/SearchFeedback';
+import { SearchResultsList } from '../shared/media/SearchResultsList';
 import './editor.css';
 import './style.css';
 
@@ -82,19 +84,17 @@ const BookPreview = ({ bookTitle, author, coverUrl, shopUrl }) => {
 };
 
 const SearchResults = ({ results, selectedId, onSelect }) => {
-    if (!results.length) {
-        return null;
-    }
-
     return (
-        <div className="book-search-results">
-            {results.map((book) => (
-                <Button
-                    key={book.id}
-                    variant={book.id === selectedId ? 'primary' : 'secondary'}
-                    onClick={() => onSelect(book)}
-                    className={`book-search-result${book.id === selectedId ? ' is-active' : ''}`}
-                >
+        <SearchResultsList
+            results={results}
+            selectedId={selectedId}
+            onSelect={onSelect}
+            className="book-search-results"
+            getId={(book) => book.id}
+            getClassName={(book, isSelected) => `book-search-result${isSelected ? ' is-active' : ''}`}
+        >
+            {(book) => (
+                <>
                     {book.cover ? (
                         <span className="book-search-result__thumb">
                             <img src={book.cover} alt={book.title || ''} loading="lazy" />
@@ -118,9 +118,9 @@ const SearchResults = ({ results, selectedId, onSelect }) => {
                             </span>
                         ) : null}
                     </span>
-                </Button>
-            ))}
-        </div>
+                </>
+            )}
+        </SearchResultsList>
     );
 };
 
@@ -242,16 +242,11 @@ function Edit({ attributes, setAttributes }) {
                     >
                         {isSearching ? __('Suche...', 'child') : __('Suchen', 'child')}
                     </Button>
-                    {isSearching && (
-                        <div className="book-search-loading">
-                            <Spinner />
-                        </div>
-                    )}
-                    {searchError && (
-                        <Notice status="error" isDismissible={false}>
-                            {searchError}
-                        </Notice>
-                    )}
+                    <SearchFeedback
+                        isSearching={isSearching}
+                        error={searchError}
+                        loadingClassName="book-search-loading"
+                    />
                     {!isSearching && hasSearched && (
                         <SearchResults
                             results={searchResults}
