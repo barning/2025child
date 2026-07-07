@@ -7,6 +7,8 @@
   display: flex;
   justify-content: center;
   margin-block-end: clamp(1.1rem, 2vw, 1.7rem);
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .child-media-cover-grid__control-group {
@@ -16,9 +18,15 @@
   border-radius: 999px;
   box-shadow: 0 10px 28px color-mix(in srgb, currentColor 7%, transparent);
   display: inline-flex;
-  flex-wrap: wrap;
+  flex: 0 1 auto;
+  flex-wrap: nowrap;
   gap: 0.2rem;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
   padding: 0.3rem;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 .child-media-cover-grid__control-label {
@@ -43,6 +51,7 @@
   line-height: 1.2;
   min-height: 2.3rem;
   padding: 0.5rem 0.9rem;
+  white-space: nowrap;
   transition: background-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
 }
 
@@ -232,5 +241,20 @@
 
   .child-media-cover-grid__year {
     gap: 0.7rem;
+  }
+}
+
+.child-media-cover-grid__control-group::-webkit-scrollbar {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .child-media-cover-grid__controls {
+    justify-content: flex-start;
+  }
+
+  .child-media-cover-grid__control-group {
+    border-radius: 28px;
+    width: 100%;
   }
 }
