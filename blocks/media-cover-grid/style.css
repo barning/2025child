@@ -7,6 +7,11 @@
   display: flex;
   justify-content: center;
   margin-block-end: clamp(1.1rem, 2vw, 1.7rem);
+  max-width: 100%;
+  overflow-x: auto;
+  padding-block: 0.25rem;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
 }
 
 .child-media-cover-grid__control-group {
@@ -16,7 +21,8 @@
   border-radius: 999px;
   box-shadow: 0 10px 28px color-mix(in srgb, currentColor 7%, transparent);
   display: inline-flex;
-  flex-wrap: wrap;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
   gap: 0.2rem;
   padding: 0.3rem;
 }
@@ -43,6 +49,7 @@
   line-height: 1.2;
   min-height: 2.3rem;
   padding: 0.5rem 0.9rem;
+  white-space: nowrap;
   transition: background-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
 }
 
@@ -232,5 +239,13 @@
 
   .child-media-cover-grid__year {
     gap: 0.7rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .child-media-cover-grid__controls {
+    justify-content: flex-start;
+    margin-inline: calc(var(--wp--style--root--padding-left, 0px) * -1) calc(var(--wp--style--root--padding-right, 0px) * -1);
+    padding-inline: var(--wp--style--root--padding-left, 0px) var(--wp--style--root--padding-right, 0px);
   }
 }
