@@ -61,34 +61,43 @@ function child_request_steamgriddb_api( string $path ): array {
 }
 
 /**
- * Pick the best portrait SteamGridDB grid image from an API response.
+ * Normalize portrait SteamGridDB grid images from an API response.
+ *
+ * @return array<int, array{url: string, cover_format: string, width: int, height: int}>
  */
-function child_pick_steamgriddb_portrait_grid( array $grids ): array {
+function child_normalize_steamgriddb_portrait_grids( array $grids ): array {
+	$variants = [];
+	$seen     = [];
+
 	foreach ( $grids as $grid ) {
 		if ( ! is_array( $grid ) || empty( $grid['url'] ) ) {
 			continue;
 		}
 
+		$url    = esc_url_raw( (string) $grid['url'] );
 		$width  = absint( $grid['width'] ?? 0 );
 		$height = absint( $grid['height'] ?? 0 );
 
-		if ( $width > 0 && $height > 0 && $height <= $width ) {
+		if ( '' === $url || isset( $seen[ $url ] ) || ( $width > 0 && $height > 0 && $height <= $width ) ) {
 			continue;
 		}
 
-		return [
-			'cover_url'    => esc_url_raw( (string) $grid['url'] ),
+		$variants[] = [
+			'url'          => $url,
 			'cover_format' => 'portrait',
+			'width'        => $width,
+			'height'       => $height,
 		];
+		$seen[ $url ] = true;
 	}
 
-	return [];
+	return array_slice( $variants, 0, 12 );
 }
 
 /**
- * Fetch a portrait cover from SteamGridDB by game title.
+ * Fetch portrait cover variants from SteamGridDB by game title.
  */
-function child_find_steamgriddb_cover_for_game( string $title ): array {
+function child_find_steamgriddb_covers_for_game( string $title ): array {
 	$title = trim( $title );
 	if ( '' === $title || '' === child_get_steamgriddb_api_key() ) {
 		return [];
@@ -104,15 +113,16 @@ function child_find_steamgriddb_cover_for_game( string $title ): array {
 		return [];
 	}
 
-	$grids = child_request_steamgriddb_api( 'grids/game/' . $game_id . '?dimensions=600x900' );
-	$cover = child_pick_steamgriddb_portrait_grid( $grids );
-	if ( [] !== $cover ) {
-		return $cover;
+	$variants = child_normalize_steamgriddb_portrait_grids(
+		child_request_steamgriddb_api( 'grids/game/' . $game_id . '?dimensions=600x900' )
+	);
+	if ( [] !== $variants ) {
+		return $variants;
 	}
 
-	$grids = child_request_steamgriddb_api( 'grids/game/' . $game_id );
-
-	return child_pick_steamgriddb_portrait_grid( $grids );
+	return child_normalize_steamgriddb_portrait_grids(
+		child_request_steamgriddb_api( 'grids/game/' . $game_id )
+	);
 }
 
 /**
@@ -296,9 +306,9 @@ function child_handle_rawg_search_ajax(): void {
 
 	$games = array_map(
 		static function( array $game ): array {
-			$steamgriddb_cover  = child_find_steamgriddb_cover_for_game( (string) ( $game['name'] ?? '' ) );
-			$cover_url    = (string) ( $steamgriddb_cover['cover_url'] ?? '' );
-			$cover_format = (string) ( $steamgriddb_cover['cover_format'] ?? '' );
+			$steamgriddb_covers = child_find_steamgriddb_covers_for_game( (string) ( $game['name'] ?? '' ) );
+			$cover_url          = (string) ( $steamgriddb_covers[0]['url'] ?? '' );
+			$cover_format       = (string) ( $steamgriddb_covers[0]['cover_format'] ?? '' );
 
 			return [
 				'id'               => $game['id'] ?? 0,
@@ -307,6 +317,7 @@ function child_handle_rawg_search_ajax(): void {
 				'background_image' => $game['background_image'] ?? '',
 				'cover_url'        => $cover_url,
 				'cover_format'     => $cover_format ?: 'landscape',
+				'cover_variants'   => $steamgriddb_covers,
 				'slug'             => $game['slug'] ?? '',
 				'website'          => $game['website'] ?? '',
 				'platforms'        => array_map(

@@ -72,6 +72,8 @@ export const normalizeImageUrl = (url) => {
  * @returns {Object} - Transformed game data
  */
 export const transformGameData = (game) => {
+	const coverVariants = Array.isArray(game.cover_variants) ? game.cover_variants : [];
+
 	return {
 		id: `game-${game.id}`,
 		rawgId: game.id,
@@ -80,6 +82,14 @@ export const transformGameData = (game) => {
 		releaseDate: game.released || '',
 		cover: normalizeImageUrl(game.cover_url || game.background_image),
 		coverFormat: game.cover_format || (game.cover_url ? 'portrait' : 'landscape'),
+		coverVariants: coverVariants
+			.map((variant) => ({
+				url: normalizeImageUrl(variant.url),
+				coverFormat: variant.cover_format || 'portrait',
+				width: variant.width || 0,
+				height: variant.height || 0
+			}))
+			.filter((variant) => variant.url),
 		shopUrl: game.website || (game.slug ? `https://rawg.io/games/${game.slug}` : ''),
 		platforms: game.platforms || [],
 		genres: game.genres || []

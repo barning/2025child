@@ -21,6 +21,10 @@
       "type": "string",
       "default": "landscape"
     },
+    "coverVariants": {
+      "type": "array",
+      "default": []
+    },
     "releaseYear": {
       "type": "string",
       "default": ""
