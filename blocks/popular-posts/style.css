@@ -13,13 +13,15 @@
 
 .wp-block-child-popular-posts .child-popular-card{
   background: var(--wp--preset--color--accent-5);
-  border: 1px solid color-mix(in srgb, currentColor 10%, transparent);
   border-radius: 14px;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, currentColor 10%, transparent),
+    0 14px 32px color-mix(in srgb, currentColor 8%, transparent);
   padding: 20px 24px;
 }
 .child-popular-card__header{ display:flex; flex-direction:column; align-items:center; gap:10px; margin-bottom:18px; }
 .child-popular-card__emoji{ font-size:36px; line-height:1; }
-.child-popular-card__title{ margin:0; font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.8rem); text-align:center; font-weight:700; }
+.child-popular-card__title{ margin:0; font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.8rem); text-align:center; font-weight:700; text-wrap: balance; }
 .child-popular-card__list{ list-style: none; margin:0; padding:0; }
 .child-popular-card__item{ padding: 16px 0; border-top: 1px solid color-mix(in srgb, currentColor 10%, transparent); }
 .child-popular-card__item:first-child{ border-top: 0; }
@@ -27,12 +29,16 @@
   text-decoration: none; 
   color: var(--wp--preset--color--contrast);
   display: block;
-  transition: color 0.2s ease;
+  transition: color 0.2s ease, transform 0.15s ease;
 }
 
 .child-popular-card__link:hover { 
   color: var(--wp--preset--color--primary);
   text-decoration: underline; 
+}
+
+.child-popular-card__link:active {
+  transform: scale(0.96);
 }
 
 .child-popular-card__link--placeholder {
@@ -41,6 +47,10 @@
 }
 
 @media (prefers-color-scheme: dark){
-  .wp-block-child-popular-posts .child-popular-card{ border-color: color-mix(in srgb, currentColor 20%, transparent); }
+  .wp-block-child-popular-posts .child-popular-card{
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, currentColor 20%, transparent),
+      0 14px 32px color-mix(in srgb, #000 24%, transparent);
+  }
   .child-popular-card__item{ border-top-color: color-mix(in srgb, currentColor 20%, transparent); }
 }
