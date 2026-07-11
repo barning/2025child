@@ -78,7 +78,8 @@ export const transformGameData = (game) => {
 		title: game.name || '',
 		year: game.released ? new Date(game.released).getFullYear().toString() : '',
 		releaseDate: game.released || '',
-		cover: normalizeImageUrl(game.background_image),
+		cover: normalizeImageUrl(game.cover_url || game.background_image),
+		coverFormat: game.cover_format || (game.cover_url ? 'portrait' : 'landscape'),
 		shopUrl: game.website || (game.slug ? `https://rawg.io/games/${game.slug}` : ''),
 		platforms: game.platforms || [],
 		genres: game.genres || []

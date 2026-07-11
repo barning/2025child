@@ -74,9 +74,9 @@ return function( array $attributes ): string {
 			<p class="child-media-cover-grid__empty"><?php echo esc_html__( 'Noch keine Medien gefunden.', 'child' ); ?></p>
 		<?php else : ?>
 			<?php if ( count( $item_types ) > 1 ) : ?>
-				<div class="child-media-cover-grid__controls" aria-label="<?php echo esc_attr__( 'Medien filtern', 'child' ); ?>">
-					<div class="child-media-cover-grid__control-group" role="group" aria-label="<?php echo esc_attr__( 'Medientypen', 'child' ); ?>">
-						<span class="child-media-cover-grid__control-label"><?php echo esc_html__( 'Typ', 'child' ); ?></span>
+				<div class="child-media-cover-grid__controls" role="group" aria-label="<?php echo esc_attr__( 'Medientypen', 'child' ); ?>">
+					<span class="child-media-cover-grid__control-label"><?php echo esc_html__( 'Typ', 'child' ); ?></span>
+					<div class="child-media-cover-grid__filter-list">
 						<button class="child-media-cover-grid__filter is-active" type="button" data-child-media-filter-group="type" data-child-media-filter-value="all" aria-pressed="true">
 							<?php echo esc_html__( 'Alle', 'child' ); ?>
 						</button>

@@ -1,10 +1,11 @@
 # Videogame Recommendation Block
 
-A WordPress Gutenberg block for displaying videogame recommendations with RAWG API integration.
+A WordPress Gutenberg block for displaying videogame recommendations with RAWG metadata and optional IGDB portrait cover integration.
 
 ## Features
 
 - **RAWG API integration:** Search games and import metadata automatically.
+- **IGDB portrait covers:** Optionally enrich RAWG results with portrait box-art covers from IGDB.
 - **Light mode design:** Modern card UI inspired by RAWG.
 - **Platform chips:** Color-coded badges for gaming platforms.
 - **Metadata:** Release date and genre display.
@@ -81,3 +82,5 @@ npm run start
 ## API
 
 Uses the RAWG API for game data. Configure the API key in WordPress Admin under **Settings → Videogame Recommendation**.
+
+Optional IGDB credentials can be added on the same settings page to fetch portrait videogame covers. The credentials can also be supplied via `IGDB_CLIENT_ID` and `IGDB_CLIENT_SECRET` constants in `wp-config.php`; values saved in WordPress override the constants.

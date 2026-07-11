@@ -42,6 +42,7 @@ function Edit({ attributes, setAttributes }) {
 		setAttributes({
 			gameTitle: selectedGame.title,
 			coverUrl: selectedGame.cover,
+			coverFormat: selectedGame.coverFormat,
 			releaseYear: selectedGame.year,
 			releaseDate: selectedGame.releaseDate,
 			platforms: selectedGame.platforms,

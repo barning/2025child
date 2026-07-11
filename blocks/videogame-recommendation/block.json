@@ -17,6 +17,10 @@
       "type": "string",
       "default": ""
     },
+    "coverFormat": {
+      "type": "string",
+      "default": "landscape"
+    },
     "releaseYear": {
       "type": "string",
       "default": ""
