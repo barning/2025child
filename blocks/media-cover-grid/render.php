@@ -13,7 +13,6 @@ return function( array $attributes ): string {
 	$default_types     = [ 'book', 'movie', 'tv', 'game', 'music' ];
 	$media_types       = $attributes['mediaTypes'] ?? $default_types;
 	$allowed_types     = array_values( array_intersect( $default_types, is_array( $media_types ) ? $media_types : $default_types ) );
-	$max_items         = max( 1, min( 120, absint( $attributes['maxItems'] ?? 48 ) ) );
 	$link_to           = in_array( $attributes['linkTo'] ?? 'post', [ 'post', 'external', 'none' ], true ) ? $attributes['linkTo'] : 'post';
 	$sort_order        = in_array( $attributes['sortOrder'] ?? 'newest', [ 'newest', 'oldest', 'title' ], true ) ? $attributes['sortOrder'] : 'newest';
 	$show_title        = (bool) ( $attributes['showTitle'] ?? true );
@@ -53,7 +52,6 @@ return function( array $attributes ): string {
 		}
 	);
 
-	$items = array_slice( $items, 0, $max_items );
 	$item_types = array_values(
 		array_filter(
 			array_unique(
@@ -74,9 +72,9 @@ return function( array $attributes ): string {
 			<p class="child-media-cover-grid__empty"><?php echo esc_html__( 'Noch keine Medien gefunden.', 'child' ); ?></p>
 		<?php else : ?>
 			<?php if ( count( $item_types ) > 1 ) : ?>
-				<div class="child-media-cover-grid__controls" aria-label="<?php echo esc_attr__( 'Medien filtern', 'child' ); ?>">
-					<div class="child-media-cover-grid__control-group" role="group" aria-label="<?php echo esc_attr__( 'Medientypen', 'child' ); ?>">
-						<span class="child-media-cover-grid__control-label"><?php echo esc_html__( 'Typ', 'child' ); ?></span>
+				<div class="child-media-cover-grid__controls" role="group" aria-label="<?php echo esc_attr__( 'Medientypen', 'child' ); ?>">
+					<span class="child-media-cover-grid__control-label"><?php echo esc_html__( 'Typ', 'child' ); ?></span>
+					<div class="child-media-cover-grid__filter-list">
 						<button class="child-media-cover-grid__filter is-active" type="button" data-child-media-filter-group="type" data-child-media-filter-value="all" aria-pressed="true">
 							<?php echo esc_html__( 'Alle', 'child' ); ?>
 						</button>
@@ -101,6 +99,11 @@ return function( array $attributes ): string {
 					$meta         = (string) ( $item['meta'] ?? '' );
 					$cover_url    = (string) ( $item['coverUrl'] ?? '' );
 					$cover_format = child_get_media_cover_grid_cover_format( $item );
+					$cover_dimensions = [
+						'portrait'  => [ 600, 900 ],
+						'square'    => [ 600, 600 ],
+						'landscape' => [ 1600, 900 ],
+					][ $cover_format ] ?? [ 600, 900 ];
 					$type_label   = child_get_media_cover_grid_type_label( $type );
 					$source_title  = (string) ( $item['sourcePostTitle'] ?? '' );
 					$source_timestamp = (int) ( $item['sourcePostTimestamp'] ?? 0 );
@@ -126,7 +129,16 @@ return function( array $attributes ): string {
 					<<?php echo tag_escape( $tag_name ); ?> class="child-media-cover-grid__item child-media-cover-grid__item--<?php echo esc_attr( $type ); ?>" data-child-media-type="<?php echo esc_attr( $type ); ?>"<?php echo $link_url ? ' href="' . esc_url( $link_url ) . '"' . $link_target . $link_rel : ''; ?> role="listitem" aria-label="<?php echo esc_attr( $title ); ?>">
 						<div class="child-media-cover-grid__cover child-media-cover-grid__cover--<?php echo esc_attr( $cover_format ); ?>">
 							<?php if ( $cover_url ) : ?>
-								<img src="<?php echo esc_url( $cover_url ); ?>" alt="<?php echo esc_attr( $title ); ?>" loading="lazy" />
+								<img
+									src="<?php echo esc_url( $cover_url ); ?>"
+									alt="<?php echo esc_attr( $title ); ?>"
+									loading="lazy"
+									decoding="async"
+									fetchpriority="low"
+									width="<?php echo esc_attr( (string) $cover_dimensions[0] ); ?>"
+									height="<?php echo esc_attr( (string) $cover_dimensions[1] ); ?>"
+									sizes="(max-width: 600px) calc((100vw - 3rem) / 2), (max-width: 900px) calc((100vw - 4rem) / 3), 180px"
+								/>
 							<?php else : ?>
 								<span class="child-media-cover-grid__placeholder" aria-hidden="true"><?php echo esc_html( substr( $type_label, 0, 1 ) ); ?></span>
 							<?php endif; ?>

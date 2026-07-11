@@ -37,9 +37,16 @@ const updateGrid = ( block ) => {
 
 	block.querySelectorAll( ITEM_SELECTOR ).forEach( ( item ) => {
 		const isVisible = activeTypes === null || activeTypes.has( item.dataset.childMediaType );
+		const shouldHide = ! isVisible;
+		const ariaHidden = isVisible ? 'false' : 'true';
 
-		item.hidden = ! isVisible;
-		item.setAttribute( 'aria-hidden', isVisible ? 'false' : 'true' );
+		if ( item.hidden !== shouldHide ) {
+			item.hidden = shouldHide;
+		}
+
+		if ( item.getAttribute( 'aria-hidden' ) !== ariaHidden ) {
+			item.setAttribute( 'aria-hidden', ariaHidden );
+		}
 
 		if ( isVisible ) {
 			visibleItems += 1;

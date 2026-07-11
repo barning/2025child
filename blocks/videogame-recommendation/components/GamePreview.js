@@ -5,7 +5,7 @@ import { getPlatformInfo, formatReleaseDate } from '../utils';
  * GamePreview Component
  * Displays a game card with cover image, platforms, title, and metadata
  */
-export const GamePreview = ({ gameTitle, coverUrl, releaseDate, platforms, genres, shopUrl }) => {
+export const GamePreview = ({ gameTitle, coverUrl, coverFormat = 'landscape', releaseDate, platforms, genres, shopUrl }) => {
 	if (!gameTitle?.trim()) {
 		return (
 			<div className="game-preview--empty">
@@ -16,10 +16,11 @@ export const GamePreview = ({ gameTitle, coverUrl, releaseDate, platforms, genre
 
 	const formattedDate = formatReleaseDate(releaseDate);
 	const coverLink = shopUrl?.trim();
+	const mediaClassName = `child-game-card__media child-game-card__media--${coverFormat === 'landscape' ? 'landscape' : 'portrait'}`;
 
 	return (
 		<div className="child-game-card" aria-label={__('Videospiel', 'child')}>
-			<div className="child-game-card__media">
+			<div className={mediaClassName}>
 				{coverUrl ? (
 					coverLink ? (
 						<a

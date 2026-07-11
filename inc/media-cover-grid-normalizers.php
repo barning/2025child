@@ -162,7 +162,7 @@ function child_normalize_media_cover_grid_videogame_block( array $attrs ): ?arra
 		'title'       => $title,
 		'meta'        => child_join_media_cover_grid_meta( [ $year, implode( ', ', array_slice( $platforms, 0, 3 ) ) ] ),
 		'coverUrl'    => (string) ( $attrs['coverUrl'] ?? '' ),
-		'coverFormat' => 'landscape',
+		'coverFormat' => 'portrait' === ( $attrs['coverFormat'] ?? '' ) ? 'portrait' : 'landscape',
 		'externalUrl' => (string) ( $attrs['shopUrl'] ?? '' ),
 		'rawgId'      => absint( $attrs['rawgId'] ?? 0 ),
 	] );

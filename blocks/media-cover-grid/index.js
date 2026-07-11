@@ -4,7 +4,6 @@ import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import {
     PanelBody,
     CheckboxControl,
-    RangeControl,
     SelectControl,
     ToggleControl
 } from '@wordpress/components';
@@ -72,7 +71,6 @@ const updateMediaTypes = (mediaTypes, value, checked) => {
 function Edit({ attributes, setAttributes }) {
     const {
         mediaTypes = metadata.attributes.mediaTypes.default,
-        maxItems = metadata.attributes.maxItems.default,
         linkTo = metadata.attributes.linkTo.default,
         sortOrder = metadata.attributes.sortOrder.default,
         showTitle = true,
@@ -101,14 +99,6 @@ function Edit({ attributes, setAttributes }) {
                             }
                         />
                     ))}
-
-                    <RangeControl
-                        label={__('Maximale Anzahl', 'child')}
-                        value={maxItems}
-                        onChange={(value) => setAttributes({ maxItems: value })}
-                        min={1}
-                        max={120}
-                    />
                 </PanelBody>
 
                 <PanelBody title={__('Darstellung', 'child')} initialOpen={true}>

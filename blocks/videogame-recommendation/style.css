@@ -28,11 +28,21 @@
 
 /* Media Container */
 .child-game-card__media {
+	align-self: center;
 	position: relative;
 	width: 100%;
-	aspect-ratio: 16 / 9;
+	aspect-ratio: 2 / 3;
 	background: #f5f5f5;
 	overflow: hidden;
+}
+
+.child-game-card__media--portrait {
+	max-width: min(100%, 340px);
+}
+
+.child-game-card__media--landscape {
+	aspect-ratio: 16 / 9;
+	max-width: 100%;
 }
 
 .child-game-card__cover {

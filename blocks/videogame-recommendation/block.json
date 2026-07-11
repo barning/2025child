@@ -17,6 +17,14 @@
       "type": "string",
       "default": ""
     },
+    "coverFormat": {
+      "type": "string",
+      "default": "landscape"
+    },
+    "coverVariants": {
+      "type": "array",
+      "default": []
+    },
     "releaseYear": {
       "type": "string",
       "default": ""

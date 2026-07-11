@@ -19,6 +19,113 @@ function child_get_rawg_api_key(): string {
 }
 
 /**
+ * Read SteamGridDB key from option, then constant fallback.
+ */
+function child_get_steamgriddb_api_key(): string {
+	$api_key = (string) get_option( 'child_steamgriddb_api_key', '' );
+
+	if ( '' === $api_key && defined( 'STEAMGRIDDB_API_KEY' ) ) {
+		$api_key = (string) STEAMGRIDDB_API_KEY;
+	}
+
+	return $api_key;
+}
+
+/**
+ * Perform a SteamGridDB API request.
+ */
+function child_request_steamgriddb_api( string $path ): array {
+	$api_key = child_get_steamgriddb_api_key();
+	if ( '' === $api_key ) {
+		return [];
+	}
+
+	$response = wp_safe_remote_get(
+		'https://www.steamgriddb.com/api/v2/' . ltrim( $path, '/' ),
+		[
+			'timeout' => 10,
+			'headers' => [
+				'Accept'        => 'application/json',
+				'Authorization' => 'Bearer ' . $api_key,
+			],
+		]
+	);
+
+	if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+		return [];
+	}
+
+	$data = json_decode( wp_remote_retrieve_body( $response ), true );
+
+	return is_array( $data['data'] ?? null ) ? $data['data'] : [];
+}
+
+/**
+ * Normalize portrait SteamGridDB grid images from an API response.
+ *
+ * @return array<int, array{url: string, cover_format: string, width: int, height: int}>
+ */
+function child_normalize_steamgriddb_portrait_grids( array $grids ): array {
+	$variants = [];
+	$seen     = [];
+
+	foreach ( $grids as $grid ) {
+		if ( ! is_array( $grid ) || empty( $grid['url'] ) ) {
+			continue;
+		}
+
+		$url    = esc_url_raw( (string) $grid['url'] );
+		$width  = absint( $grid['width'] ?? 0 );
+		$height = absint( $grid['height'] ?? 0 );
+
+		if ( '' === $url || isset( $seen[ $url ] ) || ( $width > 0 && $height > 0 && $height <= $width ) ) {
+			continue;
+		}
+
+		$variants[] = [
+			'url'          => $url,
+			'cover_format' => 'portrait',
+			'width'        => $width,
+			'height'       => $height,
+		];
+		$seen[ $url ] = true;
+	}
+
+	return array_slice( $variants, 0, 12 );
+}
+
+/**
+ * Fetch portrait cover variants from SteamGridDB by game title.
+ */
+function child_find_steamgriddb_covers_for_game( string $title ): array {
+	$title = trim( $title );
+	if ( '' === $title || '' === child_get_steamgriddb_api_key() ) {
+		return [];
+	}
+
+	$games = child_request_steamgriddb_api( 'search/autocomplete/' . rawurlencode( $title ) );
+	if ( [] === $games || empty( $games[0]['id'] ) ) {
+		return [];
+	}
+
+	$game_id = absint( $games[0]['id'] );
+	if ( 0 === $game_id ) {
+		return [];
+	}
+
+	$variants = child_normalize_steamgriddb_portrait_grids(
+		child_request_steamgriddb_api( 'grids/game/' . $game_id . '?dimensions=600x900' )
+	);
+	if ( [] !== $variants ) {
+		return $variants;
+	}
+
+	return child_normalize_steamgriddb_portrait_grids(
+		child_request_steamgriddb_api( 'grids/game/' . $game_id )
+	);
+}
+
+/**
  * Render RAWG settings page.
  */
 function child_render_videogame_recommendation_settings_page(): void {
@@ -64,6 +171,16 @@ function child_register_videogame_recommendation_settings(): void {
 		]
 	);
 
+	register_setting(
+		'child_videogame_recommendation',
+		'child_steamgriddb_api_key',
+		[
+			'type'              => 'string',
+			'sanitize_callback' => 'sanitize_text_field',
+			'default'           => '',
+		]
+	);
+
 	add_settings_section(
 		'child_videogame_recommendation_section',
 		__( 'RAWG API Configuration', 'child' ),
@@ -78,6 +195,14 @@ function child_register_videogame_recommendation_settings(): void {
 		'child-videogame-recommendation',
 		'child_videogame_recommendation_section'
 	);
+
+	add_settings_field(
+		'child_steamgriddb_api_key',
+		__( 'SteamGridDB API Key', 'child' ),
+		'child_render_steamgriddb_api_field',
+		'child-videogame-recommendation',
+		'child_videogame_recommendation_section'
+	);
 }
 add_action( 'admin_init', 'child_register_videogame_recommendation_settings' );
 
@@ -87,9 +212,10 @@ add_action( 'admin_init', 'child_register_videogame_recommendation_settings' );
 function child_render_videogame_recommendation_section_description(): void {
 	echo '<p>' . wp_kses_post(
 		sprintf(
-			/* translators: %s: URL to RAWG API docs */
-			__( 'To use the Videogame Recommendation block, you need a free API key from RAWG. Get your API key at %s.', 'child' ),
-			'<a href="https://rawg.io/apidocs" target="_blank" rel="noopener noreferrer">rawg.io/apidocs</a>'
+			/* translators: 1: URL to RAWG API docs. 2: URL to SteamGridDB API docs. */
+			__( 'To use the Videogame Recommendation block, you need a free API key from RAWG. Add an optional SteamGridDB API key to enrich results with portrait game covers. Get your RAWG API key at %1$s and your SteamGridDB API key at %2$s.', 'child' ),
+			'<a href="https://rawg.io/apidocs" target="_blank" rel="noopener noreferrer">rawg.io/apidocs</a>',
+			'<a href="https://www.steamgriddb.com/api/v2" target="_blank" rel="noopener noreferrer">steamgriddb.com/api/v2</a>'
 		)
 	) . '</p>';
 }
@@ -109,6 +235,23 @@ function child_render_videogame_recommendation_api_field(): void {
 	}
 
 	echo '<p class="description">' . esc_html__( 'Your API key will be stored securely in the database.', 'child' ) . '</p>';
+}
+
+/**
+ * Render SteamGridDB key input.
+ */
+function child_render_steamgriddb_api_field(): void {
+	$value        = (string) get_option( 'child_steamgriddb_api_key', '' );
+	$has_constant = defined( 'STEAMGRIDDB_API_KEY' ) && ! empty( STEAMGRIDDB_API_KEY );
+
+	echo '<input type="password" id="child_steamgriddb_api_key" name="child_steamgriddb_api_key" value="' . esc_attr( $value ) . '" class="regular-text" placeholder="' . esc_attr__( 'Enter your SteamGridDB API key', 'child' ) . '" autocomplete="new-password" />';
+
+	if ( $has_constant && '' === $value ) {
+		echo '<p class="description">' . esc_html__( 'Currently using SteamGridDB API key from wp-config.php. Enter a key here to override it.', 'child' ) . '</p>';
+		return;
+	}
+
+	echo '<p class="description">' . esc_html__( 'Optional: Used server-side to fetch portrait videogame covers from SteamGridDB.', 'child' ) . '</p>';
 }
 
 /**
@@ -163,11 +306,18 @@ function child_handle_rawg_search_ajax(): void {
 
 	$games = array_map(
 		static function( array $game ): array {
+			$steamgriddb_covers = child_find_steamgriddb_covers_for_game( (string) ( $game['name'] ?? '' ) );
+			$cover_url          = (string) ( $steamgriddb_covers[0]['url'] ?? '' );
+			$cover_format       = (string) ( $steamgriddb_covers[0]['cover_format'] ?? '' );
+
 			return [
 				'id'               => $game['id'] ?? 0,
 				'name'             => $game['name'] ?? '',
 				'released'         => $game['released'] ?? '',
 				'background_image' => $game['background_image'] ?? '',
+				'cover_url'        => $cover_url,
+				'cover_format'     => $cover_format ?: 'landscape',
+				'cover_variants'   => $steamgriddb_covers,
 				'slug'             => $game['slug'] ?? '',
 				'website'          => $game['website'] ?? '',
 				'platforms'        => array_map(

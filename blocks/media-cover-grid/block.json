@@ -14,10 +14,6 @@
       "type": "array",
       "default": ["book", "movie", "tv", "game", "music"]
     },
-    "maxItems": {
-      "type": "number",
-      "default": 48
-    },
     "linkTo": {
       "type": "string",
       "default": "post"

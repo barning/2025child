@@ -42,6 +42,8 @@ function Edit({ attributes, setAttributes }) {
 		setAttributes({
 			gameTitle: selectedGame.title,
 			coverUrl: selectedGame.cover,
+			coverFormat: selectedGame.coverFormat,
+			coverVariants: selectedGame.coverVariants,
 			releaseYear: selectedGame.year,
 			releaseDate: selectedGame.releaseDate,
 			platforms: selectedGame.platforms,
@@ -113,8 +115,16 @@ function Edit({ attributes, setAttributes }) {
 					<TextControl __next40pxDefaultSize __nextHasNoMarginBottom
 						label={__('Cover-URL', 'child')}
 						value={attributes.coverUrl}
-						onChange={(value) => setAttributes({ coverUrl: value })}
+						onChange={(value) => setAttributes({ coverUrl: value, coverVariants: [] })}
 						help={__('Optional: Eigenes Cover einfügen', 'child')}
+					/>
+					<CoverVariantPicker
+						variants={attributes.coverVariants}
+						selectedUrl={attributes.coverUrl}
+						onSelect={(variant) => setAttributes({
+							coverUrl: variant.url,
+							coverFormat: variant.coverFormat || 'portrait'
+						})}
 					/>
 					<TextControl __next40pxDefaultSize __nextHasNoMarginBottom
 						label={__('Shop-Link', 'child')}
@@ -129,6 +139,37 @@ function Edit({ attributes, setAttributes }) {
 		</div>
 	);
 }
+
+const CoverVariantPicker = ({ variants = [], selectedUrl, onSelect }) => {
+	if (!variants.length) {
+		return null;
+	}
+
+	return (
+		<div className="game-cover-variants">
+			<div className="game-cover-variants__label">
+				{__('SteamGridDB-Cover', 'child')}
+			</div>
+			<div className="game-cover-variants__list">
+				{variants.map((variant, index) => {
+					const isSelected = variant.url === selectedUrl;
+
+					return (
+						<Button
+							key={`${variant.url}-${index}`}
+							className={`game-cover-variants__button${isSelected ? ' is-active' : ''}`}
+							onClick={() => onSelect(variant)}
+							aria-label={__('Cover auswählen', 'child')}
+							aria-pressed={isSelected}
+						>
+							<img src={variant.url} alt="" loading="lazy" />
+						</Button>
+					);
+				})}
+			</div>
+		</div>
+	);
+};
 
 registerBlockType(metadata.name, {
 	edit: Edit,
