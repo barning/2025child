@@ -95,8 +95,6 @@
 
 .child-media-cover-grid__item {
   align-self: start;
-  content-visibility: auto;
-  contain-intrinsic-size: auto 24rem;
   color: inherit;
   display: block;
   min-width: 0;

@@ -52,15 +52,15 @@
 	display: block;
 	outline: 1px solid rgba(0, 0, 0, 0.1);
 	outline-offset: -1px;
-	transform: scale(0.96);
-	outline-offset: -1px;
+	transform: scale(1);
+	transition: transform 0.2s ease;
 }
 
 .child-game-card__cover-link {
 	display: block;
 	height: 100%;
 	outline-offset: 4px;
-	transition: transform 0.2s ease, box-shadow 0.2s ease;
+	transition: transform 0.2s ease;
 }
 
 .child-game-card__cover-link:hover,
@@ -74,8 +74,7 @@
 
 .child-game-card__cover-link:hover .child-game-card__cover,
 .child-game-card__cover-link:focus-visible .child-game-card__cover {
-	box-shadow: 0 10px 22px rgba(0, 0, 0, 0.2),
-		0 4px 12px rgba(0, 0, 0, 0.12);
+	transform: scale(1.04);
 }
 
 .child-game-card__cover-link:active {
