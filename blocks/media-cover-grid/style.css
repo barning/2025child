@@ -144,6 +144,14 @@
   transform: scale(0.96);
 }
 
+  outline: 1px solid rgba(0, 0, 0, 0.1);
+  outline-offset: -1px;
+  text-wrap: balance;
+  text-wrap: pretty;
+.child-media-cover-grid__item:is(a):active .child-media-cover-grid__cover {
+  transform: scale(0.96);
+}
+
 .child-media-cover-grid__item:is(a):focus-visible {
   border-radius: 18px;
   outline: 2px solid color-mix(in srgb, var(--wp--preset--color--contrast, currentColor) 40%, transparent);

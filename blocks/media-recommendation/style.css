@@ -27,6 +27,9 @@
     display: block;
     outline: 1px solid rgba(0, 0, 0, 0.1);
     outline-offset: -1px;
+    transform: scale(0.96);
+    text-wrap: balance;
+    outline-offset: -1px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15),
                 0 2px 8px rgba(0, 0, 0, 0.1);
 }

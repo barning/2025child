@@ -28,6 +28,12 @@
 	transform: scale(0.96);
 }
 
+	outline: 1px solid rgba(0, 0, 0, 0.1);
+	outline-offset: -1px;
+.child-pixelfed-feed-item:active {
+	transform: scale(0.96);
+}
+
 .child-pixelfed-feed-item__image {
 	display: block;
 	width: 100%;

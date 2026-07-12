@@ -52,6 +52,8 @@
 	display: block;
 	outline: 1px solid rgba(0, 0, 0, 0.1);
 	outline-offset: -1px;
+	transform: scale(0.96);
+	outline-offset: -1px;
 }
 
 .child-game-card__cover-link {
@@ -103,6 +105,7 @@
 }
 
 /* Platform Chips */
+	text-wrap: balance;
 .child-game-card__platforms {
 	display: flex;
 	flex-wrap: wrap;

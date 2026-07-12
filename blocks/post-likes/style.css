@@ -44,6 +44,11 @@
 	transform: scale(0.96);
 }
 
+	font-variant-numeric: tabular-nums;
+.wp-block-child-post-likes .child-post-likes__button:active .child-post-likes__pill {
+	transform: scale(0.96);
+}
+
 .wp-block-child-post-likes .child-post-likes__button:focus-visible {
 	outline: 2px solid var(--child-post-likes-focus, #ff5a8b);
 	outline-offset: 2px;

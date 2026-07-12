@@ -13,10 +13,20 @@
 
 .wp-block-child-popular-posts .child-popular-card{
   background: var(--wp--preset--color--accent-5);
-  border-radius: 14px;
   box-shadow:
     inset 0 0 0 1px color-mix(in srgb, currentColor 10%, transparent),
     0 14px 32px color-mix(in srgb, currentColor 8%, transparent);
+.child-popular-card__title{ margin:0; font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.8rem); text-align:center; font-weight:700; text-wrap: balance; }
+  transition: color 0.2s ease, transform 0.15s ease;
+.child-popular-card__link:active {
+  transform: scale(0.96);
+}
+
+  .wp-block-child-popular-posts .child-popular-card{
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, currentColor 20%, transparent),
+      0 14px 32px color-mix(in srgb, #000 24%, transparent);
+  }
   padding: 20px 24px;
 }
 .child-popular-card__header{ display:flex; flex-direction:column; align-items:center; gap:10px; margin-bottom:18px; }
