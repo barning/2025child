@@ -1,0 +1,35 @@
+{
+  "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+  "preferredVersions": {
+    "php": "latest",
+    "wp": "latest"
+  },
+  "landingPage": "/wp-admin/site-editor.php",
+  "login": true,
+  "siteOptions": {
+    "blogname": "TwentyTwentyFive Child Playground",
+    "blogdescription": "Temporary test site for the TwentyTwentyFive Child theme."
+  },
+  "steps": [
+    {
+      "step": "installTheme",
+      "themeData": {
+        "resource": "wordpress.org/themes",
+        "slug": "twentytwentyfive"
+      },
+      "options": {
+        "activate": false
+      }
+    },
+    {
+      "step": "installTheme",
+      "themeData": {
+        "resource": "url",
+        "url": "https://github.com/barning/2025child/releases/latest/download/twentytwentyfive-child.zip"
+      },
+      "options": {
+        "activate": true
+      }
+    }
+  ]
+}

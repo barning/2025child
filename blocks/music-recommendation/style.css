@@ -28,6 +28,10 @@
     object-fit: cover;
     border-radius: 10px;
     display: block;
+    outline: 1px solid rgba(0, 0, 0, 0.1);
+    outline-offset: -1px;
+    outline: 1px solid rgba(0, 0, 0, 0.1);
+    outline-offset: -1px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15),
                 0 2px 8px rgba(0, 0, 0, 0.1);
 }
@@ -59,6 +63,19 @@
     width: 100%;
     height: 100%;
     margin: 0;
+    opacity: 0.92;
+    transform: scale(0.94);
+    transition: opacity 0.18s ease, transform 0.18s ease, filter 0.18s ease;
+}
+
+.child-music-card__preview-button:hover .child-music-card__preview-icon,
+.child-music-card__preview-button:focus-visible .child-music-card__preview-icon,
+.child-music-card__preview-button.is-playing .child-music-card__preview-icon {
+    filter: drop-shadow(0 0.35rem 0.75rem rgba(0, 0, 0, 0.22));
+    opacity: 1;
+    transform: scale(1);
+    text-wrap: balance;
+    text-wrap: pretty;
     padding: 0;
     border: 0;
     border-radius: 10px;
@@ -86,7 +103,18 @@
     background: rgba(0, 0, 0, 0.42);
     font-size: 1.8rem;
     line-height: 1;
+    opacity: 0.92;
     text-indent: 0.12em;
+    transform: scale(0.94);
+    transition: opacity 0.18s ease, transform 0.18s ease, filter 0.18s ease;
+}
+
+.child-music-card__preview-button:hover .child-music-card__preview-icon,
+.child-music-card__preview-button:focus-visible .child-music-card__preview-icon,
+.child-music-card__preview-button.is-playing .child-music-card__preview-icon {
+    filter: drop-shadow(0 0.35rem 0.75rem rgba(0, 0, 0, 0.22));
+    opacity: 1;
+    transform: scale(1);
 }
 
 .child-music-card__preview-button.is-playing .child-music-card__preview-icon {
@@ -116,6 +144,7 @@
     color: var(--wp--preset--color--contrast, #241f1a);
     line-height: 1.2;
     text-align: center;
+    text-wrap: balance;
 }
 
 .child-music-card__artist,
@@ -126,6 +155,7 @@
     font-style: italic;
     color: color-mix(in srgb, var(--wp--preset--color--contrast, #241f1a) 65%, transparent);
     text-align: center;
+    text-wrap: pretty;
 }
 
 @media (hover: none) {

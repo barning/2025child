@@ -25,6 +25,11 @@
     height: auto;
     border-radius: 10px;
     display: block;
+    outline: 1px solid rgba(0, 0, 0, 0.1);
+    outline-offset: -1px;
+    transform: scale(0.96);
+    text-wrap: balance;
+    outline-offset: -1px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15),
                 0 2px 8px rgba(0, 0, 0, 0.1);
 }
@@ -54,7 +59,7 @@
 }
 
 .child-media-card__poster-link:active {
-    transform: translateY(0);
+    transform: scale(0.96);
 }
 
 .child-media-card__placeholder {
@@ -87,6 +92,7 @@
     color: var(--wp--preset--color--contrast, #241f1a);
     line-height: 1.2;
     text-align: center;
+    text-wrap: balance;
 }
 
 .child-media-card__year {
