@@ -10,8 +10,6 @@ document.addEventListener('click', (event) => {
     }
 
     let audio = button.querySelector('audio');
-    const icon = button.querySelector('.child-music-card__preview-icon');
-
     if (!audio) {
         audio = document.createElement('audio');
         audio.preload = 'none';
@@ -23,9 +21,6 @@ document.addEventListener('click', (event) => {
             button.classList.remove('is-playing');
             button.setAttribute('aria-pressed', 'false');
             button.setAttribute('aria-label', button.dataset.playLabel || 'Hörprobe abspielen');
-            if (icon) {
-                icon.textContent = '▶';
-            }
         });
     }
 
@@ -33,16 +28,29 @@ document.addEventListener('click', (event) => {
         button.classList.toggle('is-playing', isPlaying);
         button.setAttribute('aria-pressed', isPlaying ? 'true' : 'false');
         button.setAttribute('aria-label', isPlaying ? (button.dataset.pauseLabel || 'Hörprobe pausieren') : (button.dataset.playLabel || 'Hörprobe abspielen'));
-        if (icon) {
-            icon.textContent = isPlaying ? '❚❚' : '▶';
-        }
     };
 
     if (!audio.paused) {
         audio.pause();
+        audio.currentTime = 0;
         setPlaying(false);
         return;
     }
+
+    document.querySelectorAll('.child-music-card__preview-button.is-playing').forEach((playingButton) => {
+        if (playingButton === button) {
+            return;
+        }
+
+        const playingAudio = playingButton.querySelector('audio');
+        if (playingAudio) {
+            playingAudio.pause();
+            playingAudio.currentTime = 0;
+        }
+        playingButton.classList.remove('is-playing');
+        playingButton.setAttribute('aria-pressed', 'false');
+        playingButton.setAttribute('aria-label', playingButton.dataset.playLabel || 'Hörprobe abspielen');
+    });
 
     const playPromise = audio.play();
     setPlaying(true);
