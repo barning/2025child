@@ -40,7 +40,14 @@ return function( array $attributes ): string {
 						aria-label="<?php echo esc_attr__( 'Hörprobe abspielen', 'child' ); ?>"
 						aria-pressed="false"
 					>
-						<span class="child-music-card__preview-icon" aria-hidden="true">▶</span>
+						<span class="child-music-card__preview-icon" aria-hidden="true">
+							<svg class="child-music-card__play-icon" viewBox="0 0 24 24" focusable="false">
+								<path d="M8 5.5v13l10-6.5z" />
+							</svg>
+							<svg class="child-music-card__pause-icon" viewBox="0 0 24 24" focusable="false">
+								<path d="M7 5h4v14H7zm6 0h4v14h-4z" />
+							</svg>
+						</span>
 					</button>
 				<?php endif; ?>
 			</div>
