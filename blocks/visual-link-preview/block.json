@@ -1,6 +1,7 @@
 {
   "apiVersion": 3,
   "name": "child/visual-link-preview",
+  "textdomain": "child",
   "title": "Visual Link Preview",
   "category": "embed",
   "icon": "admin-links",

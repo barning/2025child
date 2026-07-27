@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<ruleset name="TwentyTwentyFive Child">
+	<description>WordPress coding and security rules for the child theme.</description>
+
+	<file>functions.php</file>
+	<file>inc</file>
+	<file>blocks</file>
+
+	<exclude-pattern>build/*</exclude-pattern>
+	<exclude-pattern>dist/*</exclude-pattern>
+	<exclude-pattern>node_modules/*</exclude-pattern>
+	<exclude-pattern>vendor/*</exclude-pattern>
+
+	<arg name="extensions" value="php"/>
+	<arg name="parallel" value="8"/>
+	<arg value="ps"/>
+
+	<rule ref="WordPress-Core"/>
+	<rule ref="WordPress-Extra">
+		<exclude name="WordPress.PHP.DevelopmentFunctions.error_log_error_log"/>
+		<exclude name="WordPress.PHP.YodaConditions"/>
+		<exclude name="WordPress.DateTime.CurrentTimeTimestamp"/>
+		<exclude name="WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents"/>
+		<exclude name="Universal.Operators.DisallowShortTernary"/>
+	</rule>
+
+	<!-- The project targets PHP 8.1+ and intentionally uses modern short arrays. -->
+	<rule ref="Universal.Arrays.DisallowShortArraySyntax">
+		<exclude name="Universal.Arrays.DisallowShortArraySyntax.Found"/>
+	</rule>
+</ruleset>

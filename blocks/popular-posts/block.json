@@ -22,6 +22,7 @@
   "supports": {
     "html": false
   },
+  "textdomain": "child",
   "editorScript": "file:./index.js",
   "editorStyle": "file:./editor.css",
   "style": "file:./style.css"

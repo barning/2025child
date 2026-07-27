@@ -1,0 +1,23 @@
+{
+  "name": "barning/twentytwentyfive-child",
+  "description": "Development tooling for the Twenty Twenty-Five child theme.",
+  "type": "wordpress-theme",
+  "require-dev": {
+    "dealerdirect/phpcodesniffer-composer-installer": "^1.1",
+    "lipemat/phpstan-wordpress": "^4.4",
+    "phpunit/phpunit": "^10.5",
+    "wp-coding-standards/wpcs": "^3.3"
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true,
+      "phpstan/extension-installer": true
+    },
+    "sort-packages": true
+  },
+  "scripts": {
+    "lint": "phpcs",
+    "analyse": "phpstan analyse --no-progress --memory-limit=1G",
+    "test": "phpunit"
+  }
+}

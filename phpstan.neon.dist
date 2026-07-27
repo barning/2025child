@@ -1,0 +1,16 @@
+parameters:
+	level: 3
+	parallel:
+		maximumNumberOfProcesses: 1
+	paths:
+		- functions.php
+		- inc
+		- blocks
+	excludePaths:
+		analyse:
+			- build
+			- dist
+			- node_modules
+			- vendor
+	treatPhpDocTypesAsCertain: false
+	reportUnmatchedIgnoredErrors: false
