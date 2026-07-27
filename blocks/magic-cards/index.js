@@ -1,152 +1,22 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { registerBlockType } from '@wordpress/blocks';
-import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
+import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import {
-	PanelBody,
-	TextControl,
 	Button,
-	Spinner,
+	PanelBody,
 	RadioControl,
-	SelectControl,
+	Spinner,
+	TextControl,
 } from '@wordpress/components';
 import metadata from './block.json';
 import { SearchFeedback } from '../shared/media/SearchFeedback';
 import { SearchResultsList } from '../shared/media/SearchResultsList';
-import { useSearchState } from '../shared/media/useSearchState';
+import { CardPreview } from './components/CardPreview';
+import { MoxfieldPreview } from './components/MoxfieldPreview';
+import { PrintSelector } from './components/PrintSelector';
+import { useScryfallSearch } from './hooks/useScryfallSearch';
 import './editor.css';
 import './style.css';
-
-const SCRYFALL_API = 'https://api.scryfall.com';
-
-// Note: Scryfall API has a rate limit of 10 requests per second.
-// For production use, consider implementing debouncing or caching.
-// See: https://scryfall.com/docs/api
-
-const MoxfieldPreview = ( { url } ) => {
-	if ( ! url?.trim() ) {
-		return (
-			<div className="magic-cards-preview--empty">
-				{ __(
-					'Enter a Moxfield deck URL to display the embed.',
-					'child'
-				) }
-			</div>
-		);
-	}
-
-	// Extract deck ID from Moxfield URL
-	const deckMatch = url.match(
-		/moxfield\.com\/decks\/([a-zA-Z0-9_-]{1,100})/
-	);
-	if ( ! deckMatch ) {
-		return (
-			<div className="magic-cards-preview--error">
-				{ __(
-					'Invalid Moxfield URL. Please use a valid deck URL like: https://moxfield.com/decks/…',
-					'child'
-				) }
-			</div>
-		);
-	}
-
-	return (
-		<div className="child-magic-moxfield">
-			<div className="child-magic-moxfield__preview">
-				<p>
-					<strong>{ __( 'Moxfield Deck Embed', 'child' ) }</strong>
-				</p>
-				<p>
-					<small>
-						{ __(
-							'The deck will be displayed on the frontend.',
-							'child'
-						) }
-					</small>
-				</p>
-				<p>
-					<code>{ url }</code>
-				</p>
-			</div>
-		</div>
-	);
-};
-
-const CardPreview = ( { cardName, cardImageUrl } ) => {
-	if ( ! cardName?.trim() ) {
-		return (
-			<div className="magic-cards-preview--empty">
-				{ __( 'Search for a card by name to display it.', 'child' ) }
-			</div>
-		);
-	}
-
-	return (
-		<div className="child-magic-card">
-			<div className="child-magic-card__media">
-				{ cardImageUrl ? (
-					<img
-						className="child-magic-card__image"
-						src={ cardImageUrl }
-						alt={ cardName }
-						loading="lazy"
-					/>
-				) : (
-					<div
-						className="child-magic-card__placeholder"
-						aria-hidden="true"
-					>
-						<span>🃏</span>
-					</div>
-				) }
-			</div>
-			<div className="child-magic-card__meta">
-				<h3 className="child-magic-card__name">{ cardName }</h3>
-			</div>
-		</div>
-	);
-};
-
-const PrintSelector = ( { prints, selectedPrint, onSelect } ) => {
-	if ( ! prints || prints.length === 0 ) {
-		return null;
-	}
-
-	if ( prints.length === 1 ) {
-		return (
-			<p className="magic-cards-prints-info">
-				{ __( 'Only one printing available', 'child' ) }
-			</p>
-		);
-	}
-
-	const options = prints.map( ( print ) => ( {
-		label: `${ print.set_name } (${ print.set.toUpperCase() }) - ${
-			print.released_at || 'Unknown'
-		}`,
-		value: print.id,
-	} ) );
-
-	return (
-		<SelectControl
-			label={ __( 'Select Print', 'child' ) }
-			value={ selectedPrint?.id || '' }
-			options={ [
-				{ label: __( 'Select a print…', 'child' ), value: '' },
-				...options,
-			] }
-			onChange={ ( value ) => {
-				const print = prints.find( ( p ) => p.id === value );
-				if ( print ) {
-					onSelect( print );
-				}
-			} }
-			help={ __(
-				'Choose an alternative printing of this card',
-				'child'
-			) }
-		/>
-	);
-};
 
 function Edit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps();
@@ -158,11 +28,13 @@ function Edit( { attributes, setAttributes } ) {
 		selectedPrint,
 		scryfallId,
 	} = attributes;
-	const cardSearch = useSearchState( {
-		initialTerm: cardName || '',
-		initialSelectedId: scryfallId || null,
-	} );
-	const printsSearch = useSearchState();
+	const {
+		cardSearch,
+		printsSearch,
+		searchCards,
+		handleCardSelection,
+		handlePrintSelection,
+	} = useScryfallSearch( { cardName, scryfallId, setAttributes } );
 	const {
 		searchTerm,
 		setSearchTerm,
@@ -173,142 +45,6 @@ function Edit( { attributes, setAttributes } ) {
 	} = cardSearch;
 	const availablePrints = printsSearch.searchResults;
 	const isLoadingPrints = printsSearch.isSearching;
-
-	const searchCards = async () => {
-		const trimmedTerm = searchTerm.trim();
-		if ( ! trimmedTerm ) {
-			cardSearch.failSearch(
-				__( 'Please enter a card name to search.', 'child' )
-			);
-			return;
-		}
-
-		const { requestId, signal } = cardSearch.beginSearch();
-		printsSearch.resetResults();
-
-		try {
-			const response = await fetch(
-				`${ SCRYFALL_API }/cards/search?q=${ encodeURIComponent(
-					trimmedTerm
-				) }&unique=cards`,
-				{ signal }
-			);
-
-			if ( ! response.ok ) {
-				if ( response.status === 404 ) {
-					throw new Error(
-						__( 'No cards found matching your search.', 'child' )
-					);
-				} else if ( response.status === 429 ) {
-					throw new Error(
-						__(
-							'Too many requests. Please wait a moment and try again.',
-							'child'
-						)
-					);
-				}
-				throw new Error(
-					__(
-						'Search failed. Please check your connection and try again.',
-						'child'
-					)
-				);
-			}
-
-			const data = await response.json();
-			const results = ( data.data || [] )
-				.slice( 0, 10 )
-				.map( ( card ) => ( {
-					id: card.id,
-					name: card.name,
-					set: card.set,
-					set_name: card.set_name,
-					image:
-						card.image_uris?.normal ||
-						card.image_uris?.large ||
-						card.image_uris?.small ||
-						'',
-					released_at: card.released_at,
-				} ) );
-
-			cardSearch.completeSearch(
-				results,
-				__( 'No cards found matching your search.', 'child' ),
-				requestId
-			);
-		} catch ( error ) {
-			if ( error.name !== 'AbortError' ) {
-				cardSearch.failSearch(
-					error.message ||
-						__(
-							'An unexpected error occurred. Please try again.',
-							'child'
-						),
-					requestId
-				);
-			}
-		} finally {
-			cardSearch.finishSearch( requestId );
-		}
-	};
-
-	const loadPrints = async ( selectedCardName ) => {
-		const { requestId, signal } = printsSearch.beginSearch();
-		try {
-			const response = await fetch(
-				`${ SCRYFALL_API }/cards/search?q=!"${ encodeURIComponent(
-					selectedCardName
-				) }"&unique=prints`,
-				{ signal }
-			);
-
-			if ( ! response.ok ) {
-				return;
-			}
-
-			const data = await response.json();
-			const prints = ( data.data || [] ).map( ( card ) => ( {
-				id: card.id,
-				name: card.name,
-				set: card.set,
-				set_name: card.set_name,
-				image:
-					card.image_uris?.normal ||
-					card.image_uris?.large ||
-					card.image_uris?.small ||
-					'',
-				released_at: card.released_at,
-			} ) );
-
-			printsSearch.completeSearch( prints, '', requestId );
-		} catch ( error ) {
-			if ( error.name !== 'AbortError' ) {
-				printsSearch.failSearch( '', requestId );
-			}
-		} finally {
-			printsSearch.finishSearch( requestId );
-		}
-	};
-
-	const handleCardSelection = ( card ) => {
-		setAttributes( {
-			cardName: card.name,
-			cardImageUrl: card.image,
-			scryfallId: card.id,
-			selectedPrint: card,
-		} );
-		cardSearch.selectResult( card, { getTitle: ( item ) => item.name } );
-		cardSearch.resetResults();
-		loadPrints( card.name );
-	};
-
-	const handlePrintSelection = ( print ) => {
-		setAttributes( {
-			cardImageUrl: print.image,
-			scryfallId: print.id,
-			selectedPrint: print,
-		} );
-	};
 
 	return (
 		<div { ...blockProps }>

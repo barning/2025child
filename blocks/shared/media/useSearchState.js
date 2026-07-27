@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from '@wordpress/element';
+import createSearchRequestState from './searchRequestState';
 
 export const useSearchState = ( {
 	initialTerm = '',
@@ -10,19 +11,17 @@ export const useSearchState = ( {
 	const [ selectedId, setSelectedId ] = useState( initialSelectedId );
 	const [ searchError, setSearchError ] = useState( '' );
 	const [ hasSearched, setHasSearched ] = useState( false );
-	const activeRequest = useRef( null );
-	const requestSequence = useRef( 0 );
+	const requestState = useRef( null );
+
+	if ( requestState.current === null ) {
+		requestState.current = createSearchRequestState();
+	}
 
 	const beginSearch = ( {
 		clearResults = true,
 		clearSelected = true,
 	} = {} ) => {
-		activeRequest.current?.controller.abort();
-
-		const requestId = requestSequence.current + 1;
-		const controller = new AbortController();
-		requestSequence.current = requestId;
-		activeRequest.current = { controller, requestId };
+		const request = requestState.current.begin();
 
 		setIsSearching( true );
 		setSearchError( '' );
@@ -35,12 +34,11 @@ export const useSearchState = ( {
 			setSelectedId( null );
 		}
 
-		return { requestId, signal: controller.signal };
+		return request;
 	};
 
 	const isCurrentRequest = ( requestId ) =>
-		requestId === undefined ||
-		activeRequest.current?.requestId === requestId;
+		requestState.current.isCurrent( requestId );
 
 	const completeSearch = ( results, emptyMessage = '', requestId ) => {
 		if ( ! isCurrentRequest( requestId ) ) {
@@ -73,13 +71,12 @@ export const useSearchState = ( {
 		}
 
 		setIsSearching( false );
-		activeRequest.current = null;
+		requestState.current.finish( requestId );
 		return true;
 	};
 
 	const cancelSearch = () => {
-		activeRequest.current?.controller.abort();
-		activeRequest.current = null;
+		requestState.current.cancel();
 		setIsSearching( false );
 	};
 
@@ -101,7 +98,7 @@ export const useSearchState = ( {
 
 	useEffect(
 		() => () => {
-			activeRequest.current?.controller.abort();
+			requestState.current.cancel();
 		},
 		[]
 	);
