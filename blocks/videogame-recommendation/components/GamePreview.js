@@ -1,75 +1,102 @@
+/* eslint-disable jsdoc/require-param-type */
 import { __ } from '@wordpress/i18n';
 import { getPlatformInfo, formatReleaseDate } from '../utils';
 
 /**
  * GamePreview Component
  * Displays a game card with cover image, platforms, title, and metadata
+ * @param root0
+ * @param root0.gameTitle
+ * @param root0.coverUrl
+ * @param root0.coverFormat
+ * @param root0.releaseDate
+ * @param root0.platforms
+ * @param root0.genres
+ * @param root0.shopUrl
  */
-export const GamePreview = ({ gameTitle, coverUrl, coverFormat = 'landscape', releaseDate, platforms, genres, shopUrl }) => {
-	if (!gameTitle?.trim()) {
+export const GamePreview = ( {
+	gameTitle,
+	coverUrl,
+	coverFormat = 'landscape',
+	releaseDate,
+	platforms,
+	genres,
+	shopUrl,
+} ) => {
+	if ( ! gameTitle?.trim() ) {
 		return (
 			<div className="game-preview--empty">
-				{__('Bitte wähle ein Videospiel aus der Suche aus.', 'child')}
+				{ __(
+					'Bitte wähle ein Videospiel aus der Suche aus.',
+					'child'
+				) }
 			</div>
 		);
 	}
 
-	const formattedDate = formatReleaseDate(releaseDate);
+	const formattedDate = formatReleaseDate( releaseDate );
 	const coverLink = shopUrl?.trim();
-	const mediaClassName = `child-game-card__media child-game-card__media--${coverFormat === 'landscape' ? 'landscape' : 'portrait'}`;
+	const mediaClassName = `child-game-card__media child-game-card__media--${
+		coverFormat === 'landscape' ? 'landscape' : 'portrait'
+	}`;
+	const coverImage = coverUrl ? (
+		<img
+			className="child-game-card__cover"
+			src={ coverUrl }
+			alt={ gameTitle }
+			loading="lazy"
+		/>
+	) : null;
+	const cover = coverLink ? (
+		<a
+			className="child-game-card__cover-link"
+			href={ coverLink }
+			target="_blank"
+			rel="noopener noreferrer"
+		>
+			{ coverImage }
+		</a>
+	) : (
+		coverImage
+	);
 
 	return (
-		<div className="child-game-card" aria-label={__('Videospiel', 'child')}>
-			<div className={mediaClassName}>
-				{coverUrl ? (
-					coverLink ? (
-						<a
-							className="child-game-card__cover-link"
-							href={coverLink}
-							target="_blank"
-							rel="noopener noreferrer"
-						>
-							<img
-								className="child-game-card__cover"
-								src={coverUrl}
-								alt={gameTitle}
-								loading="lazy"
-							/>
-						</a>
-					) : (
-						<img
-							className="child-game-card__cover"
-							src={coverUrl}
-							alt={gameTitle}
-							loading="lazy"
-						/>
-					)
+		<div
+			className="child-game-card"
+			role="group"
+			aria-label={ __( 'Videospiel', 'child' ) }
+		>
+			<div className={ mediaClassName }>
+				{ coverUrl ? (
+					cover
 				) : (
-					<div className="child-game-card__placeholder" aria-hidden="true" />
-				)}
+					<div
+						className="child-game-card__placeholder"
+						aria-hidden="true"
+					/>
+				) }
 			</div>
-			
-			<div className="child-game-card__meta">
-				{platforms && platforms.length > 0 && (
-					<PlatformChips platforms={platforms} />
-				)}
-				
-				<h3 className="child-game-card__title">{gameTitle}</h3>
-				
-				{formattedDate && (
-					<InfoRow 
-						label={__('Release date:', 'child')} 
-						value={formattedDate} 
-					/>
-				)}
-				
-				{genres && genres.length > 0 && (
-					<InfoRow 
-						label={__('Genres:', 'child')} 
-						value={genres.slice(0, 3).join(', ')} 
-					/>
-				)}
 
+			<div className="child-game-card__meta">
+				{ platforms && platforms.length > 0 && (
+					<PlatformChips platforms={ platforms } />
+				) }
+
+				<h3 className="child-game-card__title">{ gameTitle }</h3>
+
+				{ formattedDate && (
+					<InfoRow
+						label={ __( 'Release date:', 'child' ) }
+						value={ formattedDate }
+					/>
+				) }
+
+				{ genres && genres.length > 0 && (
+					<InfoRow
+						label={ __( 'Genres:', 'child' ) }
+						value={ genres.slice( 0, 3 ).join( ', ' ) }
+					/>
+				) }
 			</div>
 		</div>
 	);
@@ -78,32 +105,40 @@ export const GamePreview = ({ gameTitle, coverUrl, coverFormat = 'landscape', re
 /**
  * PlatformChips Component
  * Displays platform badges with brand colors
+ * @param root0
+ * @param root0.platforms
  */
-const PlatformChips = ({ platforms }) => (
-	<div className="child-game-card__platforms" aria-label={__('Plattformen', 'child')}>
-		{platforms.slice(0, 5).map((platform, index) => {
-			const platformInfo = getPlatformInfo(platform);
+const PlatformChips = ( { platforms } ) => (
+	<div
+		className="child-game-card__platforms"
+		aria-label={ __( 'Plattformen', 'child' ) }
+	>
+		{ platforms.slice( 0, 5 ).map( ( platform, index ) => {
+			const platformInfo = getPlatformInfo( platform );
 			return (
-				<span 
-					key={index} 
+				<span
+					key={ index }
 					className="child-game-card__platform-chip"
-					style={{ backgroundColor: platformInfo.color }}
-					title={platform}
+					style={ { backgroundColor: platformInfo.color } }
+					title={ platform }
 				>
-					{platformInfo.name}
+					{ platformInfo.name }
 				</span>
 			);
-		})}
+		} ) }
 	</div>
 );
 
 /**
  * InfoRow Component
  * Displays a metadata row with label and value
+ * @param root0
+ * @param root0.label
+ * @param root0.value
  */
-const InfoRow = ({ label, value }) => (
+const InfoRow = ( { label, value } ) => (
 	<div className="child-game-card__info-row">
-		<span className="child-game-card__label">{label}</span>
-		<span className="child-game-card__value">{value}</span>
+		<span className="child-game-card__label">{ label }</span>
+		<span className="child-game-card__value">{ value }</span>
 	</div>
 );

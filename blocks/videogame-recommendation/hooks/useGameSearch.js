@@ -10,49 +10,64 @@ export const useGameSearch = () => {
 
 	const searchGames = async () => {
 		const trimmedTerm = search.searchTerm.trim();
-		
-		if (!trimmedTerm) {
-			search.failSearch(__('Bitte gib einen Suchbegriff ein.', 'child'));
+
+		if ( ! trimmedTerm ) {
+			search.failSearch(
+				__( 'Bitte gib einen Suchbegriff ein.', 'child' )
+			);
 			return;
 		}
 
-		search.beginSearch();
-		
+		const { requestId, signal } = search.beginSearch();
+
 		try {
-			const ajaxUrl = window.childGameSearch?.ajaxUrl || '/wp-admin/admin-ajax.php';
+			const ajaxUrl =
+				window.childGameSearch?.ajaxUrl || '/wp-admin/admin-ajax.php';
 			const nonce = window.childGameSearch?.nonce || '';
-			
+
 			const response = await fetch(
-				`${ajaxUrl}?action=child_rawg_search&query=${encodeURIComponent(trimmedTerm)}&nonce=${nonce}`
+				`${ ajaxUrl }?action=child_rawg_search&query=${ encodeURIComponent(
+					trimmedTerm
+				) }&nonce=${ encodeURIComponent( nonce ) }`,
+				{ signal }
 			);
 
-			if (!response.ok) {
-				throw new Error('Request failed');
+			if ( ! response.ok ) {
+				throw new Error( 'Request failed' );
 			}
 
 			const data = await response.json();
-			
-			if (!data.success) {
-				throw new Error(data.data || 'Request failed');
+
+			if ( ! data.success ) {
+				throw new Error( data.data || 'Request failed' );
 			}
 
 			const { games = [] } = data.data;
-			const gameResults = games.slice(0, 6).map(transformGameData);
+			const gameResults = games.slice( 0, 6 ).map( transformGameData );
 
-			search.completeSearch(gameResults, __('Keine Ergebnisse gefunden.', 'child'));
-		} catch (error) {
-			console.error('Fehler beim Suchen:', error);
-			search.failSearch(
-				error.message || 
-				__('Beim Suchen ist ein Fehler aufgetreten. Bitte versuche es erneut.', 'child')
+			search.completeSearch(
+				gameResults,
+				__( 'Keine Ergebnisse gefunden.', 'child' ),
+				requestId
 			);
+		} catch ( error ) {
+			if ( error.name !== 'AbortError' ) {
+				search.failSearch(
+					error.message ||
+						__(
+							'Beim Suchen ist ein Fehler aufgetreten. Bitte versuche es erneut.',
+							'child'
+						),
+					requestId
+				);
+			}
 		} finally {
-			search.finishSearch();
+			search.finishSearch( requestId );
 		}
 	};
 
-	const selectGame = (game) => {
-		return search.selectResult(game);
+	const selectGame = ( game ) => {
+		return search.selectResult( game );
 	};
 
 	return {
@@ -64,6 +79,6 @@ export const useGameSearch = () => {
 		searchError: search.searchError,
 		hasSearched: search.hasSearched,
 		searchGames,
-		selectGame
+		selectGame,
 	};
 };

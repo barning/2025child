@@ -79,8 +79,7 @@ function Edit( { attributes, setAttributes } ) {
 
 	const blockProps = useBlockProps( { style } );
 
-	const ctaTextValue =
-		typeof ctaText === 'string' ? ctaText.trim() : '';
+	const ctaTextValue = typeof ctaText === 'string' ? ctaText.trim() : '';
 
 	return (
 		<>
@@ -93,7 +92,10 @@ function Edit( { attributes, setAttributes } ) {
 				/>
 			</BlockControls>
 			<InspectorControls>
-				<PanelBody title={ __( 'Layout', 'child' ) } initialOpen={ true }>
+				<PanelBody
+					title={ __( 'Layout', 'child' ) }
+					initialOpen={ true }
+				>
 					<SelectControl
 						label={ __( 'Button Size', 'child' ) }
 						value={ buttonSize }
@@ -109,7 +111,9 @@ function Edit( { attributes, setAttributes } ) {
 					<TextControl
 						label={ __( 'CTA Message', 'child' ) }
 						value={ ctaText }
-						onChange={ ( value ) => setAttributes( { ctaText: value } ) }
+						onChange={ ( value ) =>
+							setAttributes( { ctaText: value } )
+						}
 						help={ __(
 							'Short prompt shown before the emoji and like count.',
 							'child'
@@ -121,7 +125,10 @@ function Edit( { attributes, setAttributes } ) {
 						onChange={ ( value ) =>
 							setAttributes( { reactionEmoji: value } )
 						}
-						help={ __( 'Paste any emoji you want to use.', 'child' ) }
+						help={ __(
+							'Paste any emoji you want to use.',
+							'child'
+						) }
 					/>
 				</PanelBody>
 				<PanelColorSettings
@@ -142,7 +149,8 @@ function Edit( { attributes, setAttributes } ) {
 						{
 							label: __( 'Text', 'child' ),
 							value: buttonText,
-							onChange: ( value ) => setAttributes( { buttonText: value } ),
+							onChange: ( value ) =>
+								setAttributes( { buttonText: value } ),
 						},
 						{
 							label: __( 'Hover Border', 'child' ),
@@ -154,7 +162,9 @@ function Edit( { attributes, setAttributes } ) {
 							label: __( 'Liked Background', 'child' ),
 							value: buttonLikedBackground,
 							onChange: ( value ) =>
-								setAttributes( { buttonLikedBackground: value } ),
+								setAttributes( {
+									buttonLikedBackground: value,
+								} ),
 						},
 						{
 							label: __( 'Focus Outline', 'child' ),
@@ -179,16 +189,24 @@ function Edit( { attributes, setAttributes } ) {
 				>
 					<span className="child-post-likes__pill">
 						{ ctaTextValue !== '' && (
-							<span className="child-post-likes__cta">{ ctaTextValue }</span>
+							<span className="child-post-likes__cta">
+								{ ctaTextValue }
+							</span>
 						) }
-						<span className="child-post-likes__icon" aria-hidden="true">
+						<span
+							className="child-post-likes__icon"
+							aria-hidden="true"
+						>
 							{ reactionEmoji }
 						</span>
 						<span className="child-post-likes__count">0</span>
 					</span>
 				</button>
 				<p className="child-post-likes__help">
-					{ __( 'Frontend visitors can toggle likes on this post.', 'child' ) }
+					{ __(
+						'Frontend visitors can toggle likes on this post.',
+						'child'
+					) }
 				</p>
 			</div>
 		</>

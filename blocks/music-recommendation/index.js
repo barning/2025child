@@ -1,7 +1,13 @@
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { registerBlockType } from '@wordpress/blocks';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, SelectControl, TextControl, Button, Notice } from '@wordpress/components';
+import {
+	PanelBody,
+	SelectControl,
+	TextControl,
+	Button,
+	Notice,
+} from '@wordpress/components';
 import { useEffect } from '@wordpress/element';
 import metadata from './block.json';
 import { MusicPreview } from './components/MusicPreview';
@@ -13,7 +19,16 @@ import './style.css';
 
 function Edit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps();
-	const { musicType, title, artist, albumTitle, releaseYear, coverUrl, providerUrl, previewUrl } = attributes;
+	const {
+		musicType,
+		title,
+		artist,
+		albumTitle,
+		releaseYear,
+		coverUrl,
+		providerUrl,
+		previewUrl,
+	} = attributes;
 	const {
 		searchTerm,
 		setSearchTerm,
@@ -36,7 +51,10 @@ function Edit( { attributes, setAttributes } ) {
 	}, [ title, searchTerm, setSearchTerm ] );
 
 	const updateMusicType = ( value ) => {
-		setAttributes( { musicType: value, previewUrl: value === 'album' ? '' : previewUrl } );
+		setAttributes( {
+			musicType: value,
+			previewUrl: value === 'album' ? '' : previewUrl,
+		} );
 		resetResults();
 	};
 
@@ -61,7 +79,7 @@ function Edit( { attributes, setAttributes } ) {
 	};
 
 	const handleSearchKeyDown = ( event ) => {
-		if ( event.key === 'Enter' ) {
+		if ( event.key === 'Enter' && ! isSearching ) {
 			event.preventDefault();
 			handleMusicSearch();
 		}
@@ -70,7 +88,10 @@ function Edit( { attributes, setAttributes } ) {
 	return (
 		<div { ...blockProps }>
 			<InspectorControls>
-				<PanelBody title={ __( 'Musik-Einstellungen', 'child' ) } initialOpen>
+				<PanelBody
+					title={ __( 'Musik-Einstellungen', 'child' ) }
+					initialOpen
+				>
 					<SelectControl
 						label={ __( 'Typ', 'child' ) }
 						value={ musicType }
@@ -80,17 +101,69 @@ function Edit( { attributes, setAttributes } ) {
 						] }
 						onChange={ updateMusicType }
 					/>
-					<TextControl label={ __( 'Titel', 'child' ) } value={ title } onChange={ ( value ) => setAttributes( { title: value } ) } />
-					<TextControl label={ __( 'Künstler:in', 'child' ) } value={ artist } onChange={ ( value ) => setAttributes( { artist: value } ) } />
-					<TextControl label={ __( 'Album', 'child' ) } value={ albumTitle } onChange={ ( value ) => setAttributes( { albumTitle: value } ) } />
-					<TextControl label={ __( 'Jahr', 'child' ) } value={ releaseYear } onChange={ ( value ) => setAttributes( { releaseYear: value } ) } />
-					<TextControl label={ __( 'Cover-URL', 'child' ) } value={ coverUrl } onChange={ ( value ) => setAttributes( { coverUrl: value } ) } />
-					<TextControl label={ __( 'Anbieter-Link', 'child' ) } value={ providerUrl } onChange={ ( value ) => setAttributes( { providerUrl: value } ) } />
-					<TextControl label={ __( 'Hörprobe-URL', 'child' ) } value={ previewUrl } onChange={ ( value ) => setAttributes( { previewUrl: value } ) } help={ __( 'Nur rechtmäßig bereitgestellte Preview-URLs verwenden; keine vollständigen Songs ohne Lizenz einbinden.', 'child' ) } />
+					<TextControl
+						label={ __( 'Titel', 'child' ) }
+						value={ title }
+						onChange={ ( value ) =>
+							setAttributes( { title: value } )
+						}
+					/>
+					<TextControl
+						label={ __( 'Künstler:in', 'child' ) }
+						value={ artist }
+						onChange={ ( value ) =>
+							setAttributes( { artist: value } )
+						}
+					/>
+					<TextControl
+						label={ __( 'Album', 'child' ) }
+						value={ albumTitle }
+						onChange={ ( value ) =>
+							setAttributes( { albumTitle: value } )
+						}
+					/>
+					<TextControl
+						label={ __( 'Jahr', 'child' ) }
+						value={ releaseYear }
+						onChange={ ( value ) =>
+							setAttributes( { releaseYear: value } )
+						}
+					/>
+					<TextControl
+						label={ __( 'Cover-URL', 'child' ) }
+						value={ coverUrl }
+						onChange={ ( value ) =>
+							setAttributes( { coverUrl: value } )
+						}
+					/>
+					<TextControl
+						label={ __( 'Anbieter-Link', 'child' ) }
+						value={ providerUrl }
+						onChange={ ( value ) =>
+							setAttributes( { providerUrl: value } )
+						}
+					/>
+					<TextControl
+						label={ __( 'Hörprobe-URL', 'child' ) }
+						value={ previewUrl }
+						onChange={ ( value ) =>
+							setAttributes( { previewUrl: value } )
+						}
+						help={ __(
+							'Nur rechtmäßig bereitgestellte Preview-URLs verwenden; keine vollständigen Songs ohne Lizenz einbinden.',
+							'child'
+						) }
+					/>
 				</PanelBody>
-				<PanelBody title={ __( 'Recht & Datenschutz', 'child' ) } initialOpen={ false }>
+				<PanelBody
+					title={ __( 'Recht & Datenschutz', 'child' ) }
+					initialOpen={ false }
+				>
 					<Notice status="info" isDismissible={ false }>
-						{ __( 'Der Block nutzt Anbieter-Metadaten als Empfehlung/Promotion. Hörproben werden im Frontend erst nach Klick geladen, damit keine externe Audio-Verbindung ohne Aktion der Leser:innen aufgebaut wird.', 'child' ) }
+						{ __(
+							'Der Block nutzt Anbieter-Metadaten als Empfehlung/Promotion. Hörproben werden im Frontend erst nach Klick geladen, damit keine externe Audio-Verbindung ohne Aktion der Leser:innen aufgebaut wird.',
+							'child'
+						) }
 					</Notice>
 				</PanelBody>
 			</InspectorControls>
@@ -111,11 +184,40 @@ function Edit( { attributes, setAttributes } ) {
 					onChange={ setSearchTerm }
 					onKeyDown={ handleSearchKeyDown }
 				/>
-				<Button variant="primary" onClick={ handleMusicSearch } disabled={ isSearching } className="music-search-button">
-					{ isSearching ? __( 'Suche…', 'child' ) : __( 'Suchen', 'child' ) }
+				<Button
+					variant="primary"
+					onClick={ handleMusicSearch }
+					disabled={ isSearching }
+					className="music-search-button"
+				>
+					{ isSearching
+						? __( 'Suche…', 'child' )
+						: __( 'Suchen', 'child' ) }
 				</Button>
-				<SearchFeedback isSearching={ isSearching } error={ error } errorStatus="warning" />
-				<SearchResults results={ results } onSelect={ handleMusicSelection } selectedId={ selectedId } />
+				<SearchFeedback
+					isSearching={ isSearching }
+					error={ error }
+					errorStatus="warning"
+					statusMessage={
+						results.length
+							? sprintf(
+									/* translators: %d: number of search results */
+									_n(
+										'%d Ergebnis gefunden.',
+										'%d Ergebnisse gefunden.',
+										results.length,
+										'child'
+									),
+									results.length
+							  )
+							: ''
+					}
+				/>
+				<SearchResults
+					results={ results }
+					onSelect={ handleMusicSelection }
+					selectedId={ selectedId }
+				/>
 			</div>
 
 			<MusicPreview attributes={ attributes } />

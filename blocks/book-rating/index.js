@@ -1,321 +1,396 @@
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { registerBlockType } from '@wordpress/blocks';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, TextControl, Button } from '@wordpress/components';
-import { useState, useEffect } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 import metadata from './block.json';
 import { SearchFeedback } from '../shared/media/SearchFeedback';
 import { SearchResultsList } from '../shared/media/SearchResultsList';
+import { useSearchState } from '../shared/media/useSearchState';
 import './editor.css';
 import './style.css';
 
-const normalizeCoverUrl = (url) => {
-    if (!url) {
-        return '';
-    }
+const normalizeCoverUrl = ( url ) => {
+	if ( ! url ) {
+		return '';
+	}
 
-    let normalizedUrl = url.replace(/^http:\/\//i, 'https://');
+	let normalizedUrl = url.replace( /^http:\/\//i, 'https://' );
 
-    if (normalizedUrl.includes('zoom=')) {
-        normalizedUrl = normalizedUrl.replace(/zoom=\d/g, 'zoom=2');
-    }
+	if ( normalizedUrl.includes( 'zoom=' ) ) {
+		normalizedUrl = normalizedUrl.replace( /zoom=\d/g, 'zoom=2' );
+	}
 
-    return normalizedUrl;
+	return normalizedUrl;
 };
 
+const BookPreview = ( { bookTitle, author, coverUrl, shopUrl } ) => {
+	if ( ! bookTitle?.trim() ) {
+		return (
+			<div className="book-preview--empty">
+				{ __(
+					'Bitte wähle ein Buch aus der Suche aus oder gib die Details manuell ein.',
+					'child'
+				) }
+			</div>
+		);
+	}
 
-const BookPreview = ({ bookTitle, author, coverUrl, shopUrl }) => {
-    if (!bookTitle?.trim()) {
-        return (
-            <div className="book-preview--empty">
-                {__('Bitte wähle ein Buch aus der Suche aus oder gib die Details manuell ein.', 'child')}
-            </div>
-        );
-    }
+	const coverLink = shopUrl?.trim();
+	const coverImage = coverUrl ? (
+		<img
+			className="child-book-card__cover"
+			src={ coverUrl }
+			alt={ bookTitle }
+			loading="lazy"
+		/>
+	) : null;
+	const cover = coverLink ? (
+		<a
+			className="child-book-card__cover-link"
+			href={ coverLink }
+			target="_blank"
+			rel="noopener noreferrer"
+		>
+			{ coverImage }
+		</a>
+	) : (
+		coverImage
+	);
 
-    const coverLink = shopUrl?.trim();
-
-    return (
-        <div className="child-book-card" aria-label={__('Buch', 'child')}>
-            <div className="child-book-card__media">
-                {coverUrl ? (
-                    coverLink ? (
-                        <a
-                            className="child-book-card__cover-link"
-                            href={coverLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            <img
-                                className="child-book-card__cover"
-                                src={coverUrl}
-                                alt={bookTitle}
-                                loading="lazy"
-                            />
-                        </a>
-                    ) : (
-                        <img
-                            className="child-book-card__cover"
-                            src={coverUrl}
-                            alt={bookTitle}
-                            loading="lazy"
-                        />
-                    )
-                ) : (
-                    <div className="child-book-card__placeholder" aria-hidden="true" />
-                )}
-            </div>
-            <div className="child-book-card__meta">
-                <h3 className="child-book-card__title">{bookTitle}</h3>
-                {author?.trim() ? (
-                    <p className="child-book-card__author">
-                        {sprintf(
-                            /* translators: %s: author name */
-                            __('Von %s', 'child'),
-                            author
-                        )}
-                    </p>
-                ) : null}
-            </div>
-        </div>
-    );
+	return (
+		<div
+			className="child-book-card"
+			role="group"
+			aria-label={ __( 'Buch', 'child' ) }
+		>
+			<div className="child-book-card__media">
+				{ coverUrl ? (
+					cover
+				) : (
+					<div
+						className="child-book-card__placeholder"
+						aria-hidden="true"
+					/>
+				) }
+			</div>
+			<div className="child-book-card__meta">
+				<h3 className="child-book-card__title">{ bookTitle }</h3>
+				{ author?.trim() ? (
+					<p className="child-book-card__author">
+						{ sprintf(
+							/* translators: %s: author name */
+							__( 'Von %s', 'child' ),
+							author
+						) }
+					</p>
+				) : null }
+			</div>
+		</div>
+	);
 };
 
-const SearchResults = ({ results, selectedId, onSelect }) => {
-    return (
-        <SearchResultsList
-            results={results}
-            selectedId={selectedId}
-            onSelect={onSelect}
-            className="book-search-results"
-            getId={(book) => book.id}
-            getClassName={(book, isSelected) => `book-search-result${isSelected ? ' is-active' : ''}`}
-        >
-            {(book) => (
-                <>
-                    {book.cover ? (
-                        <span className="book-search-result__thumb">
-                            <img src={book.cover} alt={book.title || ''} loading="lazy" />
-                        </span>
-                    ) : (
-                        <span
-                            className="book-search-result__thumb book-search-result__thumb--placeholder"
-                            aria-hidden="true"
-                        >
-                            📘
-                        </span>
-                    )}
-                    <span className="book-search-result__details">
-                        <span className="book-search-result__title">{book.title}</span>
-                        {book.subtitle ? (
-                            <span className="book-search-result__subtitle">{book.subtitle}</span>
-                        ) : null}
-                        {book.authors.length ? (
-                            <span className="book-search-result__author">
-                                {book.authors.join(', ')}
-                            </span>
-                        ) : null}
-                    </span>
-                </>
-            )}
-        </SearchResultsList>
-    );
+const SearchResults = ( { results, selectedId, onSelect } ) => {
+	return (
+		<SearchResultsList
+			results={ results }
+			selectedId={ selectedId }
+			onSelect={ onSelect }
+			className="book-search-results"
+			getId={ ( book ) => book.id }
+			getClassName={ ( book, isSelected ) =>
+				`book-search-result${ isSelected ? ' is-active' : '' }`
+			}
+		>
+			{ ( book ) => (
+				<>
+					{ book.cover ? (
+						<span className="book-search-result__thumb">
+							<img src={ book.cover } alt="" loading="lazy" />
+						</span>
+					) : (
+						<span
+							className="book-search-result__thumb book-search-result__thumb--placeholder"
+							aria-hidden="true"
+						>
+							📘
+						</span>
+					) }
+					<span className="book-search-result__details">
+						<span className="book-search-result__title">
+							{ book.title }
+						</span>
+						{ book.subtitle ? (
+							<span className="book-search-result__subtitle">
+								{ book.subtitle }
+							</span>
+						) : null }
+						{ book.authors.length ? (
+							<span className="book-search-result__author">
+								{ book.authors.join( ', ' ) }
+							</span>
+						) : null }
+					</span>
+				</>
+			) }
+		</SearchResultsList>
+	);
 };
 
-function Edit({ attributes, setAttributes }) {
-    const blockProps = useBlockProps();
-    const { bookTitle, author, coverUrl, shopUrl } = attributes;
-    const [searchTerm, setSearchTerm] = useState('');
-    const [isSearching, setIsSearching] = useState(false);
-    const [searchResults, setSearchResults] = useState([]);
-    const [selectedBookId, setSelectedBookId] = useState(null);
-    const [searchError, setSearchError] = useState('');
-    const [hasSearched, setHasSearched] = useState(false);
+function Edit( { attributes, setAttributes } ) {
+	const blockProps = useBlockProps();
+	const { bookTitle, author, coverUrl, shopUrl } = attributes;
+	const search = useSearchState( { initialTerm: bookTitle || '' } );
+	const {
+		searchTerm,
+		setSearchTerm,
+		isSearching,
+		searchResults,
+		selectedId: selectedBookId,
+		searchError,
+		hasSearched,
+	} = search;
 
-    useEffect(() => {
-        if (!bookTitle) {
-            return;
-        }
+	const searchBooks = async () => {
+		const trimmedTerm = searchTerm.trim();
+		if ( ! trimmedTerm ) {
+			search.failSearch(
+				__( 'Bitte gib einen Suchbegriff ein.', 'child' )
+			);
+			return;
+		}
 
-        setSearchTerm((currentValue) => (currentValue ? currentValue : bookTitle));
-    }, [bookTitle]);
+		const { requestId, signal } = search.beginSearch();
+		try {
+			const data = await apiFetch( {
+				path: addQueryArgs( '/child/v1/books', {
+					q: trimmedTerm,
+					maxResults: 5,
+				} ),
+				signal,
+			} );
 
-    const searchBooks = async () => {
-        const trimmedTerm = searchTerm.trim();
-        if (!trimmedTerm) {
-            setSearchError(__('Bitte gib einen Suchbegriff ein.', 'child'));
-            setHasSearched(false);
-            return;
-        }
+			const results = ( data.items || [] ).map( ( item ) => {
+				const info = item.volumeInfo || {};
+				const coverImage =
+					info?.imageLinks?.thumbnail ||
+					info?.imageLinks?.smallThumbnail ||
+					'';
 
-        setIsSearching(true);
-        setSearchError('');
-        setSearchResults([]);
-        setSelectedBookId(null);
-        try {
-            const data = await apiFetch({
-                path: addQueryArgs('/child/v1/books', {
-                    q: trimmedTerm,
-                    maxResults: 5
-                })
-            });
+				return {
+					id: item.id,
+					title: info?.title || '',
+					subtitle: info?.subtitle || '',
+					authors: info?.authors || [],
+					cover: normalizeCoverUrl( coverImage ),
+					shopUrl:
+						item?.saleInfo?.buyLink ||
+						info?.infoLink ||
+						info?.canonicalVolumeLink ||
+						info?.previewLink ||
+						'',
+				};
+			} );
 
-            const results = (data.items || []).map((item) => {
-                const info = item.volumeInfo || {};
-                const coverImage =
-                    info?.imageLinks?.thumbnail ||
-                    info?.imageLinks?.smallThumbnail ||
-                    '';
+			search.completeSearch(
+				results,
+				__( 'Keine Ergebnisse gefunden.', 'child' ),
+				requestId
+			);
+		} catch ( error ) {
+			if ( error?.name === 'AbortError' ) {
+				return;
+			}
 
-                return {
-                    id: item.id,
-                    title: info?.title || '',
-                    subtitle: info?.subtitle || '',
-                    authors: info?.authors || [],
-                    cover: normalizeCoverUrl(coverImage),
-                    shopUrl:
-                        item?.saleInfo?.buyLink ||
-                        info?.infoLink ||
-                        info?.canonicalVolumeLink ||
-                        info?.previewLink ||
-                        ''
-                };
-            });
+			let errorMessage = __(
+				'Beim Suchen ist ein Fehler aufgetreten. Bitte versuche es erneut.',
+				'child'
+			);
 
-            setSearchResults(results);
-            setHasSearched(true);
-            if (!results.length) {
-                setSearchError(__('Keine Ergebnisse gefunden.', 'child'));
-            }
-        } catch (error) {
-            console.error('Fehler beim Suchen:', error);
-            let errorMessage = __('Beim Suchen ist ein Fehler aufgetreten. Bitte versuche es erneut.', 'child');
-            
-            if (error?.code === 'rate_limited' || error?.data?.status === 429) {
-                errorMessage = __('Google Books API-Limit erreicht. Bitte einen API-Schlüssel in den Einstellungen hinterlegen.', 'child');
-            } else if (error?.data?.status === 400 || error?.data?.status === 401 || error?.data?.status === 403) {
-                errorMessage = __('API-Authentifizierung fehlgeschlagen. Bitte überprüfe deinen API-Schlüssel in den Einstellungen.', 'child');
-            }
-            
-            setSearchError(errorMessage);
-            setHasSearched(false);
-        }
-        setIsSearching(false);
-    };
+			if (
+				error?.code === 'rate_limited' ||
+				error?.data?.status === 429
+			) {
+				errorMessage = __(
+					'Google Books API-Limit erreicht. Bitte einen API-Schlüssel in den Einstellungen hinterlegen.',
+					'child'
+				);
+			} else if (
+				error?.data?.status === 400 ||
+				error?.data?.status === 401 ||
+				error?.data?.status === 403
+			) {
+				errorMessage = __(
+					'API-Authentifizierung fehlgeschlagen. Bitte überprüfe deinen API-Schlüssel in den Einstellungen.',
+					'child'
+				);
+			}
 
-    const handleBookSelection = (book) => {
-        const resolvedAuthor = book.authors.length ? book.authors.join(', ') : author;
+			search.failSearch( errorMessage, requestId );
+		} finally {
+			search.finishSearch( requestId );
+		}
+	};
 
-        setSelectedBookId(book.id);
-        setSearchTerm(book.title);
-        setAttributes({
-            bookTitle: book.title || bookTitle,
-            author: resolvedAuthor,
-            coverUrl: book.cover || coverUrl || '',
-            shopUrl: book.shopUrl || shopUrl || ''
-        });
-    };
+	const handleBookSelection = ( book ) => {
+		const resolvedAuthor = book.authors.length
+			? book.authors.join( ', ' )
+			: author;
 
-    return (
-        <div {...blockProps}>
-            <InspectorControls>
-                <PanelBody title={__('Buch finden', 'child')} initialOpen={true}>
-                    <TextControl __next40pxDefaultSize __nextHasNoMarginBottom
-                        label={__('Suche nach Titel oder Autor', 'child')}
-                        value={searchTerm}
-                        onChange={setSearchTerm}
-                        placeholder={__('Buchtitel eingeben...', 'child')}
-                        onKeyDown={(event) => {
-                            if (event.key === 'Enter') {
-                                event.preventDefault();
-                                searchBooks();
-                            }
-                        }}
-                    />
-                    <Button
-                        variant="primary"
-                        onClick={searchBooks}
-                        disabled={isSearching}
-                        className="book-search-button"
-                    >
-                        {isSearching ? __('Suche...', 'child') : __('Suchen', 'child')}
-                    </Button>
-                    <SearchFeedback
-                        isSearching={isSearching}
-                        error={searchError}
-                        loadingClassName="book-search-loading"
-                    />
-                    {!isSearching && hasSearched && (
-                        <SearchResults
-                            results={searchResults}
-                            selectedId={selectedBookId}
-                            onSelect={handleBookSelection}
-                        />
-                    )}
-                </PanelBody>
+		search.selectResult( book );
+		setAttributes( {
+			bookTitle: book.title || bookTitle,
+			author: resolvedAuthor,
+			coverUrl: book.cover || coverUrl || '',
+			shopUrl: book.shopUrl || shopUrl || '',
+		} );
+	};
 
-                <PanelBody title={__('Buchdetails', 'child')} initialOpen={true}>
-                    <TextControl __next40pxDefaultSize __nextHasNoMarginBottom
-                        label={__('Titel', 'child')}
-                        value={bookTitle}
-                        onChange={(value) => setAttributes({ bookTitle: value })}
-                    />
-                    <TextControl __next40pxDefaultSize __nextHasNoMarginBottom
-                        label={__('Autor', 'child')}
-                        value={author}
-                        onChange={(value) => setAttributes({ author: value })}
-                    />
-                    <TextControl __next40pxDefaultSize __nextHasNoMarginBottom
-                        label={__('Cover-URL', 'child')}
-                        value={coverUrl}
-                        onChange={(value) => setAttributes({ coverUrl: value })}
-                        help={__('Optional: Eigene Cover-Grafik einfügen', 'child')}
-                    />
-                    <TextControl __next40pxDefaultSize __nextHasNoMarginBottom
-                        label={__('Shop-Link', 'child')}
-                        value={shopUrl}
-                        onChange={(value) => setAttributes({ shopUrl: value })}
-                        help={__('Wird bei der Suche automatisch befüllt, kann aber manuell überschrieben werden.', 'child')}
-                    />
-                </PanelBody>
-            </InspectorControls>
+	return (
+		<div { ...blockProps }>
+			<InspectorControls>
+				<PanelBody
+					title={ __( 'Buch finden', 'child' ) }
+					initialOpen={ true }
+				>
+					<TextControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __( 'Suche nach Titel oder Autor', 'child' ) }
+						value={ searchTerm }
+						onChange={ setSearchTerm }
+						placeholder={ __( 'Buchtitel eingeben…', 'child' ) }
+						onKeyDown={ ( event ) => {
+							if ( event.key === 'Enter' && ! isSearching ) {
+								event.preventDefault();
+								searchBooks();
+							}
+						} }
+					/>
+					<Button
+						variant="primary"
+						onClick={ searchBooks }
+						disabled={ isSearching }
+						className="book-search-button"
+					>
+						{ isSearching
+							? __( 'Suche…', 'child' )
+							: __( 'Suchen', 'child' ) }
+					</Button>
+					<SearchFeedback
+						isSearching={ isSearching }
+						error={ searchError }
+						loadingClassName="book-search-loading"
+						statusMessage={
+							hasSearched
+								? sprintf(
+										/* translators: %d: number of search results */
+										_n(
+											'%d Ergebnis gefunden.',
+											'%d Ergebnisse gefunden.',
+											searchResults.length,
+											'child'
+										),
+										searchResults.length
+								  )
+								: ''
+						}
+					/>
+					{ ! isSearching && hasSearched && (
+						<SearchResults
+							results={ searchResults }
+							selectedId={ selectedBookId }
+							onSelect={ handleBookSelection }
+						/>
+					) }
+				</PanelBody>
 
-            <BookPreview {...attributes} />
-        </div>
-    );
+				<PanelBody
+					title={ __( 'Buchdetails', 'child' ) }
+					initialOpen={ true }
+				>
+					<TextControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __( 'Titel', 'child' ) }
+						value={ bookTitle }
+						onChange={ ( value ) =>
+							setAttributes( { bookTitle: value } )
+						}
+					/>
+					<TextControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __( 'Autor', 'child' ) }
+						value={ author }
+						onChange={ ( value ) =>
+							setAttributes( { author: value } )
+						}
+					/>
+					<TextControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __( 'Cover-URL', 'child' ) }
+						value={ coverUrl }
+						onChange={ ( value ) =>
+							setAttributes( { coverUrl: value } )
+						}
+						help={ __(
+							'Optional: Eigene Cover-Grafik einfügen',
+							'child'
+						) }
+					/>
+					<TextControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __( 'Shop-Link', 'child' ) }
+						value={ shopUrl }
+						onChange={ ( value ) =>
+							setAttributes( { shopUrl: value } )
+						}
+						help={ __(
+							'Wird bei der Suche automatisch befüllt, kann aber manuell überschrieben werden.',
+							'child'
+						) }
+					/>
+				</PanelBody>
+			</InspectorControls>
+
+			<BookPreview { ...attributes } />
+		</div>
+	);
 }
 
-registerBlockType(metadata.name, {
-    edit: Edit,
-    save: () => null,
-    deprecated: [
-        {
-            attributes: {
-                bookTitle: {
-                    type: 'string',
-                    default: ''
-                },
-                author: {
-                    type: 'string',
-                    default: ''
-                },
-                coverUrl: {
-                    type: 'string',
-                    default: ''
-                },
-                rating: {
-                    type: 'number',
-                    default: 0
-                }
-            },
-            migrate: (attributes) => {
-                // Remove the rating attribute when migrating old blocks
-                const { rating, ...newAttributes } = attributes;
-                return newAttributes;
-            },
-            save: () => null
-        }
-    ]
-});
+registerBlockType( metadata.name, {
+	edit: Edit,
+	save: () => null,
+	deprecated: [
+		{
+			attributes: {
+				bookTitle: {
+					type: 'string',
+					default: '',
+				},
+				author: {
+					type: 'string',
+					default: '',
+				},
+				coverUrl: {
+					type: 'string',
+					default: '',
+				},
+				rating: {
+					type: 'number',
+					default: 0,
+				},
+			},
+			migrate: ( attributes ) => {
+				// Remove the rating attribute when migrating old blocks
+				const { rating, ...newAttributes } = attributes;
+				return newAttributes;
+			},
+			save: () => null,
+		},
+	],
+} );

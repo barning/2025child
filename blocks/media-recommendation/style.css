@@ -1,103 +1,99 @@
 .wp-block-child-media-recommendation {
-    margin: clamp(1.5rem, 4vw, 3rem) 0;
+	margin: clamp(1.5rem, 4vw, 3rem) 0;
 }
 
 .child-media-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.75rem;
 }
 
 .child-media-card__media {
-    position: relative;
-    width: min(100%, clamp(160px, 65vw, 280px));
-    max-width: 100%;
-    border-radius: 12px;
-    background: #fff;
-    display: flex;
-    justify-content: center;
+	position: relative;
+	width: min(100%, clamp(160px, 65vw, 280px));
+	max-width: 100%;
+	border-radius: 12px;
+	background: #fff;
+	display: flex;
+	justify-content: center;
 }
 
 .child-media-card__poster {
-    width: 100%;
-    max-width: 100%;
-    height: auto;
-    border-radius: 10px;
-    display: block;
-    outline: 1px solid rgba(0, 0, 0, 0.1);
-    outline-offset: -1px;
-    transform: scale(0.96);
-    text-wrap: balance;
-    outline-offset: -1px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15),
-                0 2px 8px rgba(0, 0, 0, 0.1);
+	width: 100%;
+	max-width: 100%;
+	height: auto;
+	border-radius: 10px;
+	display: block;
+	outline: 1px solid rgba(0, 0, 0, 0.1);
+	transform: scale(0.96);
+	text-wrap: balance;
+	outline-offset: -1px;
+	box-shadow:
+		0 8px 24px rgba(0, 0, 0, 0.15),
+		0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .child-media-card__poster-link {
-    display: block;
-    width: 100%;
-    max-width: 100%;
-    border-radius: 10px;
-    outline-offset: 4px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+	display: block;
+	width: 100%;
+	max-width: 100%;
+	border-radius: 10px;
+	outline-offset: 4px;
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .child-media-card__poster-link:hover,
 .child-media-card__poster-link:focus-visible {
-    transform: translateY(-2px);
+	transform: translateY(-2px);
 }
 
 .child-media-card__poster-link:focus-visible {
-    outline: 3px solid var(--wp--preset--color--primary, #1d3d36);
+	outline: 3px solid var(--wp--preset--color--primary, #1d3d36);
 }
 
 .child-media-card__poster-link:hover .child-media-card__poster,
 .child-media-card__poster-link:focus-visible .child-media-card__poster {
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2),
-                0 4px 12px rgba(0, 0, 0, 0.12);
+	box-shadow:
+		0 12px 28px rgba(0, 0, 0, 0.2),
+		0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .child-media-card__poster-link:active {
-    transform: scale(0.96);
+	transform: scale(0.96);
 }
 
 .child-media-card__placeholder {
-    width: 100%;
-    aspect-ratio: 2 / 3;
-    border-radius: 10px;
-    background: repeating-linear-gradient(
-        135deg,
-        rgba(220, 211, 196, 0.55),
-        rgba(220, 211, 196, 0.55) 12px,
-        rgba(255, 255, 255, 0.55) 12px,
-        rgba(255, 255, 255, 0.55) 24px
-    );
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15),
-                0 2px 8px rgba(0, 0, 0, 0.1);
+	width: 100%;
+	aspect-ratio: 2 / 3;
+	border-radius: 10px;
+	background: repeating-linear-gradient(135deg, rgba(220, 211, 196, 0.55), rgba(220, 211, 196, 0.55) 12px, rgba(255, 255, 255, 0.55) 12px, rgba(255, 255, 255, 0.55) 24px);
+	box-shadow:
+		0 8px 24px rgba(0, 0, 0, 0.15),
+		0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .child-media-card__meta {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.35rem;
-    margin-top: 0.5rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.35rem;
+	margin-top: 0.5rem;
 }
 
 .child-media-card__title {
-    margin: 0;
-    font-size: clamp(1.5rem, 2vw, 2rem);
-    font-weight: 700;
-    color: var(--wp--preset--color--contrast, #241f1a);
-    line-height: 1.2;
-    text-align: center;
-    text-wrap: balance;
+	margin: 0;
+	font-size: clamp(1.5rem, 2vw, 2rem);
+	font-weight: 700;
+	color: var(--wp--preset--color--contrast, #241f1a);
+	line-height: 1.2;
+	text-align: center;
+	text-wrap: balance;
 }
 
 .child-media-card__year {
-    margin: 0;
-    font-size: 1.1rem;
-    font-style: italic;
-    color: color-mix(in srgb, var(--wp--preset--color--contrast, #241f1a) 65%, transparent);
+	margin: 0;
+	font-size: 1.1rem;
+	font-style: italic;
+	color: color-mix(in srgb, var(--wp--preset--color--contrast, #241f1a) 65%, transparent);
 }
