@@ -13,9 +13,9 @@ return function ( $attributes ) {
 
 	$metadata = child_vlp_get_cached_metadata( $cache_url );
 
-	// ServerSideRender requests in the editor may enqueue a refresh. Public
-	// frontend renders remain read-only and never perform DNS or HTTP work.
-	if ( ! $metadata['fresh'] && current_user_can( 'edit_posts' ) ) {
+	// Any stale render may enqueue a deduplicated WP-Cron refresh. Frontend
+	// rendering itself remains free of DNS and HTTP work.
+	if ( ! $metadata['fresh'] ) {
 		child_vlp_schedule_refresh( $cache_url );
 	}
 

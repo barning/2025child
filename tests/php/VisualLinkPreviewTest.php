@@ -12,6 +12,11 @@ final class VisualLinkPreviewTest extends TestCase {
 		$GLOBALS['child_test_options']    = array();
 		$GLOBALS['child_test_transients'] = array();
 		$GLOBALS['child_test_scheduled']  = array();
+		$GLOBALS['child_test_response']   = array(
+			'response' => array( 'code' => 200 ),
+			'headers'  => array(),
+			'body'     => '{}',
+		);
 	}
 
 	public function test_cache_url_validation_rejects_credentials_and_non_web_ports(): void {
@@ -46,6 +51,47 @@ final class VisualLinkPreviewTest extends TestCase {
 		self::assertSame( $url, $result['data']['url'] );
 	}
 
+	public function test_negative_cache_entry_does_not_hide_rich_stale_metadata(): void {
+		$url = 'https://example.com/page';
+		set_transient( child_vlp_get_cache_key( $url ), child_vlp_empty_metadata( $url ) );
+		set_transient(
+			child_vlp_get_stale_cache_key( $url ),
+			array(
+				'url'   => $url,
+				'title' => 'Last known title',
+				'desc'  => 'Last known description',
+				'image' => '',
+			)
+		);
+
+		$result = child_vlp_get_cached_metadata( $url );
+
+		self::assertTrue( $result['fresh'] );
+		self::assertSame( 'Last known title', $result['data']['title'] );
+		self::assertSame( 'Last known description', $result['data']['desc'] );
+	}
+
+	public function test_failed_refresh_keeps_stale_metadata_available_and_releases_lock(): void {
+		$url = 'https://8.8.8.8/page';
+		set_transient(
+			child_vlp_get_stale_cache_key( $url ),
+			array(
+				'url'   => $url,
+				'title' => 'Working stale title',
+				'desc'  => '',
+				'image' => '',
+			)
+		);
+		$GLOBALS['child_test_response'] = new WP_Error( 'http_request_failed', 'Timed out' );
+
+		child_vlp_refresh_metadata( $url );
+		$result = child_vlp_get_cached_metadata( $url );
+
+		self::assertTrue( $result['fresh'] );
+		self::assertSame( 'Working stale title', $result['data']['title'] );
+		self::assertArrayNotHasKey( child_vlp_get_lock_option( $url ), $GLOBALS['child_test_options'] );
+	}
+
 	public function test_fetch_lock_is_atomic_and_expired_locks_can_be_reclaimed(): void {
 		$url = 'https://example.com/page';
 
@@ -61,6 +107,25 @@ final class VisualLinkPreviewTest extends TestCase {
 
 		self::assertTrue( child_vlp_schedule_refresh( $url ) );
 		self::assertFalse( child_vlp_schedule_refresh( $url ) );
+		self::assertCount( 1, $GLOBALS['child_test_scheduled'] );
+	}
+
+	public function test_stale_frontend_render_schedules_background_refresh(): void {
+		$url = 'https://example.com/page';
+		set_transient(
+			child_vlp_get_stale_cache_key( $url ),
+			array(
+				'url'   => $url,
+				'title' => 'Stale title',
+				'desc'  => '',
+				'image' => '',
+			)
+		);
+		$render = require dirname( __DIR__, 2 ) . '/blocks/visual-link-preview/render.php';
+
+		$render( array( 'url' => $url ) );
+		$render( array( 'url' => $url ) );
+
 		self::assertCount( 1, $GLOBALS['child_test_scheduled'] );
 	}
 }

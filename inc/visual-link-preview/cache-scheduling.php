@@ -24,6 +24,15 @@ function child_vlp_get_lock_option( string $url ): string {
 }
 
 /**
+ * Determine whether metadata contains content for a rich preview.
+ */
+function child_vlp_metadata_has_rich_data( array $metadata ): bool {
+	return '' !== ( $metadata['title'] ?? '' )
+		|| '' !== ( $metadata['desc'] ?? '' )
+		|| '' !== ( $metadata['image'] ?? '' );
+}
+
+/**
  * Read fresh metadata, falling back to a bounded stale copy.
  *
  * @return array{fresh:bool,data:array{url:string,title:string,desc:string,image:string}}
@@ -31,9 +40,26 @@ function child_vlp_get_lock_option( string $url ): string {
 function child_vlp_get_cached_metadata( string $url ): array {
 	$fresh = get_transient( child_vlp_get_cache_key( $url ) );
 	if ( is_array( $fresh ) ) {
+		$fresh = child_vlp_normalize_metadata_shape( $fresh, $url );
+
+		// A recent provider failure should remain negatively cached without
+		// hiding a still-valid rich preview.
+		if ( ! child_vlp_metadata_has_rich_data( $fresh ) ) {
+			$stale = get_transient( child_vlp_get_stale_cache_key( $url ) );
+			if ( is_array( $stale ) ) {
+				$stale = child_vlp_normalize_metadata_shape( $stale, $url );
+				if ( child_vlp_metadata_has_rich_data( $stale ) ) {
+					return [
+						'fresh' => true,
+						'data'  => $stale,
+					];
+				}
+			}
+		}
+
 		return [
 			'fresh' => true,
-			'data'  => child_vlp_normalize_metadata_shape( $fresh, $url ),
+			'data'  => $fresh,
 		];
 	}
 
@@ -102,7 +128,7 @@ function child_vlp_refresh_metadata( string $cache_url ): void {
 		}
 
 		$metadata = child_vlp_fetch_metadata( $url );
-		$has_data = '' !== $metadata['title'] || '' !== $metadata['desc'] || '' !== $metadata['image'];
+		$has_data = child_vlp_metadata_has_rich_data( $metadata );
 		$ttl      = $has_data ? CHILD_VLP_CACHE_TTL : CHILD_VLP_NEGATIVE_CACHE_TTL;
 
 		set_transient( child_vlp_get_cache_key( $cache_url ), $metadata, $ttl );
