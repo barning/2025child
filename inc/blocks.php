@@ -8,45 +8,42 @@
 /**
  * Get dynamic blocks owned by the child theme.
  *
- * @return array<string, array{block_name:string, render_file:string}>
+ * @return array<string, array{block_name:string, render_file:string,build_dir:string}>
  */
 function child_get_dynamic_blocks(): array {
-	$theme_dir = get_stylesheet_directory();
-	$slugs     = [];
+	$theme_dir      = get_stylesheet_directory();
+	$dynamic_blocks = [];
+	$manifests      = glob( $theme_dir . '/build/*/block.json' );
 
-	foreach ( [ 'blocks', 'build' ] as $blocks_dir ) {
-		$block_json_files = glob( $theme_dir . '/' . $blocks_dir . '/*/block.json' );
+	if ( ! is_array( $manifests ) ) {
+		return [];
+	}
 
-		if ( false === $block_json_files ) {
+	sort( $manifests );
+
+	foreach ( $manifests as $manifest ) {
+		if ( ! is_readable( $manifest ) ) {
 			continue;
 		}
 
-		foreach ( $block_json_files as $block_json_file ) {
-			$slug = basename( dirname( $block_json_file ) );
-
-			if ( '' === $slug ) {
-				continue;
-			}
-
-			$slugs[ $slug ] = true;
-		}
-	}
-
-	$slugs = array_keys( $slugs );
-	sort( $slugs );
-
-	$dynamic_blocks = [];
-
-	foreach ( $slugs as $slug ) {
+		$slug        = basename( dirname( $manifest ) );
+		$build_dir   = dirname( $manifest );
 		$render_file = 'blocks/' . $slug . '/render.php';
+		$metadata    = json_decode( (string) file_get_contents( $manifest ), true );
 
-		if ( ! is_readable( $theme_dir . '/' . $render_file ) ) {
+		if (
+			! preg_match( '/^[a-z0-9-]+$/', $slug )
+			|| ! is_array( $metadata )
+			|| ( $metadata['name'] ?? '' ) !== 'child/' . $slug
+			|| ! is_readable( $theme_dir . '/' . $render_file )
+		) {
 			continue;
 		}
 
 		$dynamic_blocks[ $slug ] = [
 			'block_name'  => 'child/' . $slug,
 			'render_file' => $render_file,
+			'build_dir'   => $build_dir,
 		];
 	}
 
@@ -61,10 +58,15 @@ function child_register_dynamic_blocks(): void {
 	$theme_uri = get_stylesheet_directory_uri();
 
 	foreach ( child_get_dynamic_blocks() as $slug => $config ) {
+		$render_callback = require $theme_dir . '/' . $config['render_file'];
+		if ( ! is_callable( $render_callback ) ) {
+			continue;
+		}
+
 		register_block_type(
-			$theme_dir . '/build/' . $slug,
+			$config['build_dir'],
 			[
-				'render_callback' => require $theme_dir . '/' . $config['render_file'],
+				'render_callback' => $render_callback,
 			]
 		);
 

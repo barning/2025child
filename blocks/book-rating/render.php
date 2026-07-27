@@ -7,57 +7,62 @@
  * @return string Returns the block content
  */
 
-return function($attributes) {
-    $wrapper_attributes = get_block_wrapper_attributes();
-    $book_title = $attributes['bookTitle'] ?? '';
-    $author = $attributes['author'] ?? '';
-    $cover_url = $attributes['coverUrl'] ?? '';
-    $shop_url = $attributes['shopUrl'] ?? '';
+return function ( $attributes ) {
+	$wrapper_attributes = get_block_wrapper_attributes();
+	$book_title         = $attributes['bookTitle'] ?? '';
+	$author             = $attributes['author'] ?? '';
+	$cover_url          = $attributes['coverUrl'] ?? '';
+	$shop_url           = $attributes['shopUrl'] ?? '';
 
-    if (empty($book_title)) {
-        return '';
-    }
+	if ( empty( $book_title ) ) {
+		return '';
+	}
 
-    ob_start(); ?>
-    <div <?php echo $wrapper_attributes; ?>>
-        <div class="child-book-card" aria-label="<?php echo esc_attr__( 'Buch', 'child' ); ?>">
-            <div class="child-book-card__media">
-                <?php if ( ! empty( $cover_url ) ) : ?>
-                    <?php if ( ! empty( $shop_url ) ) : ?>
-                        <a class="child-book-card__cover-link" href="<?php echo esc_url( $shop_url ); ?>" target="_blank" rel="noopener noreferrer">
-                            <img 
-                                src="<?php echo esc_url( $cover_url ); ?>" 
-                                alt="<?php echo esc_attr( $book_title ); ?>" 
-                                class="child-book-card__cover"
-                                loading="lazy"
-                            />
-                        </a>
-                    <?php else : ?>
-                        <img 
-                            src="<?php echo esc_url( $cover_url ); ?>" 
-                            alt="<?php echo esc_attr( $book_title ); ?>" 
-                            class="child-book-card__cover"
-                            loading="lazy"
-                        />
-                    <?php endif; ?>
-                <?php else : ?>
-                    <div class="child-book-card__placeholder" aria-hidden="true"></div>
-                <?php endif; ?>
-            </div>
-            
-            <div class="child-book-card__meta">
-                <h3 class="child-book-card__title"><?php echo esc_html( $book_title ); ?></h3>
-                <?php if ( ! empty( $author ) ) : ?>
-                    <p class="child-book-card__author">
-                        <?php 
-                            /* translators: %s: author name */
-                            printf( esc_html__( 'Von %s', 'child' ), esc_html( $author ) ); 
-                        ?>
-                    </p>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
-    <?php
-    return ob_get_clean();
+	ob_start(); ?>
+	<div
+	<?php
+    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by get_block_wrapper_attributes().
+	echo $wrapper_attributes;
+	?>
+	>
+		<div class="child-book-card" aria-label="<?php echo esc_attr__( 'Buch', 'child' ); ?>">
+			<div class="child-book-card__media">
+				<?php if ( ! empty( $cover_url ) ) : ?>
+					<?php if ( ! empty( $shop_url ) ) : ?>
+						<a class="child-book-card__cover-link" href="<?php echo esc_url( $shop_url ); ?>" target="_blank" rel="noopener noreferrer">
+							<img
+								src="<?php echo esc_url( $cover_url ); ?>"
+								alt="<?php echo esc_attr( $book_title ); ?>"
+								class="child-book-card__cover"
+								loading="lazy"
+							/>
+						</a>
+					<?php else : ?>
+						<img
+							src="<?php echo esc_url( $cover_url ); ?>"
+							alt="<?php echo esc_attr( $book_title ); ?>"
+							class="child-book-card__cover"
+							loading="lazy"
+						/>
+					<?php endif; ?>
+				<?php else : ?>
+					<div class="child-book-card__placeholder" aria-hidden="true"></div>
+				<?php endif; ?>
+			</div>
+
+			<div class="child-book-card__meta">
+				<h3 class="child-book-card__title"><?php echo esc_html( $book_title ); ?></h3>
+				<?php if ( ! empty( $author ) ) : ?>
+					<p class="child-book-card__author">
+						<?php
+							/* translators: %s: author name */
+							printf( esc_html__( 'Von %s', 'child' ), esc_html( $author ) );
+						?>
+					</p>
+				<?php endif; ?>
+			</div>
+		</div>
+	</div>
+	<?php
+	return ob_get_clean();
 };

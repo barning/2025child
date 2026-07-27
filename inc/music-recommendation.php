@@ -14,13 +14,18 @@ function child_register_music_lookup_route(): void {
 		'/music',
 		[
 			'methods'             => 'GET',
-			'permission_callback' => static function(): bool {
+			'permission_callback' => static function (): bool {
 				return current_user_can( 'edit_posts' );
 			},
 			'args'                => [
 				'q'         => [
 					'required'          => true,
 					'sanitize_callback' => 'sanitize_text_field',
+					'validate_callback' => static function ( $value ): bool {
+						$length = function_exists( 'mb_strlen' ) ? mb_strlen( (string) $value ) : strlen( (string) $value );
+
+						return $length > 0 && $length <= 160;
+					},
 				],
 				'musicType' => [
 					'required'          => false,
@@ -48,6 +53,11 @@ function child_music_lookup_callback( WP_REST_Request $request ) {
 		return new WP_Error( 'missing_query', __( 'Bitte gib einen Suchbegriff ein.', 'child' ), [ 'status' => 400 ] );
 	}
 
+	$query_length = function_exists( 'mb_strlen' ) ? mb_strlen( $query ) : strlen( $query );
+	if ( $query_length > 160 ) {
+		return new WP_Error( 'query_too_long', __( 'Der Suchbegriff ist zu lang.', 'child' ), [ 'status' => 400 ] );
+	}
+
 	$country = substr( (string) get_locale(), 3, 2 );
 	$country = preg_match( '/^[A-Z]{2}$/', $country ) ? $country : 'DE';
 	$entity  = 'album' === $music_type ? 'album' : 'song';
@@ -63,31 +73,29 @@ function child_music_lookup_callback( WP_REST_Request $request ) {
 		'https://itunes.apple.com/search'
 	);
 
-	$response = wp_safe_remote_get(
+	$data = child_provider_get_json(
 		$api_url,
 		[
 			'timeout' => 8,
-		]
+		],
+		'music',
+		12 * HOUR_IN_SECONDS
 	);
 
-	if ( is_wp_error( $response ) ) {
-		return new WP_Error( 'music_lookup_failed', __( 'Die Musiksuche konnte nicht geladen werden.', 'child' ), [ 'status' => 500 ] );
-	}
+	if ( is_wp_error( $data ) ) {
+		$error_data = $data->get_error_data();
 
-	$status = wp_remote_retrieve_response_code( $response );
-	if ( $status < 200 || $status >= 300 ) {
-		return new WP_Error( 'music_lookup_failed', __( 'Die Musiksuche konnte nicht geladen werden.', 'child' ), [ 'status' => $status ] );
-	}
-
-	$data = json_decode( wp_remote_retrieve_body( $response ), true );
-	if ( ! is_array( $data ) ) {
-		return new WP_Error( 'invalid_response', __( 'Die Musiksuche lieferte keine gültige Antwort.', 'child' ), [ 'status' => 500 ] );
+		return new WP_Error(
+			'music_lookup_failed',
+			__( 'Die Musiksuche konnte nicht geladen werden.', 'child' ),
+			[ 'status' => (int) ( $error_data['status'] ?? 502 ) ]
+		);
 	}
 
 	$results = array_values(
 		array_filter(
 			array_map(
-				static function( array $item ) use ( $music_type ): ?array {
+				static function ( array $item ) use ( $music_type ): ?array {
 					$title = 'album' === $music_type ? (string) ( $item['collectionName'] ?? '' ) : (string) ( $item['trackName'] ?? '' );
 					if ( '' === trim( $title ) ) {
 						return null;

@@ -5,7 +5,10 @@
  * @package TwentyTwentyFiveChild
  */
 
-const CHILD_MEDIA_COVER_GRID_CACHE_KEY = 'child_media_cover_grid_items_v3';
+const CHILD_MEDIA_COVER_GRID_CACHE_KEY       = 'child_media_cover_grid_items_v3';
+const CHILD_MEDIA_COVER_GRID_STALE_CACHE_KEY = 'child_media_cover_grid_items_stale_v3';
+const CHILD_MEDIA_COVER_GRID_LOCK_OPTION     = 'child_media_cover_grid_rebuild_lock_v3';
+const CHILD_MEDIA_COVER_GRID_LOCK_TTL        = 60;
 
 /**
  * Get the translated display label for a media-grid item type.
@@ -63,8 +66,19 @@ function child_get_media_cover_grid_items( bool $allow_duplicates = false ): arr
 	$items = get_transient( CHILD_MEDIA_COVER_GRID_CACHE_KEY );
 
 	if ( ! is_array( $items ) ) {
-		$items = child_build_media_cover_grid_items();
-		set_transient( CHILD_MEDIA_COVER_GRID_CACHE_KEY, $items, HOUR_IN_SECONDS * 12 );
+		$stale_items = get_transient( CHILD_MEDIA_COVER_GRID_STALE_CACHE_KEY );
+
+		if ( child_media_cover_grid_acquire_rebuild_lock() ) {
+			try {
+				$items = child_build_media_cover_grid_items();
+				set_transient( CHILD_MEDIA_COVER_GRID_CACHE_KEY, $items, HOUR_IN_SECONDS * 12 );
+				set_transient( CHILD_MEDIA_COVER_GRID_STALE_CACHE_KEY, $items, DAY_IN_SECONDS * 7 );
+			} finally {
+				delete_option( CHILD_MEDIA_COVER_GRID_LOCK_OPTION );
+			}
+		} else {
+			$items = is_array( $stale_items ) ? $stale_items : [];
+		}
 	}
 
 	if ( $allow_duplicates ) {
@@ -72,6 +86,26 @@ function child_get_media_cover_grid_items( bool $allow_duplicates = false ): arr
 	}
 
 	return child_dedupe_media_cover_grid_items( $items );
+}
+
+/**
+ * Acquire a cross-request rebuild lock, recovering an expired lock.
+ */
+function child_media_cover_grid_acquire_rebuild_lock(): bool {
+	$expires = time() + CHILD_MEDIA_COVER_GRID_LOCK_TTL;
+
+	if ( add_option( CHILD_MEDIA_COVER_GRID_LOCK_OPTION, $expires, '', false ) ) {
+		return true;
+	}
+
+	$current_expiry = (int) get_option( CHILD_MEDIA_COVER_GRID_LOCK_OPTION, 0 );
+	if ( $current_expiry >= time() ) {
+		return false;
+	}
+
+	delete_option( CHILD_MEDIA_COVER_GRID_LOCK_OPTION );
+
+	return add_option( CHILD_MEDIA_COVER_GRID_LOCK_OPTION, $expires, '', false );
 }
 
 /**
@@ -112,7 +146,7 @@ function child_build_media_cover_grid_items(): array {
  * Recursively extract media items from parsed Gutenberg blocks.
  *
  * @param array<int, array<string, mixed>> $blocks Parsed blocks.
- * @param WP_Post                         $post   Source post.
+ * @param WP_Post                          $post   Source post.
  * @return array<int, array<string, mixed>>
  */
 function child_extract_media_items_from_blocks( array $blocks, WP_Post $post ): array {
@@ -140,6 +174,11 @@ function child_extract_media_items_from_blocks( array $blocks, WP_Post $post ): 
  * Flush the cached media-grid item list.
  */
 function child_flush_media_cover_grid_cache(): void {
+	$items = get_transient( CHILD_MEDIA_COVER_GRID_CACHE_KEY );
+	if ( is_array( $items ) ) {
+		set_transient( CHILD_MEDIA_COVER_GRID_STALE_CACHE_KEY, $items, DAY_IN_SECONDS * 7 );
+	}
+
 	delete_transient( CHILD_MEDIA_COVER_GRID_CACHE_KEY );
 }
 

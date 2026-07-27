@@ -14,49 +14,40 @@ function child_enqueue_theme_styles(): void {
 add_action( 'wp_enqueue_scripts', 'child_enqueue_theme_styles' );
 
 /**
- * Load modular includes from /inc.
+ * Load runtime modules in deterministic dependency order.
+ *
+ * Keep this manifest explicit: loading every PHP file found in /inc makes a
+ * partially deployed or temporary file executable and hides module ordering.
  */
 function child_load_modules(): void {
-	$cache_key = 'child_inc_files_v3_' . CHILD_THEME_VERSION;
-	$inc_files = wp_cache_get( $cache_key, 'child_theme' );
+	$module_names = [
+		'provider-http.php',
+		'book-rating.php',
+		'head-footer-injections.php',
+		'human-json.php',
+		'media-cover-grid-normalizers.php',
+		'media-cover-grid-dedupe.php',
+		'media-cover-grid.php',
+		'media-recommendation.php',
+		'music-recommendation.php',
+		'notes.php',
+		'post-likes.php',
+		'rss-feed-footer.php',
+		'videogame-recommendation.php',
+		'visual-link-preview-async.php',
+		'blocks.php',
+	];
+	$inc_dir      = get_stylesheet_directory() . '/inc/';
 
-	$build_module_list = static function(): array {
-		$module_files = glob( get_stylesheet_directory() . '/inc/*.php' );
+	foreach ( $module_names as $module_name ) {
+		$file = $inc_dir . $module_name;
 
-		if ( ! is_array( $module_files ) ) {
-			return [];
+		// provider-http.php is an optional shared transport module.
+		if ( 'provider-http.php' === $module_name && ! is_readable( $file ) ) {
+			continue;
 		}
 
-		sort( $module_files );
-
-		return array_values(
-			array_filter(
-				$module_files,
-				static function( string $file ): bool {
-					return basename( $file ) !== 'bootstrap.php';
-				}
-			)
-		);
-	};
-
-	$cache_is_valid = is_array( $inc_files ) && [] === array_filter(
-		$inc_files,
-		static function( $file ): bool {
-			return ! is_string( $file ) || ! file_exists( $file );
-		}
-	);
-
-	if ( false === $inc_files || ! $cache_is_valid ) {
-		$inc_files = $build_module_list();
-		wp_cache_set( $cache_key, $inc_files, 'child_theme', HOUR_IN_SECONDS );
-	}
-
-	if ( ! is_array( $inc_files ) ) {
-		return;
-	}
-
-	foreach ( $inc_files as $file ) {
-		if ( ! is_string( $file ) || ! file_exists( $file ) ) {
+		if ( ! is_readable( $file ) ) {
 			continue;
 		}
 

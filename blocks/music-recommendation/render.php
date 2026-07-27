@@ -5,7 +5,7 @@
  * @package TwentyTwentyFiveChild
  */
 
-return function( array $attributes ): string {
+return function ( array $attributes ): string {
 	$title = trim( (string) ( $attributes['title'] ?? '' ) );
 	if ( '' === $title ) {
 		return '';
@@ -21,11 +21,16 @@ return function( array $attributes ): string {
 
 	ob_start();
 	?>
-	<div <?php echo get_block_wrapper_attributes(); ?>>
+	<div
+	<?php
+    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by core.
+	echo get_block_wrapper_attributes();
+	?>
+	>
 		<div class="child-music-card child-music-card--<?php echo esc_attr( $music_type ); ?>" aria-label="<?php echo esc_attr( $type_label ); ?>">
 			<div class="child-music-card__media">
 				<?php if ( $cover_url ) : ?>
-					<img src="<?php echo $cover_url; ?>" alt="<?php echo esc_attr( $title ); ?>" class="child-music-card__cover" loading="lazy" />
+					<img src="<?php echo esc_url( $cover_url ); ?>" alt="<?php echo esc_attr( $title ); ?>" class="child-music-card__cover" loading="lazy" />
 				<?php else : ?>
 					<div class="child-music-card__placeholder" aria-hidden="true">♪</div>
 				<?php endif; ?>

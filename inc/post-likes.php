@@ -6,8 +6,8 @@
  */
 
 const CHILD_POST_LIKES_SCHEMA_VERSION = '1';
-const CHILD_POST_LIKES_TABLE_SUFFIX = 'child_post_likes';
-const CHILD_POST_LIKES_COOKIE = 'child_post_like_visitor';
+const CHILD_POST_LIKES_TABLE_SUFFIX   = 'child_post_likes';
+const CHILD_POST_LIKES_COOKIE         = 'child_post_like_visitor';
 
 /**
  * Resolve the full likes table name.
@@ -28,7 +28,7 @@ function child_post_likes_maybe_create_table(): void {
 	}
 
 	global $wpdb;
-	$table_name = child_post_likes_get_table_name();
+	$table_name      = child_post_likes_get_table_name();
 	$charset_collate = $wpdb->get_charset_collate();
 
 	require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -44,15 +44,27 @@ function child_post_likes_maybe_create_table(): void {
 	) {$charset_collate};";
 
 	dbDelta( $sql );
-	update_option( 'child_post_likes_schema_version', CHILD_POST_LIKES_SCHEMA_VERSION, false );
+
+	if ( $table_name === $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) ) ) {
+		update_option( 'child_post_likes_schema_version', CHILD_POST_LIKES_SCHEMA_VERSION, false );
+	}
 }
 add_action( 'init', 'child_post_likes_maybe_create_table', 5 );
+
+/**
+ * Get an existing valid visitor token without creating a cookie.
+ */
+function child_post_likes_get_existing_visitor_token(): string {
+	$token = isset( $_COOKIE[ CHILD_POST_LIKES_COOKIE ] ) ? sanitize_text_field( wp_unslash( $_COOKIE[ CHILD_POST_LIKES_COOKIE ] ) ) : '';
+
+	return preg_match( '/^[a-f0-9-]{36}$/i', $token ) ? $token : '';
+}
 
 /**
  * Ensure current visitor has a stable cookie token.
  */
 function child_post_likes_ensure_visitor_token(): string {
-	$token = isset( $_COOKIE[ CHILD_POST_LIKES_COOKIE ] ) ? sanitize_text_field( wp_unslash( $_COOKIE[ CHILD_POST_LIKES_COOKIE ] ) ) : '';
+	$token = child_post_likes_get_existing_visitor_token();
 
 	if ( '' === $token ) {
 		$token = wp_generate_uuid4();
@@ -77,8 +89,12 @@ function child_post_likes_ensure_visitor_token(): string {
 /**
  * Get hashed visitor token for storage.
  */
-function child_post_likes_get_visitor_hash(): string {
-	$token = child_post_likes_ensure_visitor_token();
+function child_post_likes_get_visitor_hash( bool $create = true ): string {
+	$token = $create ? child_post_likes_ensure_visitor_token() : child_post_likes_get_existing_visitor_token();
+
+	if ( '' === $token ) {
+		return '';
+	}
 
 	return hash( 'sha256', $token . wp_salt( 'auth' ) );
 }
@@ -96,7 +112,8 @@ function child_post_likes_get_count( int $post_id ): int {
 
 	$count = $wpdb->get_var(
 		$wpdb->prepare(
-			"SELECT COUNT(*) FROM {$table_name} WHERE post_id = %d",
+			'SELECT COUNT(*) FROM %i WHERE post_id = %d',
+			$table_name,
 			$post_id
 		)
 	);
@@ -113,12 +130,17 @@ function child_post_likes_has_current_visitor_liked( int $post_id ): bool {
 	}
 
 	global $wpdb;
-	$table_name = child_post_likes_get_table_name();
-	$visitor_hash = child_post_likes_get_visitor_hash();
+	$table_name   = child_post_likes_get_table_name();
+	$visitor_hash = child_post_likes_get_visitor_hash( false );
+
+	if ( '' === $visitor_hash ) {
+		return false;
+	}
 
 	$exists = $wpdb->get_var(
 		$wpdb->prepare(
-			"SELECT 1 FROM {$table_name} WHERE post_id = %d AND visitor_hash = %s LIMIT 1",
+			'SELECT 1 FROM %i WHERE post_id = %d AND visitor_hash = %s LIMIT 1',
+			$table_name,
 			$post_id,
 			$visitor_hash
 		)
@@ -155,16 +177,16 @@ function child_post_likes_normalize_desired_state( $value ): ?bool {
 /**
  * Set like status for current visitor on post.
  *
- * @return array{liked:bool,count:int}
+ * @return array{liked:bool,count:int}|WP_Error
  */
-function child_post_likes_set_state( int $post_id, bool $desired_state ): array {
+function child_post_likes_set_state( int $post_id, bool $desired_state ) {
 	global $wpdb;
-	$table_name = child_post_likes_get_table_name();
+	$table_name   = child_post_likes_get_table_name();
 	$visitor_hash = child_post_likes_get_visitor_hash();
-	$liked = child_post_likes_has_current_visitor_liked( $post_id );
+	$liked        = child_post_likes_has_current_visitor_liked( $post_id );
 
 	if ( $desired_state && ! $liked ) {
-		$wpdb->insert(
+		$inserted = $wpdb->insert(
 			$table_name,
 			[
 				'post_id'      => $post_id,
@@ -172,9 +194,21 @@ function child_post_likes_set_state( int $post_id, bool $desired_state ): array 
 			],
 			[ '%d', '%s' ]
 		);
-		$liked = true;
+		if ( false === $inserted ) {
+			// A concurrent identical request can hit the unique key and is still successful.
+			$liked = child_post_likes_has_current_visitor_liked( $post_id );
+			if ( ! $liked ) {
+				return new WP_Error(
+					'likes_database_error',
+					__( 'The like could not be saved.', 'child' ),
+					[ 'status' => 500 ]
+				);
+			}
+		} else {
+			$liked = true;
+		}
 	} elseif ( ! $desired_state && $liked ) {
-		$wpdb->delete(
+		$deleted = $wpdb->delete(
 			$table_name,
 			[
 				'post_id'      => $post_id,
@@ -182,13 +216,51 @@ function child_post_likes_set_state( int $post_id, bool $desired_state ): array 
 			],
 			[ '%d', '%s' ]
 		);
+		if ( false === $deleted ) {
+			return new WP_Error(
+				'likes_database_error',
+				__( 'The like could not be removed.', 'child' ),
+				[ 'status' => 500 ]
+			);
+		}
 		$liked = false;
+	}
+
+	$wpdb->last_error = '';
+	$count            = child_post_likes_get_count( $post_id );
+	if ( '' !== $wpdb->last_error ) {
+		return new WP_Error(
+			'likes_database_error',
+			__( 'The like count could not be loaded.', 'child' ),
+			[ 'status' => 500 ]
+		);
 	}
 
 	return [
 		'liked' => $liked,
-		'count' => child_post_likes_get_count( $post_id ),
+		'count' => $count,
 	];
+}
+
+/**
+ * Enforce a small per-visitor mutation budget.
+ */
+function child_post_likes_check_rate_limit() {
+	$visitor_hash = child_post_likes_get_visitor_hash();
+	$cache_key    = 'child_like_rate_' . substr( $visitor_hash, 0, 32 );
+	$attempts     = (int) get_transient( $cache_key );
+
+	if ( $attempts >= 20 ) {
+		return new WP_Error(
+			'likes_rate_limited',
+			__( 'Too many like requests. Please try again shortly.', 'child' ),
+			[ 'status' => 429 ]
+		);
+	}
+
+	set_transient( $cache_key, $attempts + 1, MINUTE_IN_SECONDS );
+
+	return true;
 }
 
 /**
@@ -211,7 +283,7 @@ function child_post_likes_register_rest_routes(): void {
 			[
 				'methods'             => WP_REST_Server::READABLE,
 				'permission_callback' => '__return_true',
-				'callback'            => static function( WP_REST_Request $request ): WP_REST_Response {
+				'callback'            => static function ( WP_REST_Request $request ): WP_REST_Response {
 					$post_id = (int) $request->get_param( 'post_id' );
 
 					return rest_ensure_response(
@@ -231,15 +303,22 @@ function child_post_likes_register_rest_routes(): void {
 			[
 				'methods'             => WP_REST_Server::CREATABLE,
 				'permission_callback' => '__return_true',
-				'callback'            => static function( WP_REST_Request $request ): WP_REST_Response {
-					$post_id = (int) $request->get_param( 'post_id' );
+				'callback'            => static function ( WP_REST_Request $request ) {
+					$post_id       = (int) $request->get_param( 'post_id' );
 					$desired_state = child_post_likes_normalize_desired_state( $request->get_param( 'liked' ) );
+					$rate_limit    = child_post_likes_check_rate_limit();
+
+					if ( is_wp_error( $rate_limit ) ) {
+						return $rate_limit;
+					}
 
 					if ( null === $desired_state ) {
 						$desired_state = ! child_post_likes_has_current_visitor_liked( $post_id );
 					}
 
-					return rest_ensure_response( child_post_likes_set_state( $post_id, $desired_state ) );
+					$result = child_post_likes_set_state( $post_id, $desired_state );
+
+					return is_wp_error( $result ) ? $result : rest_ensure_response( $result );
 				},
 				'args'                => [
 					'post_id' => [

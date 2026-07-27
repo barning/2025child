@@ -32,6 +32,32 @@ function child_get_steamgriddb_api_key(): string {
 }
 
 /**
+ * Preserve a saved RAWG key unless an explicit replacement or removal is requested.
+ */
+function child_sanitize_rawg_api_key( $value ): string {
+	if ( isset( $_POST['child_rawg_api_key_clear'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Settings API verifies the request.
+		return '';
+	}
+
+	$value = sanitize_text_field( (string) $value );
+
+	return '' !== $value ? $value : (string) get_option( 'child_rawg_api_key', '' );
+}
+
+/**
+ * Preserve a saved SteamGridDB key unless an explicit replacement or removal is requested.
+ */
+function child_sanitize_steamgriddb_api_key( $value ): string {
+	if ( isset( $_POST['child_steamgriddb_api_key_clear'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Settings API verifies the request.
+		return '';
+	}
+
+	$value = sanitize_text_field( (string) $value );
+
+	return '' !== $value ? $value : (string) get_option( 'child_steamgriddb_api_key', '' );
+}
+
+/**
  * Perform a SteamGridDB API request.
  */
 function child_request_steamgriddb_api( string $path ): array {
@@ -40,7 +66,7 @@ function child_request_steamgriddb_api( string $path ): array {
 		return [];
 	}
 
-	$response = wp_safe_remote_get(
+	$data = child_provider_get_json(
 		'https://www.steamgriddb.com/api/v2/' . ltrim( $path, '/' ),
 		[
 			'timeout' => 10,
@@ -48,14 +74,14 @@ function child_request_steamgriddb_api( string $path ): array {
 				'Accept'        => 'application/json',
 				'Authorization' => 'Bearer ' . $api_key,
 			],
-		]
+		],
+		'steamgriddb',
+		7 * DAY_IN_SECONDS
 	);
 
-	if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+	if ( is_wp_error( $data ) ) {
 		return [];
 	}
-
-	$data = json_decode( wp_remote_retrieve_body( $response ), true );
 
 	return is_array( $data['data'] ?? null ) ? $data['data'] : [];
 }
@@ -82,7 +108,7 @@ function child_normalize_steamgriddb_portrait_grids( array $grids ): array {
 			continue;
 		}
 
-		$variants[] = [
+		$variants[]   = [
 			'url'          => $url,
 			'cover_format' => 'portrait',
 			'width'        => $width,
@@ -166,7 +192,7 @@ function child_register_videogame_recommendation_settings(): void {
 		'child_rawg_api_key',
 		[
 			'type'              => 'string',
-			'sanitize_callback' => 'sanitize_text_field',
+			'sanitize_callback' => 'child_sanitize_rawg_api_key',
 			'default'           => '',
 		]
 	);
@@ -176,7 +202,7 @@ function child_register_videogame_recommendation_settings(): void {
 		'child_steamgriddb_api_key',
 		[
 			'type'              => 'string',
-			'sanitize_callback' => 'sanitize_text_field',
+			'sanitize_callback' => 'child_sanitize_steamgriddb_api_key',
 			'default'           => '',
 		]
 	);
@@ -224,34 +250,40 @@ function child_render_videogame_recommendation_section_description(): void {
  * Render RAWG key input.
  */
 function child_render_videogame_recommendation_api_field(): void {
-	$value        = (string) get_option( 'child_rawg_api_key', '' );
-	$has_constant = defined( 'RAWG_API_KEY' ) && ! empty( RAWG_API_KEY );
+	$has_saved_key = '' !== (string) get_option( 'child_rawg_api_key', '' );
+	$has_constant  = defined( 'RAWG_API_KEY' ) && ! empty( RAWG_API_KEY );
 
-	echo '<input type="text" id="child_rawg_api_key" name="child_rawg_api_key" value="' . esc_attr( $value ) . '" class="regular-text" placeholder="' . esc_attr__( 'Enter your RAWG API key', 'child' ) . '" />';
+	echo '<input type="password" id="child_rawg_api_key" name="child_rawg_api_key" value="" class="regular-text" autocomplete="new-password" placeholder="' . esc_attr( $has_saved_key ? __( 'Saved — enter a new key to replace it', 'child' ) : __( 'Enter your RAWG API key', 'child' ) ) . '" />';
 
-	if ( $has_constant && '' === $value ) {
+	if ( $has_constant && ! $has_saved_key ) {
 		echo '<p class="description">' . esc_html__( 'Currently using API key from wp-config.php. Enter a key here to override it.', 'child' ) . '</p>';
 		return;
 	}
 
-	echo '<p class="description">' . esc_html__( 'Your API key will be stored securely in the database.', 'child' ) . '</p>';
+	echo '<p class="description">' . esc_html__( 'Stored in the WordPress options table. Leave blank to keep the saved key.', 'child' ) . '</p>';
+	if ( $has_saved_key ) {
+		echo '<label><input type="checkbox" name="child_rawg_api_key_clear" value="1" /> ' . esc_html__( 'Remove the saved key', 'child' ) . '</label>';
+	}
 }
 
 /**
  * Render SteamGridDB key input.
  */
 function child_render_steamgriddb_api_field(): void {
-	$value        = (string) get_option( 'child_steamgriddb_api_key', '' );
-	$has_constant = defined( 'STEAMGRIDDB_API_KEY' ) && ! empty( STEAMGRIDDB_API_KEY );
+	$has_saved_key = '' !== (string) get_option( 'child_steamgriddb_api_key', '' );
+	$has_constant  = defined( 'STEAMGRIDDB_API_KEY' ) && ! empty( STEAMGRIDDB_API_KEY );
 
-	echo '<input type="password" id="child_steamgriddb_api_key" name="child_steamgriddb_api_key" value="' . esc_attr( $value ) . '" class="regular-text" placeholder="' . esc_attr__( 'Enter your SteamGridDB API key', 'child' ) . '" autocomplete="new-password" />';
+	echo '<input type="password" id="child_steamgriddb_api_key" name="child_steamgriddb_api_key" value="" class="regular-text" placeholder="' . esc_attr( $has_saved_key ? __( 'Saved — enter a new key to replace it', 'child' ) : __( 'Enter your SteamGridDB API key', 'child' ) ) . '" autocomplete="new-password" />';
 
-	if ( $has_constant && '' === $value ) {
+	if ( $has_constant && ! $has_saved_key ) {
 		echo '<p class="description">' . esc_html__( 'Currently using SteamGridDB API key from wp-config.php. Enter a key here to override it.', 'child' ) . '</p>';
 		return;
 	}
 
-	echo '<p class="description">' . esc_html__( 'Optional: Used server-side to fetch portrait videogame covers from SteamGridDB.', 'child' ) . '</p>';
+	echo '<p class="description">' . esc_html__( 'Optional; stored in the WordPress options table and used server-side. Leave blank to keep the saved key.', 'child' ) . '</p>';
+	if ( $has_saved_key ) {
+		echo '<label><input type="checkbox" name="child_steamgriddb_api_key_clear" value="1" /> ' . esc_html__( 'Remove the saved key', 'child' ) . '</label>';
+	}
 }
 
 /**
@@ -268,23 +300,26 @@ function child_handle_rawg_search_ajax(): void {
 	if ( '' === $query ) {
 		wp_send_json_error( 'Query required', 400 );
 	}
+	$query_length = function_exists( 'mb_strlen' ) ? mb_strlen( $query ) : strlen( $query );
+	if ( $query_length > 160 ) {
+		wp_send_json_error( 'Query is too long', 400 );
+	}
 
 	$api_key = child_get_rawg_api_key();
 	if ( '' === $api_key ) {
 		wp_send_json_error( 'RAWG API key not configured. Please configure it in Settings > Videogame Recommendation or add RAWG_API_KEY to wp-config.php', 500 );
 	}
 
-	$response = wp_safe_remote_get(
+	$data = child_provider_get_json(
 		'https://api.rawg.io/api/games?key=' . rawurlencode( $api_key ) . '&search=' . rawurlencode( $query ) . '&page_size=10',
-		[ 'timeout' => 10 ]
+		[ 'timeout' => 10 ],
+		'rawg',
+		6 * HOUR_IN_SECONDS
 	);
 
-	if ( is_wp_error( $response ) ) {
-		wp_send_json_error( 'API request failed', 500 );
-	}
-
-	$status_code = wp_remote_retrieve_response_code( $response );
-	if ( 200 !== $status_code ) {
+	if ( is_wp_error( $data ) ) {
+		$error_data  = $data->get_error_data();
+		$status_code = (int) ( $error_data['provider_status'] ?? $error_data['status'] ?? 502 );
 		switch ( $status_code ) {
 			case 401:
 				$message = 'RAWG API request unauthorized. Please check that your API key is valid.';
@@ -299,14 +334,16 @@ function child_handle_rawg_search_ajax(): void {
 				$message = 'RAWG API returned an unexpected response. HTTP status code: ' . (int) $status_code;
 		}
 
-		wp_send_json_error( $message, $status_code );
+		wp_send_json_error( $message, in_array( $status_code, [ 401, 403, 429 ], true ) ? $status_code : 502 );
 	}
 
-	$data = json_decode( wp_remote_retrieve_body( $response ), true );
+	$raw_games = is_array( $data['results'] ?? null ) ? array_slice( $data['results'], 0, 10 ) : [];
+	$raw_games = array_values( array_filter( $raw_games, 'is_array' ) );
 
 	$games = array_map(
-		static function( array $game ): array {
-			$steamgriddb_covers = child_find_steamgriddb_covers_for_game( (string) ( $game['name'] ?? '' ) );
+		static function ( array $game, int $index ): array {
+			// Keep enrichment bounded: at most three visible results, cached for a week.
+			$steamgriddb_covers = $index < 3 ? child_find_steamgriddb_covers_for_game( (string) ( $game['name'] ?? '' ) ) : [];
 			$cover_url          = (string) ( $steamgriddb_covers[0]['url'] ?? '' );
 			$cover_format       = (string) ( $steamgriddb_covers[0]['cover_format'] ?? '' );
 
@@ -321,20 +358,21 @@ function child_handle_rawg_search_ajax(): void {
 				'slug'             => $game['slug'] ?? '',
 				'website'          => $game['website'] ?? '',
 				'platforms'        => array_map(
-					static function( array $platform ): string {
+					static function ( array $platform ): string {
 						return $platform['platform']['name'] ?? '';
 					},
 					$game['platforms'] ?? []
 				),
 				'genres'           => array_map(
-					static function( array $genre ): string {
+					static function ( array $genre ): string {
 						return $genre['name'] ?? '';
 					},
 					$game['genres'] ?? []
 				),
 			];
 		},
-		$data['results'] ?? []
+		$raw_games,
+		array_keys( $raw_games )
 	);
 
 	wp_send_json_success( [ 'games' => $games ] );
