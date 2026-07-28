@@ -36,6 +36,7 @@ export const GamePreview = ( {
 
 	const formattedDate = formatReleaseDate( releaseDate );
 	const coverLink = shopUrl?.trim();
+	const coverWidth = coverFormat === 'landscape' ? 1600 : 600;
 	const mediaClassName = `child-game-card__media child-game-card__media--${
 		coverFormat === 'landscape' ? 'landscape' : 'portrait'
 	}`;
@@ -45,6 +46,8 @@ export const GamePreview = ( {
 			src={ coverUrl }
 			alt={ gameTitle }
 			loading="lazy"
+			width={ coverWidth }
+			height="900"
 		/>
 	) : null;
 	const cover = coverLink ? (
@@ -82,7 +85,7 @@ export const GamePreview = ( {
 					<PlatformChips platforms={ platforms } />
 				) }
 
-				<h3 className="child-game-card__title">{ gameTitle }</h3>
+				<p className="child-game-card__title">{ gameTitle }</p>
 
 				{ formattedDate && (
 					<InfoRow

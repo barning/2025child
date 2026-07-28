@@ -162,7 +162,7 @@ function child_render_videogame_recommendation_settings_page(): void {
 			<?php
 			settings_fields( 'child_videogame_recommendation' );
 			do_settings_sections( 'child-videogame-recommendation' );
-			submit_button( __( 'Save Settings', 'child' ) );
+			submit_button( __( 'Einstellungen speichern', 'child' ) );
 			?>
 		</form>
 	</div>
@@ -174,8 +174,8 @@ function child_render_videogame_recommendation_settings_page(): void {
  */
 function child_register_videogame_recommendation_settings_page(): void {
 	add_options_page(
-		__( 'Videogame Recommendation Settings', 'child' ),
-		__( 'Videogame Recommendation', 'child' ),
+		__( 'Videospiel-Einstellungen', 'child' ),
+		__( 'Videospiel-Empfehlung', 'child' ),
 		'manage_options',
 		'child-videogame-recommendation',
 		'child_render_videogame_recommendation_settings_page'
@@ -209,14 +209,14 @@ function child_register_videogame_recommendation_settings(): void {
 
 	add_settings_section(
 		'child_videogame_recommendation_section',
-		__( 'RAWG API Configuration', 'child' ),
+		__( 'RAWG-API-Konfiguration', 'child' ),
 		'child_render_videogame_recommendation_section_description',
 		'child-videogame-recommendation'
 	);
 
 	add_settings_field(
 		'child_rawg_api_key',
-		__( 'RAWG API Key', 'child' ),
+		__( 'RAWG-API-Schlüssel', 'child' ),
 		'child_render_videogame_recommendation_api_field',
 		'child-videogame-recommendation',
 		'child_videogame_recommendation_section'
@@ -224,7 +224,7 @@ function child_register_videogame_recommendation_settings(): void {
 
 	add_settings_field(
 		'child_steamgriddb_api_key',
-		__( 'SteamGridDB API Key', 'child' ),
+		__( 'SteamGridDB-API-Schlüssel', 'child' ),
 		'child_render_steamgriddb_api_field',
 		'child-videogame-recommendation',
 		'child_videogame_recommendation_section'
@@ -239,7 +239,7 @@ function child_render_videogame_recommendation_section_description(): void {
 	echo '<p>' . wp_kses_post(
 		sprintf(
 			/* translators: 1: URL to RAWG API docs. 2: URL to SteamGridDB API docs. */
-			__( 'To use the Videogame Recommendation block, you need a free API key from RAWG. Add an optional SteamGridDB API key to enrich results with portrait game covers. Get your RAWG API key at %1$s and your SteamGridDB API key at %2$s.', 'child' ),
+			__( 'Für den Videospiel-Block benötigst du einen kostenlosen API-Schlüssel von RAWG. Optional kannst du einen SteamGridDB-API-Schlüssel für zusätzliche Hochformat-Cover hinterlegen. Deinen RAWG-Schlüssel erhältst du unter %1$s und deinen SteamGridDB-Schlüssel unter %2$s.', 'child' ),
 			'<a href="https://rawg.io/apidocs" target="_blank" rel="noopener noreferrer">rawg.io/apidocs</a>',
 			'<a href="https://www.steamgriddb.com/api/v2" target="_blank" rel="noopener noreferrer">steamgriddb.com/api/v2</a>'
 		)
@@ -253,16 +253,16 @@ function child_render_videogame_recommendation_api_field(): void {
 	$has_saved_key = '' !== (string) get_option( 'child_rawg_api_key', '' );
 	$has_constant  = defined( 'RAWG_API_KEY' ) && ! empty( RAWG_API_KEY );
 
-	echo '<input type="password" id="child_rawg_api_key" name="child_rawg_api_key" value="" class="regular-text" autocomplete="new-password" placeholder="' . esc_attr( $has_saved_key ? __( 'Saved — enter a new key to replace it', 'child' ) : __( 'Enter your RAWG API key', 'child' ) ) . '" />';
+	echo '<input type="password" id="child_rawg_api_key" name="child_rawg_api_key" value="" class="regular-text" autocomplete="new-password" placeholder="' . esc_attr( $has_saved_key ? __( 'Gespeichert — neuen Schlüssel zum Ersetzen eingeben', 'child' ) : __( 'RAWG-API-Schlüssel eingeben', 'child' ) ) . '" />';
 
 	if ( $has_constant && ! $has_saved_key ) {
-		echo '<p class="description">' . esc_html__( 'Currently using API key from wp-config.php. Enter a key here to override it.', 'child' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Aktuell wird der API-Schlüssel aus wp-config.php verwendet. Gib hier einen Schlüssel ein, um ihn zu überschreiben.', 'child' ) . '</p>';
 		return;
 	}
 
-	echo '<p class="description">' . esc_html__( 'Stored in the WordPress options table. Leave blank to keep the saved key.', 'child' ) . '</p>';
+	echo '<p class="description">' . esc_html__( 'Wird in der WordPress-Optionstabelle gespeichert. Leer lassen, um den gespeicherten Schlüssel zu behalten.', 'child' ) . '</p>';
 	if ( $has_saved_key ) {
-		echo '<label><input type="checkbox" name="child_rawg_api_key_clear" value="1" /> ' . esc_html__( 'Remove the saved key', 'child' ) . '</label>';
+		echo '<label><input type="checkbox" name="child_rawg_api_key_clear" value="1" /> ' . esc_html__( 'Gespeicherten Schlüssel entfernen', 'child' ) . '</label>';
 	}
 }
 
@@ -273,16 +273,16 @@ function child_render_steamgriddb_api_field(): void {
 	$has_saved_key = '' !== (string) get_option( 'child_steamgriddb_api_key', '' );
 	$has_constant  = defined( 'STEAMGRIDDB_API_KEY' ) && ! empty( STEAMGRIDDB_API_KEY );
 
-	echo '<input type="password" id="child_steamgriddb_api_key" name="child_steamgriddb_api_key" value="" class="regular-text" placeholder="' . esc_attr( $has_saved_key ? __( 'Saved — enter a new key to replace it', 'child' ) : __( 'Enter your SteamGridDB API key', 'child' ) ) . '" autocomplete="new-password" />';
+	echo '<input type="password" id="child_steamgriddb_api_key" name="child_steamgriddb_api_key" value="" class="regular-text" placeholder="' . esc_attr( $has_saved_key ? __( 'Gespeichert — neuen Schlüssel zum Ersetzen eingeben', 'child' ) : __( 'SteamGridDB-API-Schlüssel eingeben', 'child' ) ) . '" autocomplete="new-password" />';
 
 	if ( $has_constant && ! $has_saved_key ) {
-		echo '<p class="description">' . esc_html__( 'Currently using SteamGridDB API key from wp-config.php. Enter a key here to override it.', 'child' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Aktuell wird der SteamGridDB-API-Schlüssel aus wp-config.php verwendet. Gib hier einen Schlüssel ein, um ihn zu überschreiben.', 'child' ) . '</p>';
 		return;
 	}
 
-	echo '<p class="description">' . esc_html__( 'Optional; stored in the WordPress options table and used server-side. Leave blank to keep the saved key.', 'child' ) . '</p>';
+	echo '<p class="description">' . esc_html__( 'Optional; wird in der WordPress-Optionstabelle gespeichert und serverseitig verwendet. Leer lassen, um den gespeicherten Schlüssel zu behalten.', 'child' ) . '</p>';
 	if ( $has_saved_key ) {
-		echo '<label><input type="checkbox" name="child_steamgriddb_api_key_clear" value="1" /> ' . esc_html__( 'Remove the saved key', 'child' ) . '</label>';
+		echo '<label><input type="checkbox" name="child_steamgriddb_api_key_clear" value="1" /> ' . esc_html__( 'Gespeicherten Schlüssel entfernen', 'child' ) . '</label>';
 	}
 }
 
@@ -293,21 +293,21 @@ function child_handle_rawg_search_ajax(): void {
 	check_ajax_referer( 'child-game-search', 'nonce' );
 
 	if ( ! current_user_can( 'edit_posts' ) ) {
-		wp_send_json_error( 'Unauthorized', 403 );
+		wp_send_json_error( 'Nicht autorisiert', 403 );
 	}
 
 	$query = sanitize_text_field( wp_unslash( $_GET['query'] ?? '' ) );
 	if ( '' === $query ) {
-		wp_send_json_error( 'Query required', 400 );
+		wp_send_json_error( 'Suchbegriff erforderlich', 400 );
 	}
 	$query_length = function_exists( 'mb_strlen' ) ? mb_strlen( $query ) : strlen( $query );
 	if ( $query_length > 160 ) {
-		wp_send_json_error( 'Query is too long', 400 );
+		wp_send_json_error( 'Der Suchbegriff ist zu lang', 400 );
 	}
 
 	$api_key = child_get_rawg_api_key();
 	if ( '' === $api_key ) {
-		wp_send_json_error( 'RAWG API key not configured. Please configure it in Settings > Videogame Recommendation or add RAWG_API_KEY to wp-config.php', 500 );
+		wp_send_json_error( 'Der RAWG-API-Schlüssel ist nicht konfiguriert. Hinterlege ihn unter Einstellungen > Videospiel-Empfehlung oder als RAWG_API_KEY in wp-config.php.', 500 );
 	}
 
 	$data = child_provider_get_json(
@@ -322,16 +322,16 @@ function child_handle_rawg_search_ajax(): void {
 		$status_code = (int) ( $error_data['provider_status'] ?? $error_data['status'] ?? 502 );
 		switch ( $status_code ) {
 			case 401:
-				$message = 'RAWG API request unauthorized. Please check that your API key is valid.';
+				$message = 'Die RAWG-API-Anfrage wurde nicht autorisiert. Prüfe, ob der API-Schlüssel gültig ist.';
 				break;
 			case 403:
-				$message = 'RAWG API request forbidden. Your API key may not have access to this resource.';
+				$message = 'Die RAWG-API-Anfrage wurde abgelehnt. Dein API-Schlüssel hat möglicherweise keinen Zugriff auf diese Ressource.';
 				break;
 			case 429:
-				$message = 'RAWG API rate limit exceeded. Please wait and try again later.';
+				$message = 'Das RAWG-API-Anfragelimit wurde erreicht. Warte einen Moment und versuche es später erneut.';
 				break;
 			default:
-				$message = 'RAWG API returned an unexpected response. HTTP status code: ' . (int) $status_code;
+				$message = 'Die RAWG-API hat eine unerwartete Antwort geliefert. HTTP-Statuscode: ' . (int) $status_code;
 		}
 
 		wp_send_json_error( $message, in_array( $status_code, [ 401, 403, 429 ], true ) ? $status_code : 502 );

@@ -97,3 +97,16 @@
 	font-style: italic;
 	color: color-mix(in srgb, var(--wp--preset--color--contrast, #241f1a) 65%, transparent);
 }
+
+@media (prefers-reduced-motion: reduce) {
+
+	.child-book-card__cover-link {
+		transition: none;
+	}
+
+	.child-book-card__cover-link:hover,
+	.child-book-card__cover-link:focus-visible,
+	.child-book-card__cover-link:active {
+		transform: none;
+	}
+}

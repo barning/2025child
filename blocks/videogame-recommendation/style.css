@@ -151,6 +151,15 @@
 	.child-game-card,
 	.child-game-card__cover,
 	.child-game-card__cover-link {
-		transition-duration: 0.01ms;
+		transition: none;
+	}
+
+	.child-game-card:hover,
+	.child-game-card__cover-link:hover,
+	.child-game-card__cover-link:focus-visible,
+	.child-game-card__cover-link:active,
+	.child-game-card__cover-link:hover .child-game-card__cover,
+	.child-game-card__cover-link:focus-visible .child-game-card__cover {
+		transform: none;
 	}
 }

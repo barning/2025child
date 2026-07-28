@@ -55,9 +55,13 @@ function child_get_dynamic_blocks(): array {
  */
 function child_register_dynamic_blocks(): void {
 	$theme_dir = get_stylesheet_directory();
-	$theme_uri = get_stylesheet_directory_uri();
+	$registry  = WP_Block_Type_Registry::get_instance();
 
 	foreach ( child_get_dynamic_blocks() as $slug => $config ) {
+		if ( $registry->is_registered( $config['block_name'] ) ) {
+			continue;
+		}
+
 		$render_callback = require $theme_dir . '/' . $config['render_file'];
 		if ( ! is_callable( $render_callback ) ) {
 			continue;
@@ -69,18 +73,6 @@ function child_register_dynamic_blocks(): void {
 				'render_callback' => $render_callback,
 			]
 		);
-
-		$css_path = $theme_dir . '/build/' . $slug . '/style-index.css';
-		if ( file_exists( $css_path ) ) {
-			wp_enqueue_block_style(
-				$config['block_name'],
-				[
-					'handle' => 'child-' . $slug . '-style',
-					'src'    => $theme_uri . '/build/' . $slug . '/style-index.css',
-					'path'   => $css_path,
-				]
-			);
-		}
 	}
 }
 add_action( 'init', 'child_register_dynamic_blocks' );
@@ -124,29 +116,6 @@ function child_enqueue_dynamic_block_styles_in_editor(): void {
 	}
 }
 add_action( 'enqueue_block_editor_assets', 'child_enqueue_dynamic_block_styles_in_editor', 20 );
-
-/**
- * Global frontend style fallback for dynamic blocks.
- */
-function child_enqueue_dynamic_block_styles_globally(): void {
-	$theme_dir = get_stylesheet_directory();
-	$theme_uri = get_stylesheet_directory_uri();
-
-	foreach ( array_keys( child_get_dynamic_blocks() ) as $slug ) {
-		$css_path = $theme_dir . '/build/' . $slug . '/style-index.css';
-		if ( ! file_exists( $css_path ) ) {
-			continue;
-		}
-
-		wp_enqueue_style(
-			'child-' . $slug . '-style-global',
-			$theme_uri . '/build/' . $slug . '/style-index.css',
-			[],
-			filemtime( $css_path )
-		);
-	}
-}
-add_action( 'wp_enqueue_scripts', 'child_enqueue_dynamic_block_styles_globally', 20 );
 
 /**
  * Localize data to a block's editor script handle (iframe-safe).

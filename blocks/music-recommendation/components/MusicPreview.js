@@ -24,6 +24,8 @@ export const MusicPreview = ( { attributes } ) => {
 						src={ coverUrl }
 						alt={ title }
 						loading="lazy"
+						width="600"
+						height="600"
 					/>
 				) : (
 					<div
@@ -36,7 +38,7 @@ export const MusicPreview = ( { attributes } ) => {
 			</div>
 			<div className="child-music-card__meta">
 				<span className="child-music-card__type">{ typeLabel }</span>
-				<h3 className="child-music-card__title">{ title }</h3>
+				<p className="child-music-card__title">{ title }</p>
 				{ artist ? (
 					<p className="child-music-card__artist">{ artist }</p>
 				) : null }

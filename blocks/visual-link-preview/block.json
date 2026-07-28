@@ -2,10 +2,10 @@
   "apiVersion": 3,
   "name": "child/visual-link-preview",
   "textdomain": "child",
-  "title": "Visual Link Preview",
+  "title": "Linkvorschau",
   "category": "embed",
   "icon": "admin-links",
-  "description": "Display a rich preview for a given URL.",
+  "description": "Zeigt eine angereicherte Vorschau für eine URL an.",
   "attributes": {
     "url": {
       "type": "string",
@@ -16,6 +16,6 @@
     "html": false
   },
   "editorScript": "file:./index.js",
-  "editorStyle": "file:./editor.css",
-  "style": "file:./style.css"
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css"
 }

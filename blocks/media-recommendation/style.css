@@ -97,3 +97,16 @@
 	font-style: italic;
 	color: color-mix(in srgb, var(--wp--preset--color--contrast, #241f1a) 65%, transparent);
 }
+
+@media (prefers-reduced-motion: reduce) {
+
+	.child-media-card__poster-link {
+		transition: none;
+	}
+
+	.child-media-card__poster-link:hover,
+	.child-media-card__poster-link:focus-visible,
+	.child-media-card__poster-link:active {
+		transform: none;
+	}
+}

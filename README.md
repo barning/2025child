@@ -172,6 +172,19 @@ The release workflow runs these gates across PHP 8.1, 8.3, and 8.5, audits produ
 
 Release notes are tracked in `releases/` instead of a running devlog.
 
+## Production Deployment Checklist
+
+The theme covers document structure, responsive rendering, reduced motion, intrinsic image sizing, and conditional block assets. Verify these hosting-level requirements separately before release:
+
+- Serve the site exclusively over HTTPS with a valid certificate and redirect HTTP to HTTPS.
+- Send an appropriate `Content-Type` and UTF-8 charset for HTML, CSS, JavaScript, JSON, feeds, and manifests.
+- Enable Brotli or gzip compression for text assets and long-lived caching for versioned static assets.
+- Keep HTML and personalized responses on a cache policy that cannot expose private content.
+- Return accurate HTTP status codes, including a real `404` response for missing pages and `5xx` responses for server failures.
+- Provide a usable WordPress 404 template and host-level fallback error pages for failures where WordPress cannot render.
+- Confirm canonical URLs, robots directives, sitemap discovery, security headers, and redirects against the production domain.
+- Run the release test suite and a mobile/desktop browser smoke test with JavaScript disabled, keyboard-only navigation, forced zoom, and reduced motion.
+
 ## Compatibility and Maintenance
 
 - Keeps child-theme overrides intentionally minimal.

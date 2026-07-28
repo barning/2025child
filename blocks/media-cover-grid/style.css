@@ -248,6 +248,20 @@
 	}
 }
 
+@media (prefers-reduced-motion: reduce) {
+
+	.child-media-cover-grid__filter,
+	.child-media-cover-grid__cover {
+		transition: none;
+	}
+
+	.child-media-cover-grid__item:is(a):hover .child-media-cover-grid__cover,
+	.child-media-cover-grid__item:is(a):focus-visible .child-media-cover-grid__cover,
+	.child-media-cover-grid__item:is(a):active .child-media-cover-grid__cover {
+		transform: none;
+	}
+}
+
 @media (max-width: 600px) {
 
 	.child-media-cover-grid__controls {

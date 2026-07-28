@@ -4,7 +4,10 @@ export const CardPreview = ( { cardName, cardImageUrl } ) => {
 	if ( ! cardName?.trim() ) {
 		return (
 			<div className="magic-cards-preview--empty">
-				{ __( 'Search for a card by name to display it.', 'child' ) }
+				{ __(
+					'Suche eine Karte nach Namen, um sie anzuzeigen.',
+					'child'
+				) }
 			</div>
 		);
 	}
@@ -18,6 +21,8 @@ export const CardPreview = ( { cardName, cardImageUrl } ) => {
 						src={ cardImageUrl }
 						alt={ cardName }
 						loading="lazy"
+						width="488"
+						height="680"
 					/>
 				) : (
 					<div
@@ -29,7 +34,7 @@ export const CardPreview = ( { cardName, cardImageUrl } ) => {
 				) }
 			</div>
 			<div className="child-magic-card__meta">
-				<h3 className="child-magic-card__name">{ cardName }</h3>
+				<p className="child-magic-card__name">{ cardName }</p>
 			</div>
 		</div>
 	);

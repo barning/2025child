@@ -21,6 +21,8 @@ test('every source block has canonical metadata', () => {
     assert.equal(metadata.name, `child/${block.name}`);
     assert.equal(metadata.textdomain, 'child');
     assert.ok(metadata.editorScript, `${block.name} must declare editorScript`);
+    assert.equal(metadata.editorStyle, 'file:./index.css');
+    assert.equal(metadata.style, 'file:./style-index.css');
   }
 });
 
@@ -33,4 +35,26 @@ test('theme, package, lockfile, and release note versions match', () => {
   assert.equal(themeVersion, packageJson.version);
   assert.equal(packageLock.version, packageJson.version);
   assert.ok(fs.existsSync(path.join(root, 'releases', `v${themeVersion}.md`)));
+});
+
+test('block registration and the WordPress smoke test are idempotent', () => {
+  const registration = fs.readFileSync(path.join(root, 'inc', 'blocks.php'), 'utf8');
+  const workflow = fs.readFileSync(
+    path.join(root, '.github', 'workflows', 'build-release.yml'),
+    'utf8'
+  );
+
+  const guardPosition = registration.indexOf(
+    "$registry->is_registered( $config['block_name'] )"
+  );
+  const requirePosition = registration.indexOf(
+    "require $theme_dir . '/' . $config['render_file']"
+  );
+
+  assert.ok(guardPosition >= 0, 'registration must guard already-registered blocks');
+  assert.ok(
+    guardPosition < requirePosition,
+    'the registration guard must run before loading render files'
+  );
+  assert.doesNotMatch(workflow, /wp eval 'do_action\\?\(["']init["']\)/);
 });

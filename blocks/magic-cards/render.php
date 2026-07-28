@@ -53,7 +53,7 @@ function child_render_moxfield_embed( $attributes, $wrapper_attributes ) {
 				loading="lazy"
 				frameborder="0"
 				allowfullscreen
-				title="<?php echo esc_attr__( 'Moxfield Deck Embed', 'child' ); ?>"
+				title="<?php echo esc_attr__( 'Eingebettetes Moxfield-Deck', 'child' ); ?>"
 			></iframe>
 		</div>
 	</div>
@@ -80,7 +80,7 @@ function child_render_magic_card( $attributes, $wrapper_attributes ) {
 	echo $wrapper_attributes;
 	?>
 	>
-		<div class="child-magic-card" aria-label="<?php echo esc_attr__( 'Magic: The Gathering Card', 'child' ); ?>">
+		<div class="child-magic-card" aria-label="<?php echo esc_attr__( 'Magic:-The-Gathering-Karte', 'child' ); ?>">
 			<div class="child-magic-card__media">
 				<?php if ( ! empty( $card_image_url ) ) : ?>
 					<img
@@ -88,6 +88,8 @@ function child_render_magic_card( $attributes, $wrapper_attributes ) {
 						alt="<?php echo esc_attr( $card_name ); ?>"
 						class="child-magic-card__image"
 						loading="lazy"
+						width="488"
+						height="680"
 					/>
 				<?php else : ?>
 					<div class="child-magic-card__placeholder" aria-hidden="true">
@@ -96,7 +98,7 @@ function child_render_magic_card( $attributes, $wrapper_attributes ) {
 				<?php endif; ?>
 			</div>
 			<div class="child-magic-card__meta">
-				<h3 class="child-magic-card__name"><?php echo esc_html( $card_name ); ?></h3>
+				<p class="child-magic-card__name"><?php echo esc_html( $card_name ); ?></p>
 			</div>
 		</div>
 	</div>

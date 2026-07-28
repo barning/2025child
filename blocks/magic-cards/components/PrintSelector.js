@@ -9,24 +9,24 @@ export const PrintSelector = ( { prints, selectedPrint, onSelect } ) => {
 	if ( prints.length === 1 ) {
 		return (
 			<p className="magic-cards-prints-info">
-				{ __( 'Only one printing available', 'child' ) }
+				{ __( 'Nur ein Druck verfügbar', 'child' ) }
 			</p>
 		);
 	}
 
 	const options = prints.map( ( print ) => ( {
 		label: `${ print.set_name } (${ print.set.toUpperCase() }) - ${
-			print.released_at || 'Unknown'
+			print.released_at || __( 'Unbekannt', 'child' )
 		}`,
 		value: print.id,
 	} ) );
 
 	return (
 		<SelectControl
-			label={ __( 'Select Print', 'child' ) }
+			label={ __( 'Druck auswählen', 'child' ) }
 			value={ selectedPrint?.id || '' }
 			options={ [
-				{ label: __( 'Select a print…', 'child' ), value: '' },
+				{ label: __( 'Druck auswählen…', 'child' ), value: '' },
 				...options,
 			] }
 			onChange={ ( value ) => {
@@ -36,7 +36,7 @@ export const PrintSelector = ( { prints, selectedPrint, onSelect } ) => {
 				}
 			} }
 			help={ __(
-				'Choose an alternative printing of this card',
+				'Wähle einen alternativen Druck dieser Karte.',
 				'child'
 			) }
 		/>

@@ -200,7 +200,7 @@ function child_post_likes_set_state( int $post_id, bool $desired_state ) {
 			if ( ! $liked ) {
 				return new WP_Error(
 					'likes_database_error',
-					__( 'The like could not be saved.', 'child' ),
+					__( 'Das Like konnte nicht gespeichert werden.', 'child' ),
 					[ 'status' => 500 ]
 				);
 			}
@@ -219,7 +219,7 @@ function child_post_likes_set_state( int $post_id, bool $desired_state ) {
 		if ( false === $deleted ) {
 			return new WP_Error(
 				'likes_database_error',
-				__( 'The like could not be removed.', 'child' ),
+				__( 'Das Like konnte nicht entfernt werden.', 'child' ),
 				[ 'status' => 500 ]
 			);
 		}
@@ -231,7 +231,7 @@ function child_post_likes_set_state( int $post_id, bool $desired_state ) {
 	if ( '' !== $wpdb->last_error ) {
 		return new WP_Error(
 			'likes_database_error',
-			__( 'The like count could not be loaded.', 'child' ),
+			__( 'Die Anzahl der Likes konnte nicht geladen werden.', 'child' ),
 			[ 'status' => 500 ]
 		);
 	}
@@ -253,7 +253,7 @@ function child_post_likes_check_rate_limit() {
 	if ( $attempts >= 20 ) {
 		return new WP_Error(
 			'likes_rate_limited',
-			__( 'Too many like requests. Please try again shortly.', 'child' ),
+			__( 'Zu viele Like-Anfragen. Bitte versuche es gleich noch einmal.', 'child' ),
 			[ 'status' => 429 ]
 		);
 	}

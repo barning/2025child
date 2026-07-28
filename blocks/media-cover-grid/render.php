@@ -167,7 +167,7 @@ return function ( array $attributes ): string {
 									<span class="child-media-cover-grid__type"><?php echo esc_html( $type_label ); ?></span>
 								<?php endif; ?>
 								<?php if ( $show_title ) : ?>
-									<h3 class="child-media-cover-grid__title"><?php echo esc_html( $title ); ?></h3>
+									<p class="child-media-cover-grid__title"><?php echo esc_html( $title ); ?></p>
 								<?php endif; ?>
 								<?php if ( $show_meta && $meta ) : ?>
 									<p class="child-media-cover-grid__meta"><?php echo esc_html( $meta ); ?></p>

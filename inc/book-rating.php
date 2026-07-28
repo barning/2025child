@@ -42,7 +42,7 @@ function child_render_book_rating_settings_page(): void {
 			<?php
 			settings_fields( 'child_book_rating' );
 			do_settings_sections( 'child-book-rating' );
-			submit_button( __( 'Save Settings', 'child' ) );
+			submit_button( __( 'Einstellungen speichern', 'child' ) );
 			?>
 		</form>
 	</div>
@@ -54,8 +54,8 @@ function child_render_book_rating_settings_page(): void {
  */
 function child_register_book_rating_settings_page(): void {
 	add_options_page(
-		__( 'Book Rating Settings', 'child' ),
-		__( 'Book Rating', 'child' ),
+		__( 'Buchanzeige-Einstellungen', 'child' ),
+		__( 'Buchanzeige', 'child' ),
 		'manage_options',
 		'child-book-rating',
 		'child_render_book_rating_settings_page'
@@ -79,14 +79,14 @@ function child_register_book_rating_settings(): void {
 
 	add_settings_section(
 		'child_book_rating_section',
-		__( 'Google Books API Configuration', 'child' ),
+		__( 'Google-Books-API-Konfiguration', 'child' ),
 		'child_render_book_rating_section_description',
 		'child-book-rating'
 	);
 
 	add_settings_field(
 		'child_google_books_api_key',
-		__( 'Google Books API Key', 'child' ),
+		__( 'Google-Books-API-Schlüssel', 'child' ),
 		'child_render_book_rating_api_field',
 		'child-book-rating',
 		'child_book_rating_section'
@@ -101,7 +101,7 @@ function child_render_book_rating_section_description(): void {
 	echo '<p>' . wp_kses_post(
 		sprintf(
 			/* translators: %s: URL to Google Books API settings */
-			__( 'To avoid API rate limits, you can provide a Google Books API key. Get a free API key at %s. This is optional but recommended.', 'child' ),
+			__( 'Um API-Limits zu vermeiden, kannst du einen Google-Books-API-Schlüssel hinterlegen. Einen kostenlosen Schlüssel erhältst du unter %s. Das ist optional, aber empfohlen.', 'child' ),
 			'<a href="https://developers.google.com/books/docs/v1/using" target="_blank" rel="noopener noreferrer">developers.google.com/books/docs/v1/using</a>'
 		)
 	) . '</p>';
@@ -119,13 +119,13 @@ function child_render_book_rating_api_field(): void {
 		value=""
 		class="regular-text"
 		autocomplete="new-password"
-		placeholder="<?php echo esc_attr( $has_saved_key ? __( 'Saved — enter a new key to replace it', 'child' ) : __( 'Enter an API key', 'child' ) ); ?>"
+		placeholder="<?php echo esc_attr( $has_saved_key ? __( 'Gespeichert — neuen Schlüssel zum Ersetzen eingeben', 'child' ) : __( 'API-Schlüssel eingeben', 'child' ) ); ?>"
 	/>
 	<p class="description">
-		<?php esc_html_e( 'Stored in the WordPress options table and used only for server-side book searches. Leave blank to keep the saved key.', 'child' ); ?>
+		<?php esc_html_e( 'Wird in der WordPress-Optionstabelle gespeichert und nur für serverseitige Buchsuchen verwendet. Leer lassen, um den gespeicherten Schlüssel zu behalten.', 'child' ); ?>
 	</p>
 	<?php if ( $has_saved_key ) : ?>
-		<label><input type="checkbox" name="child_google_books_api_key_clear" value="1" /> <?php esc_html_e( 'Remove the saved key', 'child' ); ?></label>
+		<label><input type="checkbox" name="child_google_books_api_key_clear" value="1" /> <?php esc_html_e( 'Gespeicherten Schlüssel entfernen', 'child' ); ?></label>
 	<?php endif; ?>
 	<?php
 }

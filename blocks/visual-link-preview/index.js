@@ -12,7 +12,9 @@ function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Link Preview Settings', 'child' ) }>
+				<PanelBody
+					title={ __( 'Linkvorschau-Einstellungen', 'child' ) }
+				>
 					<TextControl
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
@@ -21,7 +23,7 @@ function Edit( { attributes, setAttributes } ) {
 						onChange={ ( value ) =>
 							setAttributes( { url: value } )
 						}
-						placeholder={ __( 'Paste a URL…', 'child' ) }
+						placeholder={ __( 'URL einfügen…', 'child' ) }
 					/>
 				</PanelBody>
 			</InspectorControls>
@@ -33,7 +35,7 @@ function Edit( { attributes, setAttributes } ) {
 					/>
 				) : (
 					<strong>
-						{ __( 'Enter a URL to preview.', 'child' ) }
+						{ __( 'Gib eine URL für die Vorschau ein.', 'child' ) }
 					</strong>
 				) }
 			</div>

@@ -44,6 +44,8 @@ const BookPreview = ( { bookTitle, author, coverUrl, shopUrl } ) => {
 			src={ coverUrl }
 			alt={ bookTitle }
 			loading="lazy"
+			width="600"
+			height="900"
 		/>
 	) : null;
 	const cover = coverLink ? (
@@ -76,7 +78,7 @@ const BookPreview = ( { bookTitle, author, coverUrl, shopUrl } ) => {
 				) }
 			</div>
 			<div className="child-book-card__meta">
-				<h3 className="child-book-card__title">{ bookTitle }</h3>
+				<p className="child-book-card__title">{ bookTitle }</p>
 				{ author?.trim() ? (
 					<p className="child-book-card__author">
 						{ sprintf(

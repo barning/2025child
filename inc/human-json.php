@@ -65,14 +65,14 @@ function child_register_human_json_admin_settings(): void {
 		'child_human_json_section',
 		__( 'human.json', 'child' ),
 		static function (): void {
-			echo '<p>' . esc_html__( 'Add one URL per line for people/sites you vouch for.', 'child' ) . '</p>';
+			echo '<p>' . esc_html__( 'Füge pro Zeile eine URL für Personen oder Websites hinzu, für die du bürgst.', 'child' ) . '</p>';
 		},
 		'child-human-json'
 	);
 
 	add_settings_field(
 		'child_human_json_vouches_field',
-		__( 'Vouched sites', 'child' ),
+		__( 'Empfohlene Websites', 'child' ),
 		'child_render_human_json_vouches_field',
 		'child-human-json',
 		'child_human_json_section'
@@ -87,7 +87,7 @@ function child_render_human_json_vouches_field(): void {
 	$value = (string) get_option( CHILD_HUMAN_JSON_VOUCHES_OPTION, '' );
 
 	echo '<textarea name="' . esc_attr( CHILD_HUMAN_JSON_VOUCHES_OPTION ) . '" id="' . esc_attr( CHILD_HUMAN_JSON_VOUCHES_OPTION ) . '" rows="10" cols="60" class="large-text code">' . esc_textarea( $value ) . '</textarea>';
-	echo '<p class="description">' . esc_html__( 'Use full URLs. Example: https://example.com/', 'child' ) . '</p>';
+	echo '<p class="description">' . esc_html__( 'Verwende vollständige URLs. Beispiel: https://example.com/', 'child' ) . '</p>';
 }
 
 /**
@@ -113,7 +113,7 @@ function child_render_human_json_options_page(): void {
 	}
 	?>
 	<div class="wrap">
-		<h1><?php esc_html_e( 'human.json Settings', 'child' ); ?></h1>
+		<h1><?php esc_html_e( 'human.json-Einstellungen', 'child' ); ?></h1>
 		<form action="options.php" method="post">
 			<?php
 			settings_fields( 'child_human_json' );

@@ -19,7 +19,7 @@ function child_register_fediverse_customizer_settings( WP_Customize_Manager $wp_
 	$wp_customize->add_section(
 		'fediverse_section',
 		[
-			'title'    => __( 'Fediverse Author', 'child' ),
+			'title'    => __( 'Fediverse-Autor:in', 'child' ),
 			'priority' => 30,
 		]
 	);
@@ -35,7 +35,7 @@ function child_register_fediverse_customizer_settings( WP_Customize_Manager $wp_
 	$wp_customize->add_control(
 		'fediverse_creator_handle',
 		[
-			'label'   => __( 'Fediverse Creator Handle (e.g. @yourname@mastodon.social)', 'child' ),
+			'label'   => __( 'Fediverse-Handle (z. B. @deinname@mastodon.social)', 'child' ),
 			'section' => 'fediverse_section',
 			'type'    => 'text',
 		]

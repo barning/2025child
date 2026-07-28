@@ -35,6 +35,8 @@ return function ( $attributes ) {
 								alt="<?php echo esc_attr( $book_title ); ?>"
 								class="child-book-card__cover"
 								loading="lazy"
+								width="600"
+								height="900"
 							/>
 						</a>
 					<?php else : ?>
@@ -43,6 +45,8 @@ return function ( $attributes ) {
 							alt="<?php echo esc_attr( $book_title ); ?>"
 							class="child-book-card__cover"
 							loading="lazy"
+							width="600"
+							height="900"
 						/>
 					<?php endif; ?>
 				<?php else : ?>
@@ -51,7 +55,7 @@ return function ( $attributes ) {
 			</div>
 
 			<div class="child-book-card__meta">
-				<h3 class="child-book-card__title"><?php echo esc_html( $book_title ); ?></h3>
+				<p class="child-book-card__title"><?php echo esc_html( $book_title ); ?></p>
 				<?php if ( ! empty( $author ) ) : ?>
 					<p class="child-book-card__author">
 						<?php

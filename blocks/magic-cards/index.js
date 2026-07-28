@@ -50,19 +50,22 @@ function Edit( { attributes, setAttributes } ) {
 		<div { ...blockProps }>
 			<InspectorControls>
 				<PanelBody
-					title={ __( 'Display Type', 'child' ) }
+					title={ __( 'Anzeigetyp', 'child' ) }
 					initialOpen={ true }
 				>
 					<RadioControl
-						label={ __( 'What do you want to display?', 'child' ) }
+						label={ __( 'Was möchtest du anzeigen?', 'child' ) }
 						selected={ displayType }
 						options={ [
 							{
-								label: __( 'Single Card', 'child' ),
+								label: __( 'Einzelne Karte', 'child' ),
 								value: 'single',
 							},
 							{
-								label: __( 'Moxfield Deck Embed', 'child' ),
+								label: __(
+									'Eingebettetes Moxfield-Deck',
+									'child'
+								),
 								value: 'moxfield',
 							},
 						] }
@@ -74,20 +77,20 @@ function Edit( { attributes, setAttributes } ) {
 
 				{ displayType === 'moxfield' && (
 					<PanelBody
-						title={ __( 'Moxfield Settings', 'child' ) }
+						title={ __( 'Moxfield-Einstellungen', 'child' ) }
 						initialOpen={ true }
 					>
 						<TextControl
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
-							label={ __( 'Moxfield Deck URL', 'child' ) }
+							label={ __( 'Moxfield-Deck-URL', 'child' ) }
 							value={ moxfieldUrl }
 							onChange={ ( value ) =>
 								setAttributes( { moxfieldUrl: value } )
 							}
 							placeholder="https://moxfield.com/decks/..."
 							help={ __(
-								'Enter the full URL of the Moxfield deck',
+								'Gib die vollständige URL des Moxfield-Decks ein.',
 								'child'
 							) }
 						/>
@@ -97,17 +100,17 @@ function Edit( { attributes, setAttributes } ) {
 				{ displayType === 'single' && (
 					<>
 						<PanelBody
-							title={ __( 'Search for Card', 'child' ) }
+							title={ __( 'Karte suchen', 'child' ) }
 							initialOpen={ true }
 						>
 							<TextControl
 								__next40pxDefaultSize
 								__nextHasNoMarginBottom
-								label={ __( 'Card Name', 'child' ) }
+								label={ __( 'Kartenname', 'child' ) }
 								value={ searchTerm }
 								onChange={ setSearchTerm }
 								placeholder={ __(
-									'Enter card name…',
+									'Kartenname eingeben…',
 									'child'
 								) }
 								onKeyDown={ ( event ) => {
@@ -127,8 +130,8 @@ function Edit( { attributes, setAttributes } ) {
 								className="magic-cards-search-button"
 							>
 								{ isSearching
-									? __( 'Searching…', 'child' )
-									: __( 'Search', 'child' ) }
+									? __( 'Suche…', 'child' )
+									: __( 'Suchen', 'child' ) }
 							</Button>
 							<SearchFeedback
 								isSearching={ isSearching }
@@ -139,8 +142,8 @@ function Edit( { attributes, setAttributes } ) {
 										? sprintf(
 												/* translators: %d: number of search results */
 												_n(
-													'%d result found.',
-													'%d results found.',
+													'%d Ergebnis gefunden.',
+													'%d Ergebnisse gefunden.',
 													searchResults.length,
 													'child'
 												),
@@ -153,7 +156,10 @@ function Edit( { attributes, setAttributes } ) {
 								<div className="magic-cards-results">
 									<p>
 										<strong>
-											{ __( 'Select a card:', 'child' ) }
+											{ __(
+												'Karte auswählen:',
+												'child'
+											) }
 										</strong>
 									</p>
 									<SearchResultsList
@@ -184,13 +190,13 @@ function Edit( { attributes, setAttributes } ) {
 
 						{ cardName && (
 							<PanelBody
-								title={ __( 'Card Details', 'child' ) }
+								title={ __( 'Kartendetails', 'child' ) }
 								initialOpen={ true }
 							>
 								<TextControl
 									__next40pxDefaultSize
 									__nextHasNoMarginBottom
-									label={ __( 'Card Name', 'child' ) }
+									label={ __( 'Kartenname', 'child' ) }
 									value={ cardName }
 									onChange={ ( value ) =>
 										setAttributes( { cardName: value } )
@@ -200,13 +206,13 @@ function Edit( { attributes, setAttributes } ) {
 								<TextControl
 									__next40pxDefaultSize
 									__nextHasNoMarginBottom
-									label={ __( 'Image URL', 'child' ) }
+									label={ __( 'Bild-URL', 'child' ) }
 									value={ cardImageUrl }
 									onChange={ ( value ) =>
 										setAttributes( { cardImageUrl: value } )
 									}
 									help={ __(
-										'Custom image URL (optional)',
+										'Eigene Bild-URL (optional)',
 										'child'
 									) }
 								/>
@@ -215,7 +221,7 @@ function Edit( { attributes, setAttributes } ) {
 										<Spinner />
 										<span>
 											{ __(
-												'Loading alternative prints…',
+												'Alternative Drucke werden geladen…',
 												'child'
 											) }
 										</span>

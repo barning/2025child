@@ -80,3 +80,14 @@
 	margin-top: 6px;
 	text-wrap: pretty;
 }
+
+@media (prefers-reduced-motion: reduce) {
+
+	.wp-block-child-visual-link-preview .child-url-card {
+		transition: none;
+	}
+
+	.wp-block-child-visual-link-preview .child-url-card:active {
+		transform: none;
+	}
+}

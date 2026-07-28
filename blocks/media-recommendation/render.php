@@ -38,6 +38,8 @@ return function ( $attributes ) {
 								alt="<?php echo esc_attr( $media_title ); ?>"
 								class="child-media-card__poster"
 								loading="lazy"
+								width="600"
+								height="900"
 							/>
 						</a>
 					<?php else : ?>
@@ -46,6 +48,8 @@ return function ( $attributes ) {
 							alt="<?php echo esc_attr( $media_title ); ?>"
 							class="child-media-card__poster"
 							loading="lazy"
+							width="600"
+							height="900"
 						/>
 					<?php endif; ?>
 				<?php else : ?>
@@ -54,7 +58,7 @@ return function ( $attributes ) {
 			</div>
 
 			<div class="child-media-card__meta">
-				<h3 class="child-media-card__title"><?php echo esc_html( $media_title ); ?></h3>
+				<p class="child-media-card__title"><?php echo esc_html( $media_title ); ?></p>
 				<?php if ( ! empty( $release_year ) ) : ?>
 					<p class="child-media-card__year">
 						<?php echo esc_html( $release_year ); ?>

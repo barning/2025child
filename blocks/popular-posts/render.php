@@ -9,7 +9,7 @@ declare( strict_types=1 );
 
 namespace Child\Blocks\PopularPosts;
 
-const DEFAULT_TITLE = 'Some Favorites To Get You Started';
+const DEFAULT_TITLE = 'Ein paar Empfehlungen zum Einstieg';
 const DEFAULT_EMOJI = '✨';
 
 /**
@@ -23,7 +23,7 @@ function render_header( string $emoji, string $title ): string {
 	return sprintf(
 		'<div class="child-popular-card__header">
 			<div class="child-popular-card__emoji" aria-hidden="true">%s</div>
-			<h3 class="child-popular-card__title">%s</h3>
+			<p class="child-popular-card__title">%s</p>
 		</div>',
 		esc_html( $emoji ),
 		esc_html( $title )
@@ -38,7 +38,7 @@ function render_header( string $emoji, string $title ): string {
  */
 function render_posts_list( \WP_Query $query ): string {
 	if ( ! $query->have_posts() ) {
-		return sprintf( '<p>%s</p>', esc_html__( 'No popular posts yet.', 'child' ) );
+		return sprintf( '<p>%s</p>', esc_html__( 'Noch keine beliebten Beiträge vorhanden.', 'child' ) );
 	}
 
 	$items = array_map(
@@ -65,13 +65,13 @@ function render_posts_list( \WP_Query $query ): string {
  */
 return function ( array $attributes ): string {
 	$selected_posts = array_map( 'absint', $attributes['selectedPosts'] ?? array() );
-	$title          = wp_strip_all_tags( $attributes['title'] ?? __( 'Some Favorites To Get You Started', 'child' ) );
+	$title          = wp_strip_all_tags( $attributes['title'] ?? __( 'Ein paar Empfehlungen zum Einstieg', 'child' ) );
 	$emoji          = wp_strip_all_tags( $attributes['emoji'] ?? DEFAULT_EMOJI );
 
 	if ( empty( $selected_posts ) ) {
 		return sprintf(
 			'<div class="wp-block-child-popular-posts"><div class="child-popular-card"><p>%s</p></div></div>',
-			esc_html__( 'Please select some posts.', 'child' )
+			esc_html__( 'Bitte wähle einige Beiträge aus.', 'child' )
 		);
 	}
 
