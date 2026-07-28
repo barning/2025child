@@ -5,7 +5,7 @@ export const MoxfieldPreview = ( { url } ) => {
 		return (
 			<div className="magic-cards-preview--empty">
 				{ __(
-					'Enter a Moxfield deck URL to display the embed.',
+					'Gib eine Moxfield-Deck-URL ein, um das Deck einzubetten.',
 					'child'
 				) }
 			</div>
@@ -19,7 +19,7 @@ export const MoxfieldPreview = ( { url } ) => {
 		return (
 			<div className="magic-cards-preview--error">
 				{ __(
-					'Invalid Moxfield URL. Please use a valid deck URL like: https://moxfield.com/decks/…',
+					'Ungültige Moxfield-URL. Verwende eine gültige Deck-URL wie https://moxfield.com/decks/…',
 					'child'
 				) }
 			</div>
@@ -30,12 +30,14 @@ export const MoxfieldPreview = ( { url } ) => {
 		<div className="child-magic-moxfield">
 			<div className="child-magic-moxfield__preview">
 				<p>
-					<strong>{ __( 'Moxfield Deck Embed', 'child' ) }</strong>
+					<strong>
+						{ __( 'Eingebettetes Moxfield-Deck', 'child' ) }
+					</strong>
 				</p>
 				<p>
 					<small>
 						{ __(
-							'The deck will be displayed on the frontend.',
+							'Das Deck wird auf der Website angezeigt.',
 							'child'
 						) }
 					</small>

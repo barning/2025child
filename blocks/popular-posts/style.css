@@ -85,6 +85,10 @@
 @media (prefers-reduced-motion: reduce) {
 
 	.child-popular-card__link {
-		transition-duration: 0.01ms;
+		transition: none;
+	}
+
+	.child-popular-card__link:active {
+		transform: none;
 	}
 }

@@ -98,6 +98,11 @@
 @media (prefers-reduced-motion: reduce) {
 
 	.child-pixelfed-feed-item {
-		transition-duration: 0.01ms;
+		transition: none;
+	}
+
+	.child-pixelfed-feed-item:hover,
+	.child-pixelfed-feed-item:active {
+		transform: none;
 	}
 }

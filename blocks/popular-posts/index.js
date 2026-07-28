@@ -17,7 +17,7 @@ import './style.css';
 
 // Constants
 const DEFAULTS = {
-	TITLE: __( 'Some Favorites To Get You Started', 'child' ),
+	TITLE: __( 'Ein paar Favoriten zum Einstieg', 'child' ),
 	EMOJI: '✨',
 	EMPTY_POST_ID: 0,
 };
@@ -117,11 +117,13 @@ const SettingsPanel = ( {
 	setAttributes,
 } ) => (
 	<InspectorControls>
-		<PanelBody title={ __( 'Popular Posts Settings', 'child' ) }>
+		<PanelBody
+			title={ __( 'Einstellungen für beliebte Beiträge', 'child' ) }
+		>
 			<TextControl
 				__next40pxDefaultSize
 				__nextHasNoMarginBottom
-				label={ __( 'Title', 'child' ) }
+				label={ __( 'Titel', 'child' ) }
 				value={ title }
 				onChange={ ( value ) => setAttributes( { title: value } ) }
 			/>
@@ -169,7 +171,7 @@ const PostSelector = ( {
 				<ComboboxControl
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom
-					label={ __( 'Select or Search Post', 'child' ) }
+					label={ __( 'Beitrag auswählen oder suchen', 'child' ) }
 					value={ selectedId.toString() }
 					options={ allPosts.map( ( post ) => ( {
 						label: decodeEntities( post.title.rendered ),
@@ -177,7 +179,7 @@ const PostSelector = ( {
 					} ) ) }
 					onChange={ ( value ) => onUpdatePost( value, index ) }
 					allowReset={ false }
-					placeholder={ __( 'Search for a post…', 'child' ) }
+					placeholder={ __( 'Beitrag suchen…', 'child' ) }
 					__experimentalShowSelectedSuggestion={ true }
 				/>
 				{ index > 0 && (
@@ -187,7 +189,7 @@ const PostSelector = ( {
 						isSmall
 						isDestructive
 						icon="trash"
-						label={ __( 'Remove this post', 'child' ) }
+						label={ __( 'Diesen Beitrag entfernen', 'child' ) }
 						tooltipPosition="top"
 					/>
 				) }
@@ -200,7 +202,7 @@ const PostSelector = ( {
 			style={ styles.addButton }
 			isSmall
 		>
-			+ { __( 'Add another post', 'child' ) }
+			+ { __( 'Weiteren Beitrag hinzufügen', 'child' ) }
 		</Button>
 	</div>
 );
@@ -227,7 +229,7 @@ const Preview = ( { title, emoji, posts } ) => {
 					>
 						{ emoji }
 					</div>
-					<h3 className="child-popular-card__title">{ title }</h3>
+					<p className="child-popular-card__title">{ title }</p>
 				</div>
 				<ul className="child-popular-card__list">
 					{ posts?.length ? (
@@ -244,7 +246,7 @@ const Preview = ( { title, emoji, posts } ) => {
 					) : (
 						<li className="child-popular-card__item">
 							<span className="child-popular-card__link child-popular-card__link--placeholder">
-								{ __( 'Please select some posts', 'child' ) }
+								{ __( 'Bitte wähle Beiträge aus.', 'child' ) }
 							</span>
 						</li>
 					) }

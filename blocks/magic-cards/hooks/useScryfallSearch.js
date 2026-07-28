@@ -17,7 +17,7 @@ export const useScryfallSearch = ( {
 		const trimmedTerm = cardSearch.searchTerm.trim();
 		if ( ! trimmedTerm ) {
 			cardSearch.failSearch(
-				__( 'Please enter a card name to search.', 'child' )
+				__( 'Gib einen Kartennamen für die Suche ein.', 'child' )
 			);
 			return;
 		}
@@ -29,7 +29,7 @@ export const useScryfallSearch = ( {
 			const results = await searchScryfallCards( trimmedTerm, signal );
 			cardSearch.completeSearch(
 				results,
-				__( 'No cards found matching your search.', 'child' ),
+				__( 'Keine passenden Karten gefunden.', 'child' ),
 				requestId
 			);
 		} catch ( error ) {
@@ -37,7 +37,7 @@ export const useScryfallSearch = ( {
 				cardSearch.failSearch(
 					error.message ||
 						__(
-							'An unexpected error occurred. Please try again.',
+							'Ein unerwarteter Fehler ist aufgetreten. Versuche es erneut.',
 							'child'
 						),
 					requestId

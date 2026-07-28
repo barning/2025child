@@ -29,13 +29,15 @@ export const useMediaSearch = () => {
 			);
 
 			if ( ! response.ok ) {
-				throw new Error( 'Request failed' );
+				throw new Error( 'Die Anfrage ist fehlgeschlagen.' );
 			}
 
 			const data = await response.json();
 
 			if ( ! data.success ) {
-				throw new Error( data.data || 'Request failed' );
+				throw new Error(
+					data.data || 'Die Anfrage ist fehlgeschlagen.'
+				);
 			}
 
 			search.completeSearch(

@@ -99,6 +99,21 @@ for ( const slug of blockSlugs ) {
 				errors.push( `Missing build/${ slug }/${ filename }` );
 			}
 		}
+
+		for ( const metadataKey of [ 'editorStyle', 'style' ] ) {
+			const assetReference = sourceMetadata?.[ metadataKey ];
+			if (
+				typeof assetReference === 'string' &&
+				assetReference.startsWith( 'file:./' )
+			) {
+				const assetName = assetReference.slice( 'file:./'.length );
+				if ( ! fs.existsSync( path.join( buildRoot, assetName ) ) ) {
+					errors.push(
+						`Missing build/${ slug }/${ assetName } referenced by ${ metadataKey }`
+					);
+				}
+			}
+		}
 	}
 }
 

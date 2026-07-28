@@ -6,20 +6,20 @@ const CHILD_NOTE_POST_TYPE = 'note';
 
 function child_register_note_post_type() {
 	$labels = [
-		'name'               => __( 'Notes', 'child' ),
-		'singular_name'      => __( 'Note', 'child' ),
-		'add_new'            => __( 'Add Note', 'child' ),
-		'add_new_item'       => __( 'Add New Note', 'child' ),
-		'edit_item'          => __( 'Edit Note', 'child' ),
-		'new_item'           => __( 'New Note', 'child' ),
-		'view_item'          => __( 'View Note', 'child' ),
-		'view_items'         => __( 'View Notes', 'child' ),
-		'search_items'       => __( 'Search Notes', 'child' ),
-		'not_found'          => __( 'No notes found.', 'child' ),
-		'not_found_in_trash' => __( 'No notes found in trash.', 'child' ),
-		'all_items'          => __( 'All Notes', 'child' ),
-		'archives'           => __( 'Note Archives', 'child' ),
-		'menu_name'          => __( 'Notes', 'child' ),
+		'name'               => __( 'Notizen', 'child' ),
+		'singular_name'      => __( 'Notiz', 'child' ),
+		'add_new'            => __( 'Notiz hinzufügen', 'child' ),
+		'add_new_item'       => __( 'Neue Notiz hinzufügen', 'child' ),
+		'edit_item'          => __( 'Notiz bearbeiten', 'child' ),
+		'new_item'           => __( 'Neue Notiz', 'child' ),
+		'view_item'          => __( 'Notiz ansehen', 'child' ),
+		'view_items'         => __( 'Notizen ansehen', 'child' ),
+		'search_items'       => __( 'Notizen durchsuchen', 'child' ),
+		'not_found'          => __( 'Keine Notizen gefunden.', 'child' ),
+		'not_found_in_trash' => __( 'Keine Notizen im Papierkorb gefunden.', 'child' ),
+		'all_items'          => __( 'Alle Notizen', 'child' ),
+		'archives'           => __( 'Notizarchiv', 'child' ),
+		'menu_name'          => __( 'Notizen', 'child' ),
 	];
 
 	register_post_type(

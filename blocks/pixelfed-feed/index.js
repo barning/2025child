@@ -13,7 +13,9 @@ function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Pixelfed Feed Settings', 'child' ) }>
+				<PanelBody
+					title={ __( 'Pixelfed-Feed-Einstellungen', 'child' ) }
+				>
 					<TextControl
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
@@ -27,12 +29,12 @@ function Edit( { attributes, setAttributes } ) {
 							'child'
 						) }
 						help={ __(
-							'Paste the RSS/Atom feed URL of a Pixelfed profile.',
+							'Füge die RSS-/Atom-Feed-URL eines Pixelfed-Profils ein.',
 							'child'
 						) }
 					/>
 					<RangeControl
-						label={ __( 'Number of images', 'child' ) }
+						label={ __( 'Anzahl der Bilder', 'child' ) }
 						value={ itemsToShow }
 						onChange={ ( value ) =>
 							setAttributes( { itemsToShow: value || 9 } )
@@ -52,7 +54,7 @@ function Edit( { attributes, setAttributes } ) {
 				) : (
 					<p>
 						{ __(
-							'Add a Pixelfed RSS feed URL in the block settings.',
+							'Füge in den Block-Einstellungen eine Pixelfed-RSS-Feed-URL hinzu.',
 							'child'
 						) }
 					</p>

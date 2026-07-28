@@ -1,10 +1,10 @@
 {
   "apiVersion": 3,
   "name": "child/magic-cards",
-  "title": "Magic Cards",
+  "title": "Magic-Karten",
   "category": "widgets",
   "icon": "images-alt2",
-  "description": "Display Magic: The Gathering cards or Moxfield deck embeds",
+  "description": "Zeigt Magic:-The-Gathering-Karten oder eingebettete Moxfield-Decks an.",
   "supports": {
     "html": false
   },
@@ -37,6 +37,6 @@
   },
   "textdomain": "child",
   "editorScript": "file:./index.js",
-  "editorStyle": "file:./editor.css",
-  "style": "file:./style.css"
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css"
 }

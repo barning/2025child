@@ -98,13 +98,13 @@ return function ( array $attributes ): string {
 			type="button"
 			class="child-post-likes__button<?php echo $liked ? ' is-liked' : ''; ?>"
 			data-post-id="<?php echo esc_attr( (string) $post_id ); ?>"
-				aria-label="<?php esc_attr_e( 'Toggle like', 'child' ); ?>"
+				aria-label="<?php esc_attr_e( 'Like umschalten', 'child' ); ?>"
 				aria-pressed="<?php echo $liked ? 'true' : 'false'; ?>"
 				aria-describedby="<?php echo esc_attr( $status_id ); ?>"
-				data-liked-message="<?php esc_attr_e( 'Like saved.', 'child' ); ?>"
-				data-unliked-message="<?php esc_attr_e( 'Like removed.', 'child' ); ?>"
-				data-error-message="<?php esc_attr_e( 'The like could not be saved. Please try again.', 'child' ); ?>"
-				data-count-label="<?php esc_attr_e( 'Total likes:', 'child' ); ?>"
+				data-liked-message="<?php esc_attr_e( 'Like gespeichert.', 'child' ); ?>"
+				data-unliked-message="<?php esc_attr_e( 'Like entfernt.', 'child' ); ?>"
+				data-error-message="<?php esc_attr_e( 'Das Like konnte nicht gespeichert werden. Bitte versuche es erneut.', 'child' ); ?>"
+				data-count-label="<?php esc_attr_e( 'Likes insgesamt:', 'child' ); ?>"
 		>
 			<span class="child-post-likes__pill">
 				<?php if ( $cta_text !== '' ) : ?>

@@ -21,6 +21,8 @@ test('every source block has canonical metadata', () => {
     assert.equal(metadata.name, `child/${block.name}`);
     assert.equal(metadata.textdomain, 'child');
     assert.ok(metadata.editorScript, `${block.name} must declare editorScript`);
+    assert.equal(metadata.editorStyle, 'file:./index.css');
+    assert.equal(metadata.style, 'file:./style-index.css');
   }
 });
 

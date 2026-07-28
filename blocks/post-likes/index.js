@@ -97,25 +97,25 @@ function Edit( { attributes, setAttributes } ) {
 					initialOpen={ true }
 				>
 					<SelectControl
-						label={ __( 'Button Size', 'child' ) }
+						label={ __( 'Schaltflächengröße', 'child' ) }
 						value={ buttonSize }
 						options={ [
-							{ label: __( 'Small', 'child' ), value: 'sm' },
-							{ label: __( 'Medium', 'child' ), value: 'md' },
-							{ label: __( 'Large', 'child' ), value: 'lg' },
+							{ label: __( 'Klein', 'child' ), value: 'sm' },
+							{ label: __( 'Mittel', 'child' ), value: 'md' },
+							{ label: __( 'Groß', 'child' ), value: 'lg' },
 						] }
 						onChange={ ( value ) =>
 							setAttributes( { buttonSize: value } )
 						}
 					/>
 					<TextControl
-						label={ __( 'CTA Message', 'child' ) }
+						label={ __( 'Aufruftext', 'child' ) }
 						value={ ctaText }
 						onChange={ ( value ) =>
 							setAttributes( { ctaText: value } )
 						}
 						help={ __(
-							'Short prompt shown before the emoji and like count.',
+							'Kurzer Text vor Emoji und Anzahl der Likes.',
 							'child'
 						) }
 					/>
@@ -125,23 +125,20 @@ function Edit( { attributes, setAttributes } ) {
 						onChange={ ( value ) =>
 							setAttributes( { reactionEmoji: value } )
 						}
-						help={ __(
-							'Paste any emoji you want to use.',
-							'child'
-						) }
+						help={ __( 'Füge ein beliebiges Emoji ein.', 'child' ) }
 					/>
 				</PanelBody>
 				<PanelColorSettings
-					title={ __( 'Button Colors', 'child' ) }
+					title={ __( 'Schaltflächenfarben', 'child' ) }
 					colorSettings={ [
 						{
-							label: __( 'Background', 'child' ),
+							label: __( 'Hintergrund', 'child' ),
 							value: buttonBackground,
 							onChange: ( value ) =>
 								setAttributes( { buttonBackground: value } ),
 						},
 						{
-							label: __( 'Border', 'child' ),
+							label: __( 'Rahmen', 'child' ),
 							value: buttonBorder,
 							onChange: ( value ) =>
 								setAttributes( { buttonBorder: value } ),
@@ -153,13 +150,16 @@ function Edit( { attributes, setAttributes } ) {
 								setAttributes( { buttonText: value } ),
 						},
 						{
-							label: __( 'Hover Border', 'child' ),
+							label: __(
+								'Rahmen bei Mauszeigerkontakt',
+								'child'
+							),
 							value: buttonHoverBorder,
 							onChange: ( value ) =>
 								setAttributes( { buttonHoverBorder: value } ),
 						},
 						{
-							label: __( 'Liked Background', 'child' ),
+							label: __( 'Hintergrund nach Like', 'child' ),
 							value: buttonLikedBackground,
 							onChange: ( value ) =>
 								setAttributes( {
@@ -167,13 +167,13 @@ function Edit( { attributes, setAttributes } ) {
 								} ),
 						},
 						{
-							label: __( 'Focus Outline', 'child' ),
+							label: __( 'Fokusumrandung', 'child' ),
 							value: buttonFocusOutline,
 							onChange: ( value ) =>
 								setAttributes( { buttonFocusOutline: value } ),
 						},
 						{
-							label: __( 'Error Border', 'child' ),
+							label: __( 'Fehlerrahmen', 'child' ),
 							value: buttonErrorBorder,
 							onChange: ( value ) =>
 								setAttributes( { buttonErrorBorder: value } ),
@@ -204,7 +204,7 @@ function Edit( { attributes, setAttributes } ) {
 				</button>
 				<p className="child-post-likes__help">
 					{ __(
-						'Frontend visitors can toggle likes on this post.',
+						'Besucher können diesen Beitrag mit „Gefällt mir“ markieren.',
 						'child'
 					) }
 				</p>

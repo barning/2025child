@@ -42,7 +42,7 @@ function child_render_media_recommendation_settings_page(): void {
 			<?php
 			settings_fields( 'child_media_recommendation' );
 			do_settings_sections( 'child-media-recommendation' );
-			submit_button( __( 'Save Settings', 'child' ) );
+			submit_button( __( 'Einstellungen speichern', 'child' ) );
 			?>
 		</form>
 	</div>
@@ -54,8 +54,8 @@ function child_render_media_recommendation_settings_page(): void {
  */
 function child_register_media_recommendation_settings_page(): void {
 	add_options_page(
-		__( 'Media Recommendation Settings', 'child' ),
-		__( 'Media Recommendation', 'child' ),
+		__( 'Film-/Serien-Einstellungen', 'child' ),
+		__( 'Film-/Serien-Empfehlung', 'child' ),
 		'manage_options',
 		'child-media-recommendation',
 		'child_render_media_recommendation_settings_page'
@@ -79,14 +79,14 @@ function child_register_media_recommendation_settings(): void {
 
 	add_settings_section(
 		'child_media_recommendation_section',
-		__( 'TMDB API Configuration', 'child' ),
+		__( 'TMDB-API-Konfiguration', 'child' ),
 		'child_render_media_recommendation_section_description',
 		'child-media-recommendation'
 	);
 
 	add_settings_field(
 		'child_tmdb_api_key',
-		__( 'TMDB API Key', 'child' ),
+		__( 'TMDB-API-Schlüssel', 'child' ),
 		'child_render_media_recommendation_api_field',
 		'child-media-recommendation',
 		'child_media_recommendation_section'
@@ -101,7 +101,7 @@ function child_render_media_recommendation_section_description(): void {
 	echo '<p>' . wp_kses_post(
 		sprintf(
 			/* translators: %s: URL to TMDB API settings */
-			__( 'To use the Media Recommendation block, you need a free API key from The Movie Database. Get your API key at %s.', 'child' ),
+			__( 'Für den Film-/Serien-Block benötigst du einen kostenlosen API-Schlüssel von The Movie Database. Deinen Schlüssel erhältst du unter %s.', 'child' ),
 			'<a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer">themoviedb.org/settings/api</a>'
 		)
 	) . '</p>';
@@ -114,16 +114,16 @@ function child_render_media_recommendation_api_field(): void {
 	$has_saved_key = '' !== (string) get_option( 'child_tmdb_api_key', '' );
 	$has_constant  = defined( 'TMDB_API_KEY' ) && ! empty( TMDB_API_KEY );
 
-	echo '<input type="password" id="child_tmdb_api_key" name="child_tmdb_api_key" value="" class="regular-text" autocomplete="new-password" placeholder="' . esc_attr( $has_saved_key ? __( 'Saved — enter a new key to replace it', 'child' ) : __( 'Enter your TMDB API key', 'child' ) ) . '" />';
+	echo '<input type="password" id="child_tmdb_api_key" name="child_tmdb_api_key" value="" class="regular-text" autocomplete="new-password" placeholder="' . esc_attr( $has_saved_key ? __( 'Gespeichert — neuen Schlüssel zum Ersetzen eingeben', 'child' ) : __( 'TMDB-API-Schlüssel eingeben', 'child' ) ) . '" />';
 
 	if ( $has_constant && ! $has_saved_key ) {
-		echo '<p class="description">' . esc_html__( 'Currently using API key from wp-config.php. Enter a key here to override it.', 'child' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Aktuell wird der API-Schlüssel aus wp-config.php verwendet. Gib hier einen Schlüssel ein, um ihn zu überschreiben.', 'child' ) . '</p>';
 		return;
 	}
 
-	echo '<p class="description">' . esc_html__( 'Stored in the WordPress options table. Leave blank to keep the saved key.', 'child' ) . '</p>';
+	echo '<p class="description">' . esc_html__( 'Wird in der WordPress-Optionstabelle gespeichert. Leer lassen, um den gespeicherten Schlüssel zu behalten.', 'child' ) . '</p>';
 	if ( $has_saved_key ) {
-		echo '<label><input type="checkbox" name="child_tmdb_api_key_clear" value="1" /> ' . esc_html__( 'Remove the saved key', 'child' ) . '</label>';
+		echo '<label><input type="checkbox" name="child_tmdb_api_key_clear" value="1" /> ' . esc_html__( 'Gespeicherten Schlüssel entfernen', 'child' ) . '</label>';
 	}
 }
 
@@ -134,21 +134,21 @@ function child_handle_tmdb_search_ajax(): void {
 	check_ajax_referer( 'child-media-search', 'nonce' );
 
 	if ( ! current_user_can( 'edit_posts' ) ) {
-		wp_send_json_error( 'Unauthorized', 403 );
+		wp_send_json_error( 'Nicht autorisiert', 403 );
 	}
 
 	$query = sanitize_text_field( wp_unslash( $_GET['query'] ?? '' ) );
 	if ( '' === $query ) {
-		wp_send_json_error( 'Query required', 400 );
+		wp_send_json_error( 'Suchbegriff erforderlich', 400 );
 	}
 	$query_length = function_exists( 'mb_strlen' ) ? mb_strlen( $query ) : strlen( $query );
 	if ( $query_length > 160 ) {
-		wp_send_json_error( 'Query is too long', 400 );
+		wp_send_json_error( 'Der Suchbegriff ist zu lang', 400 );
 	}
 
 	$api_key = child_get_tmdb_api_key();
 	if ( '' === $api_key ) {
-		wp_send_json_error( 'TMDB API key not configured. Please configure it in Settings > Media Recommendation or add TMDB_API_KEY to wp-config.php', 500 );
+		wp_send_json_error( 'Der TMDB-API-Schlüssel ist nicht konfiguriert. Hinterlege ihn unter Einstellungen > Film-/Serien-Empfehlung oder als TMDB_API_KEY in wp-config.php.', 500 );
 	}
 
 	$wp_locale   = get_locale();
@@ -173,13 +173,13 @@ function child_handle_tmdb_search_ajax(): void {
 		$status     = (int) ( $error_data['provider_status'] ?? $error_data['status'] ?? 502 );
 
 		if ( in_array( $status, [ 401, 403 ], true ) ) {
-			wp_send_json_error( 'TMDB API authentication failed. Please check your API key.', $status );
+			wp_send_json_error( 'Die TMDB-API-Authentifizierung ist fehlgeschlagen. Prüfe deinen API-Schlüssel.', $status );
 		}
 		if ( 429 === $status ) {
-			wp_send_json_error( 'TMDB API rate limit exceeded. Please wait and try again.', 429 );
+			wp_send_json_error( 'Das TMDB-API-Anfragelimit wurde erreicht. Warte einen Moment und versuche es erneut.', 429 );
 		}
 
-		wp_send_json_error( 'TMDB API request failed', 502 );
+		wp_send_json_error( 'Die TMDB-API-Anfrage ist fehlgeschlagen.', 502 );
 	}
 
 	wp_send_json_success(

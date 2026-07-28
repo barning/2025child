@@ -89,7 +89,7 @@ const initLikeButton = async ( button ) => {
 			if ( statusNode ) {
 				statusNode.textContent =
 					button.dataset.errorMessage ||
-					'The like could not be saved. Please try again.';
+					'Das Like konnte nicht gespeichert werden. Versuche es erneut.';
 			}
 			window.setTimeout(
 				() => button.classList.remove( 'has-error' ),

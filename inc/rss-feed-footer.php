@@ -42,7 +42,7 @@ function child_get_rss_footer_message( int $post_id ): string {
 function child_add_rss_footer_message_metabox(): void {
 	add_meta_box(
 		'child-rss-footer-message',
-		__( 'RSS footer message', 'child' ),
+		__( 'RSS-Fußzeile', 'child' ),
 		'child_render_rss_footer_message_metabox',
 		'post',
 		'side',
@@ -60,7 +60,7 @@ function child_render_rss_footer_message_metabox( WP_Post $post ): void {
 	wp_nonce_field( 'child_rss_footer_message_save', 'child_rss_footer_message_nonce' );
 	printf(
 		'<label for="child_rss_footer_message">%s</label><textarea id="child_rss_footer_message" name="child_rss_footer_message" style="width:100%%" rows="4">%s</textarea>',
-		esc_html__( 'Message shown in RSS feeds after the post content.', 'child' ),
+		esc_html__( 'Nachricht, die in RSS-Feeds nach dem Beitragsinhalt angezeigt wird.', 'child' ),
 		esc_textarea( $message )
 	);
 }

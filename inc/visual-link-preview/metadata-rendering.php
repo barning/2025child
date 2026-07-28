@@ -170,7 +170,7 @@ function child_vlp_render_card( array $metadata, string $fallback_url = '' ): st
 	$out   = '<a class="child-url-card" href="' . esc_url( $url ) . '" target="_blank" rel="noopener noreferrer">';
 
 	if ( '' !== $image ) {
-		$out .= '<div class="child-url-card__media"><img src="' . esc_url( $image ) . '" alt="" loading="lazy" decoding="async" /></div>';
+		$out .= '<div class="child-url-card__media"><img src="' . esc_url( $image ) . '" alt="" loading="lazy" decoding="async" width="1200" height="630" /></div>';
 	}
 
 	$out .= '<div class="child-url-card__content">';

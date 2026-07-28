@@ -225,9 +225,9 @@ function Edit( { attributes, setAttributes } ) {
 										</span>
 									) }
 									{ showTitle && (
-										<h3 className="child-media-cover-grid__title">
+										<p className="child-media-cover-grid__title">
 											{ item.title }
-										</h3>
+										</p>
 									) }
 									{ showMeta && (
 										<p className="child-media-cover-grid__meta">

@@ -76,7 +76,7 @@ function child_provider_get_json(
 	if ( is_wp_error( $response ) ) {
 		return new WP_Error(
 			'provider_request_failed',
-			__( 'The external service could not be reached.', 'child' ),
+			__( 'Der externe Dienst konnte nicht erreicht werden.', 'child' ),
 			[ 'status' => 502 ]
 		);
 	}
@@ -85,7 +85,7 @@ function child_provider_get_json(
 	if ( $status < 200 || $status >= 300 ) {
 		return new WP_Error(
 			'provider_http_error',
-			__( 'The external service returned an error.', 'child' ),
+			__( 'Der externe Dienst hat einen Fehler zurückgegeben.', 'child' ),
 			[
 				'status'          => in_array( $status, [ 400, 401, 403, 404, 429 ], true ) ? $status : 502,
 				'provider_status' => $status,
@@ -97,7 +97,7 @@ function child_provider_get_json(
 	if ( ! is_array( $data ) || JSON_ERROR_NONE !== json_last_error() ) {
 		return new WP_Error(
 			'provider_invalid_json',
-			__( 'The external service returned an invalid response.', 'child' ),
+			__( 'Der externe Dienst hat eine ungültige Antwort zurückgegeben.', 'child' ),
 			[ 'status' => 502 ]
 		);
 	}

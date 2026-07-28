@@ -84,3 +84,14 @@
 		height: 500px;
 	}
 }
+
+@media (prefers-reduced-motion: reduce) {
+
+	.child-magic-card__media {
+		transition: none;
+	}
+
+	.child-magic-card__media:hover {
+		transform: none;
+	}
+}

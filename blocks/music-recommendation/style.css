@@ -181,6 +181,18 @@
 	.child-music-card__preview-button,
 	.child-music-card__preview-icon,
 	.child-music-card__preview-icon svg {
-		transition-duration: 0.01ms;
+		transition: none;
+	}
+
+	.child-music-card__preview-button:hover .child-music-card__preview-icon,
+	.child-music-card__preview-button:focus-visible .child-music-card__preview-icon,
+	.child-music-card__preview-button.is-playing .child-music-card__preview-icon {
+		transform: scale(0.88);
+	}
+
+	.child-music-card__preview-icon svg,
+	.child-music-card__preview-button.is-playing .child-music-card__play-icon,
+	.child-music-card__preview-button.is-playing .child-music-card__pause-icon {
+		transform: none;
 	}
 }

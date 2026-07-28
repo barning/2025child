@@ -26,14 +26,14 @@ export const searchScryfallCards = async ( searchTerm, signal ) => {
 	if ( ! response.ok ) {
 		if ( response.status === 404 ) {
 			throw new Error(
-				__( 'No cards found matching your search.', 'child' )
+				__( 'Keine passenden Karten gefunden.', 'child' )
 			);
 		}
 
 		if ( response.status === 429 ) {
 			throw new Error(
 				__(
-					'Too many requests. Please wait a moment and try again.',
+					'Zu viele Anfragen. Warte einen Moment und versuche es erneut.',
 					'child'
 				)
 			);
@@ -41,7 +41,7 @@ export const searchScryfallCards = async ( searchTerm, signal ) => {
 
 		throw new Error(
 			__(
-				'Search failed. Please check your connection and try again.',
+				'Die Suche ist fehlgeschlagen. Prüfe deine Verbindung und versuche es erneut.',
 				'child'
 			)
 		);

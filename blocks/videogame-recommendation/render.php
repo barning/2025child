@@ -15,6 +15,8 @@ return function ( $attributes ) {
 	$wrapper_attributes = get_block_wrapper_attributes();
 	$game_title         = $attributes['gameTitle'] ?? '';
 	$cover_url          = $attributes['coverUrl'] ?? '';
+	$cover_format       = 'portrait' === ( $attributes['coverFormat'] ?? '' ) ? 'portrait' : 'landscape';
+	$cover_width        = 'portrait' === $cover_format ? 600 : 1600;
 	$release_date       = $attributes['releaseDate'] ?? '';
 	$platforms          = $attributes['platforms'] ?? [];
 	$genres             = $attributes['genres'] ?? [];
@@ -41,7 +43,7 @@ return function ( $attributes ) {
 	?>
 	>
 		<div class="child-game-card" aria-label="<?php echo esc_attr( __( 'Videospiel', 'child' ) ); ?>">
-			<div class="child-game-card__media">
+			<div class="child-game-card__media child-game-card__media--<?php echo esc_attr( $cover_format ); ?>">
 				<?php if ( ! empty( $cover_url ) ) : ?>
 					<?php if ( ! empty( $shop_url ) ) : ?>
 						<a class="child-game-card__cover-link" href="<?php echo esc_url( $shop_url ); ?>" target="_blank" rel="noopener noreferrer">
@@ -50,6 +52,8 @@ return function ( $attributes ) {
 								alt="<?php echo esc_attr( $game_title ); ?>"
 								class="child-game-card__cover"
 								loading="lazy"
+								width="<?php echo esc_attr( (string) $cover_width ); ?>"
+								height="900"
 							/>
 						</a>
 					<?php else : ?>
@@ -58,6 +62,8 @@ return function ( $attributes ) {
 							alt="<?php echo esc_attr( $game_title ); ?>"
 							class="child-game-card__cover"
 							loading="lazy"
+							width="<?php echo esc_attr( (string) $cover_width ); ?>"
+							height="900"
 						/>
 					<?php endif; ?>
 				<?php else : ?>
@@ -88,11 +94,11 @@ return function ( $attributes ) {
 					</div>
 				<?php endif; ?>
 
-				<h3 class="child-game-card__title"><?php echo esc_html( $game_title ); ?></h3>
+				<p class="child-game-card__title"><?php echo esc_html( $game_title ); ?></p>
 
 				<?php if ( ! empty( $formatted_date ) ) : ?>
 					<div class="child-game-card__info-row">
-						<span class="child-game-card__label"><?php echo esc_html( __( 'Release date:', 'child' ) ); ?></span>
+						<span class="child-game-card__label"><?php echo esc_html( __( 'Veröffentlichung:', 'child' ) ); ?></span>
 						<span class="child-game-card__value"><?php echo esc_html( $formatted_date ); ?></span>
 					</div>
 				<?php endif; ?>

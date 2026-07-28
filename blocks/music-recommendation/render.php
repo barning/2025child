@@ -30,7 +30,7 @@ return function ( array $attributes ): string {
 		<div class="child-music-card child-music-card--<?php echo esc_attr( $music_type ); ?>" aria-label="<?php echo esc_attr( $type_label ); ?>">
 			<div class="child-music-card__media">
 				<?php if ( $cover_url ) : ?>
-					<img src="<?php echo esc_url( $cover_url ); ?>" alt="<?php echo esc_attr( $title ); ?>" class="child-music-card__cover" loading="lazy" />
+					<img src="<?php echo esc_url( $cover_url ); ?>" alt="<?php echo esc_attr( $title ); ?>" class="child-music-card__cover" loading="lazy" width="600" height="600" />
 				<?php else : ?>
 					<div class="child-music-card__placeholder" aria-hidden="true">♪</div>
 				<?php endif; ?>
@@ -59,7 +59,7 @@ return function ( array $attributes ): string {
 
 			<div class="child-music-card__meta">
 				<span class="child-music-card__type"><?php echo esc_html( $type_label ); ?></span>
-				<h3 class="child-music-card__title"><?php echo esc_html( $title ); ?></h3>
+				<p class="child-music-card__title"><?php echo esc_html( $title ); ?></p>
 				<?php if ( $artist ) : ?>
 					<p class="child-music-card__artist"><?php echo esc_html( $artist ); ?></p>
 				<?php endif; ?>

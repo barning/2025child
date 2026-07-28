@@ -81,6 +81,11 @@
 
 	.wp-block-child-post-likes .child-post-likes__button,
 	.wp-block-child-post-likes .child-post-likes__pill {
-		transition-duration: 0.01ms;
+		transition: none;
+	}
+
+	.wp-block-child-post-likes .child-post-likes__button:hover .child-post-likes__pill,
+	.wp-block-child-post-likes .child-post-likes__button:active .child-post-likes__pill {
+		transform: none;
 	}
 }

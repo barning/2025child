@@ -25,6 +25,8 @@ export const MediaPreview = ( {
 			src={ posterUrl }
 			alt={ mediaTitle }
 			loading="lazy"
+			width="600"
+			height="900"
 		/>
 	) : null;
 	const poster = posterLink ? (
@@ -61,7 +63,7 @@ export const MediaPreview = ( {
 				) }
 			</div>
 			<div className="child-media-card__meta">
-				<h3 className="child-media-card__title">{ mediaTitle }</h3>
+				<p className="child-media-card__title">{ mediaTitle }</p>
 				{ releaseYear?.trim() ? (
 					<p className="child-media-card__year">{ releaseYear }</p>
 				) : null }

@@ -23,7 +23,7 @@ return function ( $attributes ) {
 		return sprintf(
 			'<p %s>%s</p>',
 			get_block_wrapper_attributes(),
-			esc_html__( 'Unable to load Pixelfed feed right now.', 'child' )
+			esc_html__( 'Der Pixelfed-Feed kann gerade nicht geladen werden.', 'child' )
 		);
 	}
 
@@ -34,7 +34,7 @@ return function ( $attributes ) {
 		return sprintf(
 			'<p %s>%s</p>',
 			get_block_wrapper_attributes(),
-			esc_html__( 'No images found in this Pixelfed feed.', 'child' )
+			esc_html__( 'In diesem Pixelfed-Feed wurden keine Bilder gefunden.', 'child' )
 		);
 	}
 
@@ -158,6 +158,13 @@ return function ( $attributes ) {
 				}
 
 				$needs_ratio_check = $image_width <= 0 || $image_height <= 0;
+				if ( $needs_ratio_check ) {
+					[ $image_width, $image_height ] = [
+						'is-ratio-landscape' => [ 1200, 750 ],
+						'is-ratio-portrait'  => [ 750, 1000 ],
+						'is-ratio-square'    => [ 1000, 1000 ],
+					][ $ratio_class ];
+				}
 
 				$layout_class = 0 === ( $rendered_count % 7 ) ? 'is-featured-tile' : '';
 				++$rendered_count;
@@ -169,8 +176,8 @@ return function ( $attributes ) {
 						alt="<?php echo esc_attr( wp_strip_all_tags( (string) $item->get_title() ) ); ?>"
 						loading="lazy"
 						decoding="async"
-						<?php echo $image_width > 0 ? 'width="' . esc_attr( (string) $image_width ) . '"' : ''; ?>
-						<?php echo $image_height > 0 ? 'height="' . esc_attr( (string) $image_height ) . '"' : ''; ?>
+						width="<?php echo esc_attr( (string) $image_width ); ?>"
+						height="<?php echo esc_attr( (string) $image_height ); ?>"
 					/>
 				</a>
 			<?php endforeach; ?>

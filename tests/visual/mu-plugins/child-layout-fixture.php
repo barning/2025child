@@ -8,7 +8,18 @@
  * @package TwentyTwentyFiveChild
  */
 
-const CHILD_LAYOUT_FIXTURE_VERSION = '2';
+const CHILD_LAYOUT_FIXTURE_VERSION = '3';
+
+/**
+ * Keep the disposable fixture deterministic even when Playground workers boot
+ * before the persisted WPLANG option becomes visible.
+ *
+ * @return string
+ */
+function child_layout_fixture_locale(): string {
+	return 'de_DE';
+}
+add_filter( 'locale', 'child_layout_fixture_locale' );
 
 /**
  * Serialize a dynamic child-theme block.
@@ -63,6 +74,8 @@ function child_layout_fixture_seed(): void {
 		return;
 	}
 
+	update_option( 'WPLANG', 'de_DE' );
+
 	$image_url = get_template_directory_uri() . '/screenshot.png';
 	$book      = child_layout_fixture_block(
 		'book-rating',
@@ -114,10 +127,10 @@ function child_layout_fixture_seed(): void {
 
 	$source_ids = array_filter(
 		array(
-			child_layout_fixture_upsert_post( 'Fixture Book Source', $book ),
-			child_layout_fixture_upsert_post( 'Fixture Movie Source', $movie ),
-			child_layout_fixture_upsert_post( 'Fixture Music Source', $music ),
-			child_layout_fixture_upsert_post( 'Fixture Game Source', $game ),
+			child_layout_fixture_upsert_post( 'Testquelle Buch', $book ),
+			child_layout_fixture_upsert_post( 'Testquelle Film', $movie ),
+			child_layout_fixture_upsert_post( 'Testquelle Musik', $music ),
+			child_layout_fixture_upsert_post( 'Testquelle Spiel', $game ),
 		)
 	);
 
@@ -126,15 +139,14 @@ function child_layout_fixture_seed(): void {
 		'child_vlp_' . md5( $preview_url ),
 		array(
 			'url'   => $preview_url,
-			'title' => 'A deterministic visual link preview',
-			'desc'  => 'Long enough to exercise wrapping without requiring a remote request.',
+			'title' => 'Eine deterministische Linkvorschau',
+			'desc'  => 'Lang genug, um den Zeilenumbruch ohne externe Anfrage zu prüfen.',
 			'image' => $image_url,
 		),
 		DAY_IN_SECONDS
 	);
 
-	$content  = '<!-- wp:heading {"level":1} --><h1 class="wp-block-heading">Child theme layout fixture</h1><!-- /wp:heading -->';
-	$content .= $book;
+	$content  = $book;
 	$content .= $movie;
 	$content .= $music;
 	$content .= $game;
@@ -150,7 +162,7 @@ function child_layout_fixture_seed(): void {
 		'popular-posts',
 		array(
 			'selectedPosts' => array_values( $source_ids ),
-			'title'         => 'Fixture favorites with a deliberately long heading',
+			'title'         => 'Testfavoriten mit einer absichtlich langen Überschrift',
 			'emoji'         => '✨',
 		)
 	);
@@ -171,14 +183,14 @@ function child_layout_fixture_seed(): void {
 		array(
 			'buttonSize'    => 'md',
 			'buttonAlign'   => 'center',
-			'ctaText'       => 'Do you like this fixture?',
+			'ctaText'       => 'Gefällt dir diese Testseite?',
 			'reactionEmoji' => '❤️',
 		)
 	);
 	$content .= child_layout_fixture_block( 'visual-link-preview', array( 'url' => $preview_url ) );
 	$content .= child_layout_fixture_block( 'pixelfed-feed', array( 'feedUrl' => '', 'itemsToShow' => 3 ) );
 
-	$page_id = child_layout_fixture_upsert_post( 'Child Theme Layout Fixture', $content, 'page' );
+	$page_id = child_layout_fixture_upsert_post( 'Layout-Testseite des Child-Themes', $content, 'page' );
 	if ( $page_id ) {
 		update_option( 'show_on_front', 'page' );
 		update_option( 'page_on_front', $page_id );
