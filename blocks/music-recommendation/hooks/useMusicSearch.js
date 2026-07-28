@@ -3,16 +3,24 @@ import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 import { useSearchState } from '../../shared/media/useSearchState';
 
-export const useMusicSearch = ( { initialTerm = '', initialSelectedId = '' } = {} ) => {
+export const useMusicSearch = ( {
+	initialTerm = '',
+	initialSelectedId = '',
+} = {} ) => {
 	const search = useSearchState( { initialTerm, initialSelectedId } );
 
 	const searchMusic = async ( musicType ) => {
 		if ( ! search.searchTerm.trim() ) {
-			search.failSearch( __( 'Bitte gib einen Suchbegriff ein.', 'child' ) );
+			search.failSearch(
+				__( 'Bitte gib einen Suchbegriff ein.', 'child' )
+			);
 			return;
 		}
 
-		search.beginSearch( { clearResults: false, clearSelected: false } );
+		const { requestId, signal } = search.beginSearch( {
+			clearResults: false,
+			clearSelected: false,
+		} );
 
 		try {
 			const response = await apiFetch( {
@@ -20,14 +28,28 @@ export const useMusicSearch = ( { initialTerm = '', initialSelectedId = '' } = {
 					q: search.searchTerm,
 					musicType,
 				} ),
+				signal,
 			} );
 			const found = response?.results || [];
 
-			search.completeSearch( found, __( 'Keine Musik gefunden.', 'child' ) );
+			search.completeSearch(
+				found,
+				__( 'Keine Musik gefunden.', 'child' ),
+				requestId
+			);
 		} catch ( fetchError ) {
-			search.failSearch( fetchError?.message || __( 'Die Musiksuche konnte nicht geladen werden.', 'child' ) );
+			if ( fetchError?.name !== 'AbortError' ) {
+				search.failSearch(
+					fetchError?.message ||
+						__(
+							'Die Musiksuche konnte nicht geladen werden.',
+							'child'
+						),
+					requestId
+				);
+			}
 		} finally {
-			search.finishSearch();
+			search.finishSearch( requestId );
 		}
 	};
 

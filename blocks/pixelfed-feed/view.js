@@ -1,4 +1,8 @@
-const RATIO_CLASSES = [ 'is-ratio-landscape', 'is-ratio-square', 'is-ratio-portrait' ];
+const RATIO_CLASSES = [
+	'is-ratio-landscape',
+	'is-ratio-square',
+	'is-ratio-portrait',
+];
 
 const classifyImageRatio = ( item, image ) => {
 	if ( ! item || ! image || ! image.naturalWidth || ! image.naturalHeight ) {
@@ -55,7 +59,9 @@ const initPixelfedFeedRatios = () => {
 };
 
 if ( document.readyState === 'loading' ) {
-	document.addEventListener( 'DOMContentLoaded', initPixelfedFeedRatios, { once: true } );
+	document.addEventListener( 'DOMContentLoaded', initPixelfedFeedRatios, {
+		once: true,
+	} );
 } else {
 	initPixelfedFeedRatios();
 }

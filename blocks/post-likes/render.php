@@ -5,7 +5,7 @@
  * @return callable
  */
 
-return function( array $attributes ): string {
+return function ( array $attributes ): string {
 	if ( ! is_singular() ) {
 		return '';
 	}
@@ -36,9 +36,9 @@ return function( array $attributes ): string {
 		],
 	];
 
-	$size_key = $attributes['buttonSize'] ?? 'md';
-	$size_key = is_string( $size_key ) ? $size_key : 'md';
-	$size_key = array_key_exists( $size_key, $size_presets ) ? $size_key : 'md';
+	$size_key  = $attributes['buttonSize'] ?? 'md';
+	$size_key  = is_string( $size_key ) ? $size_key : 'md';
+	$size_key  = array_key_exists( $size_key, $size_presets ) ? $size_key : 'md';
 	$size_vars = $size_presets[ $size_key ];
 
 	$align_value = $attributes['buttonAlign'] ?? 'left';
@@ -48,16 +48,16 @@ return function( array $attributes ): string {
 		: 'left';
 
 	$style_vars = [
-		'--child-post-likes-bg' => $attributes['buttonBackground'] ?? '',
-		'--child-post-likes-border' => $attributes['buttonBorder'] ?? '',
-		'--child-post-likes-text' => $attributes['buttonText'] ?? '',
+		'--child-post-likes-bg'           => $attributes['buttonBackground'] ?? '',
+		'--child-post-likes-border'       => $attributes['buttonBorder'] ?? '',
+		'--child-post-likes-text'         => $attributes['buttonText'] ?? '',
 		'--child-post-likes-hover-border' => $attributes['buttonHoverBorder'] ?? '',
-		'--child-post-likes-font-size' => $size_vars['font_size'],
-		'--child-post-likes-padding-y' => $size_vars['padding_y'],
-		'--child-post-likes-padding-x' => $size_vars['padding_x'],
-		'--child-post-likes-align' => $align_value,
-		'--child-post-likes-liked-bg' => $attributes['buttonLikedBackground'] ?? '',
-		'--child-post-likes-focus' => $attributes['buttonFocusOutline'] ?? '',
+		'--child-post-likes-font-size'    => $size_vars['font_size'],
+		'--child-post-likes-padding-y'    => $size_vars['padding_y'],
+		'--child-post-likes-padding-x'    => $size_vars['padding_x'],
+		'--child-post-likes-align'        => $align_value,
+		'--child-post-likes-liked-bg'     => $attributes['buttonLikedBackground'] ?? '',
+		'--child-post-likes-focus'        => $attributes['buttonFocusOutline'] ?? '',
 		'--child-post-likes-error-border' => $attributes['buttonErrorBorder'] ?? '',
 	];
 
@@ -84,16 +84,27 @@ return function( array $attributes ): string {
 	$reaction_emoji     = $attributes['reactionEmoji'] ?? '❤️';
 	$reaction_emoji     = is_string( $reaction_emoji ) ? trim( wp_strip_all_tags( $reaction_emoji ) ) : '❤️';
 	$reaction_emoji     = $reaction_emoji !== '' ? $reaction_emoji : '❤️';
+	$status_id          = wp_unique_id( 'child-post-likes-status-' );
 
 	ob_start();
 	?>
-	<div <?php echo $wrapper_attributes; ?>>
-		<button
+	<div
+	<?php
+    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by get_block_wrapper_attributes().
+	echo $wrapper_attributes;
+	?>
+	>
+			<button
 			type="button"
 			class="child-post-likes__button<?php echo $liked ? ' is-liked' : ''; ?>"
 			data-post-id="<?php echo esc_attr( (string) $post_id ); ?>"
-			aria-label="<?php esc_attr_e( 'Toggle like', 'child' ); ?>"
-			aria-pressed="<?php echo $liked ? 'true' : 'false'; ?>"
+				aria-label="<?php esc_attr_e( 'Toggle like', 'child' ); ?>"
+				aria-pressed="<?php echo $liked ? 'true' : 'false'; ?>"
+				aria-describedby="<?php echo esc_attr( $status_id ); ?>"
+				data-liked-message="<?php esc_attr_e( 'Like saved.', 'child' ); ?>"
+				data-unliked-message="<?php esc_attr_e( 'Like removed.', 'child' ); ?>"
+				data-error-message="<?php esc_attr_e( 'The like could not be saved. Please try again.', 'child' ); ?>"
+				data-count-label="<?php esc_attr_e( 'Total likes:', 'child' ); ?>"
 		>
 			<span class="child-post-likes__pill">
 				<?php if ( $cta_text !== '' ) : ?>
@@ -102,7 +113,14 @@ return function( array $attributes ): string {
 				<span class="child-post-likes__icon" aria-hidden="true"><?php echo esc_html( $reaction_emoji ); ?></span>
 				<span class="child-post-likes__count"><?php echo esc_html( (string) $count ); ?></span>
 			</span>
-		</button>
+			</button>
+			<span
+				id="<?php echo esc_attr( $status_id ); ?>"
+				class="screen-reader-text child-post-likes__status"
+				role="status"
+				aria-live="polite"
+				aria-atomic="true"
+			></span>
 	</div>
 	<?php
 

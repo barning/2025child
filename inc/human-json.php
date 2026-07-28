@@ -8,7 +8,7 @@
 /**
  * Option name for storing newline-separated human.json vouch URLs.
  */
-const CHILD_HUMAN_JSON_VOUCHES_OPTION = 'child_human_json_vouches';
+const CHILD_HUMAN_JSON_VOUCHES_OPTION  = 'child_human_json_vouches';
 const CHILD_HUMAN_JSON_REWRITE_VERSION = '1';
 
 /**
@@ -64,7 +64,7 @@ function child_register_human_json_admin_settings(): void {
 	add_settings_section(
 		'child_human_json_section',
 		__( 'human.json', 'child' ),
-		static function(): void {
+		static function (): void {
 			echo '<p>' . esc_html__( 'Add one URL per line for people/sites you vouch for.', 'child' ) . '</p>';
 		},
 		'child-human-json'

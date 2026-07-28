@@ -137,7 +137,7 @@ function child_merge_media_cover_grid_duplicate_item( array $kept, array $duplic
 
 	usort(
 		$sources,
-		static function( array $a, array $b ): int {
+		static function ( array $a, array $b ): int {
 			return (int) ( $b['timestamp'] ?? 0 ) <=> (int) ( $a['timestamp'] ?? 0 );
 		}
 	);
@@ -182,7 +182,7 @@ function child_get_media_cover_grid_source_posts( array $item ): array {
 		return array_values(
 			array_filter(
 				array_map(
-					static function( $source ): ?array {
+					static function ( $source ): ?array {
 						if ( ! is_array( $source ) ) {
 							return null;
 						}

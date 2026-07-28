@@ -8,12 +8,29 @@
   "scripts": {
     "build": "wp-scripts build --webpack-src-dir=blocks",
     "start": "wp-scripts start --webpack-src-dir=blocks",
-    "prepackage": "npm run build",
+    "check:php": "find . -path './node_modules' -prune -o -path './vendor' -prune -o -path './build' -prune -o -path './dist' -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l",
+    "check:json": "node scripts/validate-project.js --source",
+    "check:build": "node scripts/validate-project.js --built",
+    "lint:js": "wp-scripts lint-js blocks scripts",
+    "lint:css": "wp-scripts lint-style 'blocks/**/*.css' style.css",
+    "lint": "npm run lint:js && npm run lint:css",
+    "test": "node --test tests/js/*.test.cjs",
+    "check": "npm run check:php && npm run check:json && npm test",
     "package": "node scripts/package.js",
-    "dist": "npm run build && npm run package"
+    "dist": "npm run build && npm run check:build && npm run package"
   },
   "devDependencies": {
-    "@wordpress/scripts": "^32.5.0"
+    "@wordpress/api-fetch": "^7.51.0",
+    "@wordpress/block-editor": "^16.0.0",
+    "@wordpress/blocks": "^15.24.0",
+    "@wordpress/components": "^37.0.0",
+    "@wordpress/core-data": "^7.51.0",
+    "@wordpress/data": "^10.51.0",
+    "@wordpress/element": "^8.3.0",
+    "@wordpress/i18n": "^6.24.0",
+    "@wordpress/scripts": "^32.5.0",
+    "@wordpress/server-side-render": "^6.27.0",
+    "@wordpress/url": "^4.51.0"
   },
   "dependencies": {
     "@wordpress/html-entities": "^4.43.0"

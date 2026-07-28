@@ -30,7 +30,8 @@
 	font-weight: 700;
 	gap: 0.6rem;
 	line-height: 1;
-	padding: var(--child-post-likes-padding-y, 0.8rem)
+	padding:
+		var(--child-post-likes-padding-y, 0.8rem)
 		var(--child-post-likes-padding-x, 1.3rem);
 	transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
@@ -40,11 +41,6 @@
 	transform: translateY(-1px);
 }
 
-.wp-block-child-post-likes .child-post-likes__button:active .child-post-likes__pill {
-	transform: scale(0.96);
-}
-
-	font-variant-numeric: tabular-nums;
 .wp-block-child-post-likes .child-post-likes__button:active .child-post-likes__pill {
 	transform: scale(0.96);
 }
@@ -79,4 +75,12 @@
 	font-size: 1.1em;
 	font-variant-numeric: tabular-nums;
 	min-width: 1ch;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.wp-block-child-post-likes .child-post-likes__button,
+	.wp-block-child-post-likes .child-post-likes__pill {
+		transition-duration: 0.01ms;
+	}
 }

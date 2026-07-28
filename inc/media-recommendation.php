@@ -19,6 +19,19 @@ function child_get_tmdb_api_key(): string {
 }
 
 /**
+ * Preserve a saved TMDB key unless an explicit replacement or removal is requested.
+ */
+function child_sanitize_tmdb_api_key( $value ): string {
+	if ( isset( $_POST['child_tmdb_api_key_clear'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Settings API verifies the request.
+		return '';
+	}
+
+	$value = sanitize_text_field( (string) $value );
+
+	return '' !== $value ? $value : (string) get_option( 'child_tmdb_api_key', '' );
+}
+
+/**
  * Render the TMDB settings page.
  */
 function child_render_media_recommendation_settings_page(): void {
@@ -59,7 +72,7 @@ function child_register_media_recommendation_settings(): void {
 		'child_tmdb_api_key',
 		[
 			'type'              => 'string',
-			'sanitize_callback' => 'sanitize_text_field',
+			'sanitize_callback' => 'child_sanitize_tmdb_api_key',
 			'default'           => '',
 		]
 	);
@@ -98,17 +111,20 @@ function child_render_media_recommendation_section_description(): void {
  * Render TMDB key input.
  */
 function child_render_media_recommendation_api_field(): void {
-	$value        = (string) get_option( 'child_tmdb_api_key', '' );
-	$has_constant = defined( 'TMDB_API_KEY' ) && ! empty( TMDB_API_KEY );
+	$has_saved_key = '' !== (string) get_option( 'child_tmdb_api_key', '' );
+	$has_constant  = defined( 'TMDB_API_KEY' ) && ! empty( TMDB_API_KEY );
 
-	echo '<input type="text" id="child_tmdb_api_key" name="child_tmdb_api_key" value="' . esc_attr( $value ) . '" class="regular-text" placeholder="' . esc_attr__( 'Enter your TMDB API key', 'child' ) . '" />';
+	echo '<input type="password" id="child_tmdb_api_key" name="child_tmdb_api_key" value="" class="regular-text" autocomplete="new-password" placeholder="' . esc_attr( $has_saved_key ? __( 'Saved — enter a new key to replace it', 'child' ) : __( 'Enter your TMDB API key', 'child' ) ) . '" />';
 
-	if ( $has_constant && '' === $value ) {
+	if ( $has_constant && ! $has_saved_key ) {
 		echo '<p class="description">' . esc_html__( 'Currently using API key from wp-config.php. Enter a key here to override it.', 'child' ) . '</p>';
 		return;
 	}
 
-	echo '<p class="description">' . esc_html__( 'Your API key will be stored securely in the database.', 'child' ) . '</p>';
+	echo '<p class="description">' . esc_html__( 'Stored in the WordPress options table. Leave blank to keep the saved key.', 'child' ) . '</p>';
+	if ( $has_saved_key ) {
+		echo '<label><input type="checkbox" name="child_tmdb_api_key_clear" value="1" /> ' . esc_html__( 'Remove the saved key', 'child' ) . '</label>';
+	}
 }
 
 /**
@@ -125,6 +141,10 @@ function child_handle_tmdb_search_ajax(): void {
 	if ( '' === $query ) {
 		wp_send_json_error( 'Query required', 400 );
 	}
+	$query_length = function_exists( 'mb_strlen' ) ? mb_strlen( $query ) : strlen( $query );
+	if ( $query_length > 160 ) {
+		wp_send_json_error( 'Query is too long', 400 );
+	}
 
 	$api_key = child_get_tmdb_api_key();
 	if ( '' === $api_key ) {
@@ -134,26 +154,38 @@ function child_handle_tmdb_search_ajax(): void {
 	$wp_locale   = get_locale();
 	$tmdb_locale = str_replace( '_', '-', $wp_locale );
 
-	$movie_response = wp_safe_remote_get(
+	$movie_data = child_provider_get_json(
 		'https://api.themoviedb.org/3/search/movie?api_key=' . rawurlencode( $api_key ) . '&query=' . rawurlencode( $query ) . '&language=' . rawurlencode( $tmdb_locale ),
-		[ 'timeout' => 10 ]
+		[ 'timeout' => 10 ],
+		'tmdb_movie',
+		6 * HOUR_IN_SECONDS
 	);
-	$tv_response = wp_safe_remote_get(
+	$tv_data    = child_provider_get_json(
 		'https://api.themoviedb.org/3/search/tv?api_key=' . rawurlencode( $api_key ) . '&query=' . rawurlencode( $query ) . '&language=' . rawurlencode( $tmdb_locale ),
-		[ 'timeout' => 10 ]
+		[ 'timeout' => 10 ],
+		'tmdb_tv',
+		6 * HOUR_IN_SECONDS
 	);
 
-	if ( is_wp_error( $movie_response ) || is_wp_error( $tv_response ) ) {
-		wp_send_json_error( 'API request failed', 500 );
-	}
+	if ( is_wp_error( $movie_data ) || is_wp_error( $tv_data ) ) {
+		$error      = is_wp_error( $movie_data ) ? $movie_data : $tv_data;
+		$error_data = $error->get_error_data();
+		$status     = (int) ( $error_data['provider_status'] ?? $error_data['status'] ?? 502 );
 
-	$movie_data = json_decode( wp_remote_retrieve_body( $movie_response ), true );
-	$tv_data    = json_decode( wp_remote_retrieve_body( $tv_response ), true );
+		if ( in_array( $status, [ 401, 403 ], true ) ) {
+			wp_send_json_error( 'TMDB API authentication failed. Please check your API key.', $status );
+		}
+		if ( 429 === $status ) {
+			wp_send_json_error( 'TMDB API rate limit exceeded. Please wait and try again.', 429 );
+		}
+
+		wp_send_json_error( 'TMDB API request failed', 502 );
+	}
 
 	wp_send_json_success(
 		[
-			'movies' => $movie_data['results'] ?? [],
-			'tv'     => $tv_data['results'] ?? [],
+			'movies' => is_array( $movie_data['results'] ?? null ) ? $movie_data['results'] : [],
+			'tv'     => is_array( $tv_data['results'] ?? null ) ? $tv_data['results'] : [],
 		]
 	);
 }

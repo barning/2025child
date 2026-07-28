@@ -9,17 +9,23 @@ export const useMediaSearch = () => {
 		const trimmedTerm = search.searchTerm.trim();
 
 		if ( ! trimmedTerm ) {
-			search.failSearch( __( 'Bitte gib einen Suchbegriff ein.', 'child' ) );
+			search.failSearch(
+				__( 'Bitte gib einen Suchbegriff ein.', 'child' )
+			);
 			return;
 		}
 
-		search.beginSearch();
+		const { requestId, signal } = search.beginSearch();
 
 		try {
-			const ajaxUrl = window.childMediaSearch?.ajaxUrl || '/wp-admin/admin-ajax.php';
+			const ajaxUrl =
+				window.childMediaSearch?.ajaxUrl || '/wp-admin/admin-ajax.php';
 			const nonce = window.childMediaSearch?.nonce || '';
 			const response = await fetch(
-				`${ ajaxUrl }?action=child_tmdb_search&query=${ encodeURIComponent( trimmedTerm ) }&nonce=${ nonce }`
+				`${ ajaxUrl }?action=child_tmdb_search&query=${ encodeURIComponent(
+					trimmedTerm
+				) }&nonce=${ encodeURIComponent( nonce ) }`,
+				{ signal }
 			);
 
 			if ( ! response.ok ) {
@@ -32,14 +38,24 @@ export const useMediaSearch = () => {
 				throw new Error( data.data || 'Request failed' );
 			}
 
-			search.completeSearch( mapTmdbResults( data.data ), __( 'Keine Ergebnisse gefunden.', 'child' ) );
-		} catch ( error ) {
-			console.error( 'Fehler beim Suchen:', error );
-			search.failSearch(
-				error.message || __( 'Beim Suchen ist ein Fehler aufgetreten. Bitte versuche es erneut.', 'child' )
+			search.completeSearch(
+				mapTmdbResults( data.data ),
+				__( 'Keine Ergebnisse gefunden.', 'child' ),
+				requestId
 			);
+		} catch ( error ) {
+			if ( error.name !== 'AbortError' ) {
+				search.failSearch(
+					error.message ||
+						__(
+							'Beim Suchen ist ein Fehler aufgetreten. Bitte versuche es erneut.',
+							'child'
+						),
+					requestId
+				);
+			}
 		} finally {
-			search.finishSearch();
+			search.finishSearch( requestId );
 		}
 	};
 

@@ -18,7 +18,7 @@
       "default": 9
     }
   },
-  "textdomain": "twentyfivetwentyfivechild",
+  "textdomain": "child",
   "editorScript": "file:./index.js",
   "viewScript": "file:./view.js",
   "editorStyle": "file:./editor.css",

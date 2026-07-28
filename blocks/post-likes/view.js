@@ -17,7 +17,7 @@ const setLoadingState = ( button, isLoading ) => {
 	button.disabled = isLoading;
 };
 
-const updateButtonState = ( button, payload ) => {
+const updateButtonState = ( button, payload, announce = false ) => {
 	const countNode = button.querySelector( '.child-post-likes__count' );
 	if ( countNode ) {
 		countNode.textContent = String( payload.count ?? 0 );
@@ -30,21 +30,46 @@ const updateButtonState = ( button, payload ) => {
 		button.classList.remove( 'is-liked' );
 		button.setAttribute( 'aria-pressed', 'false' );
 	}
+
+	if ( announce ) {
+		const statusNode = button.parentElement?.querySelector(
+			'.child-post-likes__status'
+		);
+		if ( statusNode ) {
+			const stateMessage = payload.liked
+				? button.dataset.likedMessage || 'Like saved.'
+				: button.dataset.unlikedMessage || 'Like removed.';
+			statusNode.textContent = `${ stateMessage } ${
+				button.dataset.countLabel || 'Total likes:'
+			} ${ payload.count ?? 0 }`;
+		}
+	}
 };
 
-const initLikeButton = ( button ) => {
+const initLikeButton = async ( button ) => {
 	if ( ! button || button.dataset.likesInitialized === '1' ) {
 		return;
 	}
 
 	button.dataset.likesInitialized = '1';
+	const postId = Number.parseInt( button.dataset.postId || '', 10 );
+	if ( ! postId ) {
+		return;
+	}
+
+	setLoadingState( button, true );
+	try {
+		const payload = await apiFetch( {
+			path: `/child/v1/post-likes/${ postId }`,
+		} );
+		updateButtonState( button, payload );
+	} catch {
+		// Keep the server-rendered state when hydration is unavailable.
+	} finally {
+		setLoadingState( button, false );
+	}
 
 	button.addEventListener( 'click', async () => {
-		const postId = Number.parseInt( button.dataset.postId || '', 10 );
-		if ( ! postId ) {
-			return;
-		}
-
 		setLoadingState( button, true );
 
 		try {
@@ -55,10 +80,21 @@ const initLikeButton = ( button ) => {
 				data: { liked: desiredState },
 			} );
 
-			updateButtonState( button, payload );
-		} catch ( error ) {
+			updateButtonState( button, payload, true );
+		} catch {
 			button.classList.add( 'has-error' );
-			window.setTimeout( () => button.classList.remove( 'has-error' ), 1600 );
+			const statusNode = button.parentElement?.querySelector(
+				'.child-post-likes__status'
+			);
+			if ( statusNode ) {
+				statusNode.textContent =
+					button.dataset.errorMessage ||
+					'The like could not be saved. Please try again.';
+			}
+			window.setTimeout(
+				() => button.classList.remove( 'has-error' ),
+				1600
+			);
 		} finally {
 			setLoadingState( button, false );
 		}
@@ -70,7 +106,11 @@ const initializePostLikes = () => {
 };
 
 if ( document.readyState === 'loading' ) {
-	document.addEventListener( 'DOMContentLoaded', () => schedule( initializePostLikes ), { once: true } );
+	document.addEventListener(
+		'DOMContentLoaded',
+		() => schedule( initializePostLikes ),
+		{ once: true }
+	);
 } else {
 	schedule( initializePostLikes );
 }

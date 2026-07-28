@@ -5,16 +5,27 @@ Description: Child theme for TwentyTwentyFive with plugin replacements.
 Author: Niklas Barning
 Author URI: https://github.com/barning
 Template: twentytwentyfive
- Version: 1.6.0
+Requires at least: 6.7
+Requires PHP: 8.1
+Version: 1.6.0
 */
 
 .overflow-image {
 	overflow: hidden;
 }
+
 .is-clickable {
-	transition: all .2s;
+	transition: box-shadow 0.2s, translate 0.2s;
 }
+
 .is-clickable:hover {
 	box-shadow: var(--wp--preset--shadow--deep);
 	translate: 0 -2px 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.is-clickable {
+		transition: none;
+	}
 }

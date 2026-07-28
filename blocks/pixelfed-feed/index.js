@@ -14,17 +14,29 @@ function Edit( { attributes, setAttributes } ) {
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Pixelfed Feed Settings', 'child' ) }>
-					<TextControl __next40pxDefaultSize __nextHasNoMarginBottom
+					<TextControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
 						label={ __( 'Pixelfed RSS URL', 'child' ) }
 						value={ feedUrl }
-						onChange={ ( value ) => setAttributes( { feedUrl: value } ) }
-						placeholder={ __( 'https://pixelfed.example/users/username.atom', 'child' ) }
-						help={ __( 'Paste the RSS/Atom feed URL of a Pixelfed profile.', 'child' ) }
+						onChange={ ( value ) =>
+							setAttributes( { feedUrl: value } )
+						}
+						placeholder={ __(
+							'https://pixelfed.example/users/username.atom',
+							'child'
+						) }
+						help={ __(
+							'Paste the RSS/Atom feed URL of a Pixelfed profile.',
+							'child'
+						) }
 					/>
 					<RangeControl
 						label={ __( 'Number of images', 'child' ) }
 						value={ itemsToShow }
-						onChange={ ( value ) => setAttributes( { itemsToShow: value || 9 } ) }
+						onChange={ ( value ) =>
+							setAttributes( { itemsToShow: value || 9 } )
+						}
 						min={ 1 }
 						max={ 18 }
 					/>
@@ -33,9 +45,17 @@ function Edit( { attributes, setAttributes } ) {
 
 			<div { ...useBlockProps() }>
 				{ feedUrl ? (
-					<ServerSideRender block={ metadata.name } attributes={ attributes } />
+					<ServerSideRender
+						block={ metadata.name }
+						attributes={ attributes }
+					/>
 				) : (
-					<p>{ __( 'Add a Pixelfed RSS feed URL in the block settings.', 'child' ) }</p>
+					<p>
+						{ __(
+							'Add a Pixelfed RSS feed URL in the block settings.',
+							'child'
+						) }
+					</p>
 				) }
 			</div>
 		</>

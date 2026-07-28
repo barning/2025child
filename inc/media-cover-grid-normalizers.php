@@ -12,10 +12,10 @@
  */
 function child_get_media_cover_grid_normalizers(): array {
 	$normalizers = [
-		'child/book-rating' => 'child_normalize_media_cover_grid_book_block',
-		'child/media-recommendation' => 'child_normalize_media_cover_grid_media_recommendation_block',
+		'child/book-rating'              => 'child_normalize_media_cover_grid_book_block',
+		'child/media-recommendation'     => 'child_normalize_media_cover_grid_media_recommendation_block',
 		'child/videogame-recommendation' => 'child_normalize_media_cover_grid_videogame_block',
-		'child/music-recommendation' => 'child_normalize_media_cover_grid_music_block',
+		'child/music-recommendation'     => 'child_normalize_media_cover_grid_music_block',
 	];
 
 	/**
@@ -33,7 +33,7 @@ function child_get_media_cover_grid_normalizers(): array {
  * Normalize one supported block into a shared media item shape.
  *
  * @param array<string, mixed> $block Parsed Gutenberg block.
- * @param WP_Post             $post  Source post.
+ * @param WP_Post              $post  Source post.
  * @return array<string, mixed>|null
  */
 function child_normalize_media_cover_grid_block( array $block, WP_Post $post ): ?array {
@@ -103,14 +103,16 @@ function child_normalize_media_cover_grid_book_block( array $attrs ): ?array {
 		return null;
 	}
 
-	return child_create_media_cover_grid_item( [
-		'type'        => 'book',
-		'title'       => $title,
-		'meta'        => trim( (string) ( $attrs['author'] ?? '' ) ),
-		'coverUrl'    => (string) ( $attrs['coverUrl'] ?? '' ),
-		'coverFormat' => 'portrait',
-		'externalUrl' => (string) ( $attrs['shopUrl'] ?? '' ),
-	] );
+	return child_create_media_cover_grid_item(
+		[
+			'type'        => 'book',
+			'title'       => $title,
+			'meta'        => trim( (string) ( $attrs['author'] ?? '' ) ),
+			'coverUrl'    => (string) ( $attrs['coverUrl'] ?? '' ),
+			'coverFormat' => 'portrait',
+			'externalUrl' => (string) ( $attrs['shopUrl'] ?? '' ),
+		]
+	);
 }
 
 /**
@@ -127,15 +129,17 @@ function child_normalize_media_cover_grid_media_recommendation_block( array $att
 
 	$media_type = 'tv' === ( $attrs['mediaType'] ?? '' ) ? 'tv' : 'movie';
 
-	return child_create_media_cover_grid_item( [
-		'type'        => $media_type,
-		'title'       => $title,
-		'meta'        => trim( (string) ( $attrs['releaseYear'] ?? '' ) ),
-		'coverUrl'    => (string) ( $attrs['posterUrl'] ?? '' ),
-		'coverFormat' => 'portrait',
-		'externalUrl' => (string) ( $attrs['serviceUrl'] ?? '' ),
-		'tmdbId'      => absint( $attrs['tmdbId'] ?? 0 ),
-	] );
+	return child_create_media_cover_grid_item(
+		[
+			'type'        => $media_type,
+			'title'       => $title,
+			'meta'        => trim( (string) ( $attrs['releaseYear'] ?? '' ) ),
+			'coverUrl'    => (string) ( $attrs['posterUrl'] ?? '' ),
+			'coverFormat' => 'portrait',
+			'externalUrl' => (string) ( $attrs['serviceUrl'] ?? '' ),
+			'tmdbId'      => absint( $attrs['tmdbId'] ?? 0 ),
+		]
+	);
 }
 
 /**
@@ -157,15 +161,17 @@ function child_normalize_media_cover_grid_videogame_block( array $attrs ): ?arra
 		$year      = $timestamp ? date_i18n( 'Y', $timestamp ) : '';
 	}
 
-	return child_create_media_cover_grid_item( [
-		'type'        => 'game',
-		'title'       => $title,
-		'meta'        => child_join_media_cover_grid_meta( [ $year, implode( ', ', array_slice( $platforms, 0, 3 ) ) ] ),
-		'coverUrl'    => (string) ( $attrs['coverUrl'] ?? '' ),
-		'coverFormat' => 'portrait' === ( $attrs['coverFormat'] ?? '' ) ? 'portrait' : 'landscape',
-		'externalUrl' => (string) ( $attrs['shopUrl'] ?? '' ),
-		'rawgId'      => absint( $attrs['rawgId'] ?? 0 ),
-	] );
+	return child_create_media_cover_grid_item(
+		[
+			'type'        => 'game',
+			'title'       => $title,
+			'meta'        => child_join_media_cover_grid_meta( [ $year, implode( ', ', array_slice( $platforms, 0, 3 ) ) ] ),
+			'coverUrl'    => (string) ( $attrs['coverUrl'] ?? '' ),
+			'coverFormat' => 'portrait' === ( $attrs['coverFormat'] ?? '' ) ? 'portrait' : 'landscape',
+			'externalUrl' => (string) ( $attrs['shopUrl'] ?? '' ),
+			'rawgId'      => absint( $attrs['rawgId'] ?? 0 ),
+		]
+	);
 }
 
 
@@ -184,22 +190,24 @@ function child_normalize_media_cover_grid_music_block( array $attrs ): ?array {
 	$artist       = trim( (string) ( $attrs['artist'] ?? '' ) );
 	$album_title  = trim( (string) ( $attrs['albumTitle'] ?? '' ) );
 	$release_year = trim( (string) ( $attrs['releaseYear'] ?? '' ) );
-	return child_create_media_cover_grid_item( [
-		'type'        => 'music',
-		'title'       => $title,
-		'meta'        => child_join_media_cover_grid_meta( [ $artist, 'song' === ( $attrs['musicType'] ?? '' ) ? $album_title : '', $release_year ] ),
-		'coverUrl'    => (string) ( $attrs['coverUrl'] ?? '' ),
-		'coverFormat' => 'square',
-		'externalUrl' => (string) ( $attrs['providerUrl'] ?? '' ),
-		'providerId'  => sanitize_text_field( (string) ( $attrs['providerId'] ?? '' ) ),
-	] );
+	return child_create_media_cover_grid_item(
+		[
+			'type'        => 'music',
+			'title'       => $title,
+			'meta'        => child_join_media_cover_grid_meta( [ $artist, 'song' === ( $attrs['musicType'] ?? '' ) ? $album_title : '', $release_year ] ),
+			'coverUrl'    => (string) ( $attrs['coverUrl'] ?? '' ),
+			'coverFormat' => 'square',
+			'externalUrl' => (string) ( $attrs['providerUrl'] ?? '' ),
+			'providerId'  => sanitize_text_field( (string) ( $attrs['providerId'] ?? '' ) ),
+		]
+	);
 }
 
 /**
  * Add source-post metadata to a normalized media item.
  *
  * @param array<string, mixed> $item Normalized media item.
- * @param WP_Post             $post Source post.
+ * @param WP_Post              $post Source post.
  * @return array<string, mixed>
  */
 function child_add_media_cover_grid_source_post( array $item, WP_Post $post ): array {

@@ -8,13 +8,15 @@ export const SearchResults = ( { results, selectedId, onSelect } ) => (
 		onSelect={ onSelect }
 		className="media-search-results"
 		getId={ ( media ) => media.id }
-		getClassName={ ( media, isSelected ) => `media-search-result${ isSelected ? ' is-active' : '' }` }
+		getClassName={ ( media, isSelected ) =>
+			`media-search-result${ isSelected ? ' is-active' : '' }`
+		}
 	>
 		{ ( media ) => (
 			<>
 				{ media.poster ? (
 					<span className="media-search-result__thumb">
-						<img src={ media.poster } alt={ media.title || '' } loading="lazy" />
+						<img src={ media.poster } alt="" loading="lazy" />
 					</span>
 				) : (
 					<span
@@ -25,12 +27,18 @@ export const SearchResults = ( { results, selectedId, onSelect } ) => (
 					</span>
 				) }
 				<span className="media-search-result__details">
-					<span className="media-search-result__title">{ media.title }</span>
+					<span className="media-search-result__title">
+						{ media.title }
+					</span>
 					{ media.year ? (
-						<span className="media-search-result__year">{ media.year }</span>
+						<span className="media-search-result__year">
+							{ media.year }
+						</span>
 					) : null }
 					<span className="media-search-result__type">
-						{ media.mediaType === 'movie' ? __( 'Film', 'child' ) : __( 'Serie', 'child' ) }
+						{ media.mediaType === 'movie'
+							? __( 'Film', 'child' )
+							: __( 'Serie', 'child' ) }
 					</span>
 				</span>
 			</>

@@ -7,57 +7,62 @@
  * @return string Returns the block content
  */
 
-return function($attributes) {
-    $wrapper_attributes = get_block_wrapper_attributes();
-    $media_title = $attributes['mediaTitle'] ?? '';
-    $media_type = $attributes['mediaType'] ?? 'movie';
-    $poster_url = $attributes['posterUrl'] ?? '';
-    $release_year = $attributes['releaseYear'] ?? '';
-    $service_url = $attributes['serviceUrl'] ?? '';
+return function ( $attributes ) {
+	$wrapper_attributes = get_block_wrapper_attributes();
+	$media_title        = $attributes['mediaTitle'] ?? '';
+	$media_type         = $attributes['mediaType'] ?? 'movie';
+	$poster_url         = $attributes['posterUrl'] ?? '';
+	$release_year       = $attributes['releaseYear'] ?? '';
+	$service_url        = $attributes['serviceUrl'] ?? '';
 
-    if (empty($media_title)) {
-        return '';
-    }
+	if ( empty( $media_title ) ) {
+		return '';
+	}
 
-    $type_label = $media_type === 'movie' ? __( 'Film', 'child' ) : __( 'Serie', 'child' );
+	$type_label = $media_type === 'movie' ? __( 'Film', 'child' ) : __( 'Serie', 'child' );
 
-    ob_start(); ?>
-    <div <?php echo $wrapper_attributes; ?>>
-        <div class="child-media-card" aria-label="<?php echo esc_attr( $type_label ); ?>">
-            <div class="child-media-card__media">
-                <?php if ( ! empty( $poster_url ) ) : ?>
-                    <?php if ( ! empty( $service_url ) ) : ?>
-                        <a class="child-media-card__poster-link" href="<?php echo esc_url( $service_url ); ?>" target="_blank" rel="noopener noreferrer">
-                            <img 
-                                src="<?php echo esc_url( $poster_url ); ?>" 
-                                alt="<?php echo esc_attr( $media_title ); ?>" 
-                                class="child-media-card__poster"
-                                loading="lazy"
-                            />
-                        </a>
-                    <?php else : ?>
-                        <img 
-                            src="<?php echo esc_url( $poster_url ); ?>" 
-                            alt="<?php echo esc_attr( $media_title ); ?>" 
-                            class="child-media-card__poster"
-                            loading="lazy"
-                        />
-                    <?php endif; ?>
-                <?php else : ?>
-                    <div class="child-media-card__placeholder" aria-hidden="true"></div>
-                <?php endif; ?>
-            </div>
-            
-            <div class="child-media-card__meta">
-                <h3 class="child-media-card__title"><?php echo esc_html( $media_title ); ?></h3>
-                <?php if ( ! empty( $release_year ) ) : ?>
-                    <p class="child-media-card__year">
-                        <?php echo esc_html( $release_year ); ?>
-                    </p>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
-    <?php
-    return ob_get_clean();
+	ob_start(); ?>
+	<div
+	<?php
+    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by get_block_wrapper_attributes().
+	echo $wrapper_attributes;
+	?>
+	>
+		<div class="child-media-card" aria-label="<?php echo esc_attr( $type_label ); ?>">
+			<div class="child-media-card__media">
+				<?php if ( ! empty( $poster_url ) ) : ?>
+					<?php if ( ! empty( $service_url ) ) : ?>
+						<a class="child-media-card__poster-link" href="<?php echo esc_url( $service_url ); ?>" target="_blank" rel="noopener noreferrer">
+							<img
+								src="<?php echo esc_url( $poster_url ); ?>"
+								alt="<?php echo esc_attr( $media_title ); ?>"
+								class="child-media-card__poster"
+								loading="lazy"
+							/>
+						</a>
+					<?php else : ?>
+						<img
+							src="<?php echo esc_url( $poster_url ); ?>"
+							alt="<?php echo esc_attr( $media_title ); ?>"
+							class="child-media-card__poster"
+							loading="lazy"
+						/>
+					<?php endif; ?>
+				<?php else : ?>
+					<div class="child-media-card__placeholder" aria-hidden="true"></div>
+				<?php endif; ?>
+			</div>
+
+			<div class="child-media-card__meta">
+				<h3 class="child-media-card__title"><?php echo esc_html( $media_title ); ?></h3>
+				<?php if ( ! empty( $release_year ) ) : ?>
+					<p class="child-media-card__year">
+						<?php echo esc_html( $release_year ); ?>
+					</p>
+				<?php endif; ?>
+			</div>
+		</div>
+	</div>
+	<?php
+	return ob_get_clean();
 };

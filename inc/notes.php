@@ -22,23 +22,26 @@ function child_register_note_post_type() {
 		'menu_name'          => __( 'Notes', 'child' ),
 	];
 
-	register_post_type( CHILD_NOTE_POST_TYPE, [
-		'labels'             => $labels,
-		'public'             => true,
-		'show_in_rest'       => true,
-		'has_archive'        => true,
-		'rewrite'            => [ 'slug' => 'notes' ],
-		'menu_icon'          => 'dashicons-format-status',
-		'menu_position'      => 21,
-		'supports'           => [
-			'editor',
-			'excerpt',
-			'author',
-			'revisions',
-		],
-		'map_meta_cap'       => true,
-		'publicly_queryable' => true,
-	] );
+	register_post_type(
+		CHILD_NOTE_POST_TYPE,
+		[
+			'labels'             => $labels,
+			'public'             => true,
+			'show_in_rest'       => true,
+			'has_archive'        => true,
+			'rewrite'            => [ 'slug' => 'notes' ],
+			'menu_icon'          => 'dashicons-format-status',
+			'menu_position'      => 21,
+			'supports'           => [
+				'editor',
+				'excerpt',
+				'author',
+				'revisions',
+			],
+			'map_meta_cap'       => true,
+			'publicly_queryable' => true,
+		]
+	);
 }
 add_action( 'init', 'child_register_note_post_type' );
 
@@ -63,6 +66,8 @@ function child_get_note_title_timestamp( string $date ): int {
  * Ensure notes have an internal title (date + time) for admin/feeds.
  */
 function child_set_note_internal_title( array $data, array $postarr ): array {
+	unset( $postarr );
+
 	if ( ! child_is_note_post_type( (string) ( $data['post_type'] ?? '' ) ) ) {
 		return $data;
 	}
@@ -77,8 +82,8 @@ function child_set_note_internal_title( array $data, array $postarr ): array {
 		return $data;
 	}
 
-	$date = (string) ( $data['post_date'] ?? '' );
-	$timestamp = child_get_note_title_timestamp( $date );
+	$date               = (string) ( $data['post_date'] ?? '' );
+	$timestamp          = child_get_note_title_timestamp( $date );
 	$data['post_title'] = date_i18n( 'Y-m-d H:i', $timestamp );
 
 	return $data;

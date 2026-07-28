@@ -1,7 +1,12 @@
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { registerBlockType } from '@wordpress/blocks';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, TextControl, Button, SelectControl } from '@wordpress/components';
+import {
+	PanelBody,
+	TextControl,
+	Button,
+	SelectControl,
+} from '@wordpress/components';
 import { useEffect } from '@wordpress/element';
 import metadata from './block.json';
 import { MediaPreview } from './components/MediaPreview';
@@ -13,7 +18,8 @@ import './style.css';
 
 function Edit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps();
-	const { mediaTitle, mediaType, posterUrl, releaseYear, serviceUrl } = attributes;
+	const { mediaTitle, mediaType, posterUrl, releaseYear, serviceUrl } =
+		attributes;
 	const {
 		searchTerm,
 		setSearchTerm,
@@ -31,7 +37,9 @@ function Edit( { attributes, setAttributes } ) {
 			return;
 		}
 
-		setSearchTerm( ( currentValue ) => ( currentValue ? currentValue : mediaTitle ) );
+		setSearchTerm( ( currentValue ) =>
+			currentValue ? currentValue : mediaTitle
+		);
 	}, [ mediaTitle, setSearchTerm ] );
 
 	const handleMediaSelection = ( media ) => {
@@ -47,7 +55,7 @@ function Edit( { attributes, setAttributes } ) {
 	};
 
 	const handleSearchKeyDown = ( event ) => {
-		if ( event.key === 'Enter' ) {
+		if ( event.key === 'Enter' && ! isSearching ) {
 			event.preventDefault();
 			searchMedia();
 		}
@@ -56,14 +64,17 @@ function Edit( { attributes, setAttributes } ) {
 	return (
 		<div { ...blockProps }>
 			<InspectorControls>
-				<PanelBody title={ __( 'Film/Serie suchen', 'child' ) } initialOpen={ true }>
+				<PanelBody
+					title={ __( 'Film/Serie suchen', 'child' ) }
+					initialOpen={ true }
+				>
 					<TextControl
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
 						label={ __( 'Suche nach Titel', 'child' ) }
 						value={ searchTerm }
 						onChange={ setSearchTerm }
-						placeholder={ __( 'Titel eingeben...', 'child' ) }
+						placeholder={ __( 'Titel eingeben…', 'child' ) }
 						onKeyDown={ handleSearchKeyDown }
 					/>
 					<Button
@@ -72,12 +83,28 @@ function Edit( { attributes, setAttributes } ) {
 						disabled={ isSearching }
 						className="media-search-button"
 					>
-						{ isSearching ? __( 'Suche...', 'child' ) : __( 'Suchen', 'child' ) }
+						{ isSearching
+							? __( 'Suche…', 'child' )
+							: __( 'Suchen', 'child' ) }
 					</Button>
 					<SearchFeedback
 						isSearching={ isSearching }
 						error={ searchError }
 						loadingClassName="media-search-loading"
+						statusMessage={
+							hasSearched
+								? sprintf(
+										/* translators: %d: number of search results */
+										_n(
+											'%d Ergebnis gefunden.',
+											'%d Ergebnisse gefunden.',
+											searchResults.length,
+											'child'
+										),
+										searchResults.length
+								  )
+								: ''
+						}
 					/>
 					{ ! isSearching && hasSearched && (
 						<SearchResults
@@ -88,7 +115,10 @@ function Edit( { attributes, setAttributes } ) {
 					) }
 				</PanelBody>
 
-				<PanelBody title={ __( 'Details', 'child' ) } initialOpen={ true }>
+				<PanelBody
+					title={ __( 'Details', 'child' ) }
+					initialOpen={ true }
+				>
 					<SelectControl
 						label={ __( 'Typ', 'child' ) }
 						value={ mediaType }
@@ -96,37 +126,53 @@ function Edit( { attributes, setAttributes } ) {
 							{ label: __( 'Film', 'child' ), value: 'movie' },
 							{ label: __( 'Serie', 'child' ), value: 'tv' },
 						] }
-						onChange={ ( value ) => setAttributes( { mediaType: value } ) }
+						onChange={ ( value ) =>
+							setAttributes( { mediaType: value } )
+						}
 					/>
 					<TextControl
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
 						label={ __( 'Titel', 'child' ) }
 						value={ mediaTitle }
-						onChange={ ( value ) => setAttributes( { mediaTitle: value } ) }
+						onChange={ ( value ) =>
+							setAttributes( { mediaTitle: value } )
+						}
 					/>
 					<TextControl
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
 						label={ __( 'Jahr', 'child' ) }
 						value={ releaseYear }
-						onChange={ ( value ) => setAttributes( { releaseYear: value } ) }
+						onChange={ ( value ) =>
+							setAttributes( { releaseYear: value } )
+						}
 					/>
 					<TextControl
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
 						label={ __( 'Poster-URL', 'child' ) }
 						value={ posterUrl }
-						onChange={ ( value ) => setAttributes( { posterUrl: value } ) }
-						help={ __( 'Optional: Eigenes Poster einfügen', 'child' ) }
+						onChange={ ( value ) =>
+							setAttributes( { posterUrl: value } )
+						}
+						help={ __(
+							'Optional: Eigenes Poster einfügen',
+							'child'
+						) }
 					/>
 					<TextControl
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
 						label={ __( 'Streaming-Link', 'child' ) }
 						value={ serviceUrl }
-						onChange={ ( value ) => setAttributes( { serviceUrl: value } ) }
-						help={ __( 'Wird bei der Suche automatisch befüllt (TMDB-Link), kann aber manuell überschrieben werden.', 'child' ) }
+						onChange={ ( value ) =>
+							setAttributes( { serviceUrl: value } )
+						}
+						help={ __(
+							'Wird bei der Suche automatisch befüllt (TMDB-Link), kann aber manuell überschrieben werden.',
+							'child'
+						) }
 					/>
 				</PanelBody>
 			</InspectorControls>

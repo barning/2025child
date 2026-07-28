@@ -24,6 +24,7 @@ A production-focused child theme for **Twenty Twenty-Five** that keeps customiza
 │   ├── music-recommendation.php
 │   ├── notes.php
 │   ├── post-likes.php
+│   ├── provider-http.php         # Shared bounded provider cache + HTTP validation.
 │   ├── rss-feed-footer.php
 │   ├── videogame-recommendation.php
 │   └── visual-link-preview-async.php
@@ -54,9 +55,10 @@ A production-focused child theme for **Twenty Twenty-Five** that keeps customiza
 - `child/visual-link-preview`
 
 Each block:
+
 - registers from `build/<slug>`
 - uses a server-side render callback from `blocks/<slug>/render.php` (where applicable)
-- receives block style enqueueing plus a global style fallback for compatibility
+- loads its generated assets from block metadata only when WordPress renders the block
 
 
 ### Dynamic Block Feature Structure
@@ -79,7 +81,11 @@ The recommendation blocks keep their saved attribute schemas independent, but sh
 - `blocks/shared/media/useSearchState.js` centralizes search term, loading, result, selection, and error state.
 - `blocks/shared/media/SearchFeedback.js` centralizes loading/error output.
 - `blocks/shared/media/SearchResultsList.js` centralizes result row button rendering while each block keeps its own result markup and CSS classes.
+- `blocks/shared/media/recommendation-card.css` centralizes the visual card primitives used by the recommendation blocks.
 - Provider-specific search and mapping stays in each feature block so Books, TMDB, Apple/iTunes, and RAWG can evolve independently.
+- Searches are cancellable and ignore stale responses, so a slower earlier request cannot overwrite a newer result.
+
+All provider requests use `inc/provider-http.php` for bounded transient registries, timeouts, status validation, safe JSON decoding, and user-safe errors. API responses are cached according to provider volatility. Visual link previews use a cache-only front-end render path; authorized editor/save activity queues the protected background refresh.
 
 ### Media Cover Grid
 
@@ -135,7 +141,8 @@ Posts can include a custom RSS footer message via a post editor metabox.
 Install dependencies and build compiled block assets:
 
 ```bash
-npm install
+npm ci
+composer install
 npm run build
 ```
 
@@ -151,6 +158,18 @@ Create a distribution package with a fresh build:
 npm run dist
 ```
 
+Run the local quality suite:
+
+```bash
+npm run check
+npm run lint
+composer test
+composer analyse
+composer lint
+```
+
+The release workflow runs these gates across PHP 8.1, 8.3, and 8.5, audits production npm dependencies, validates generated block manifests, tests the ZIP, and activates the packaged child theme in a fresh WordPress installation.
+
 Release notes are tracked in `releases/` instead of a running devlog.
 
 ## Compatibility and Maintenance
@@ -158,3 +177,4 @@ Release notes are tracked in `releases/` instead of a running devlog.
 - Keeps child-theme overrides intentionally minimal.
 - Uses consistent prefixed function names (`child_*`) to avoid collisions.
 - Consolidates duplicated registration/enqueue logic to simplify future parent-theme updates.
+- Requires WordPress 6.7+, PHP 8.1+, and Node 20+ for development.

@@ -19,6 +19,19 @@ function child_get_google_books_api_key(): string {
 }
 
 /**
+ * Preserve a saved Books key unless an explicit replacement or removal is requested.
+ */
+function child_sanitize_google_books_api_key( $value ): string {
+	if ( isset( $_POST['child_google_books_api_key_clear'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Settings API verifies the request.
+		return '';
+	}
+
+	$value = sanitize_text_field( (string) $value );
+
+	return '' !== $value ? $value : (string) get_option( 'child_google_books_api_key', '' );
+}
+
+/**
  * Render the Google Books settings page.
  */
 function child_render_book_rating_settings_page(): void {
@@ -59,7 +72,7 @@ function child_register_book_rating_settings(): void {
 		'child_google_books_api_key',
 		[
 			'type'              => 'string',
-			'sanitize_callback' => 'sanitize_text_field',
+			'sanitize_callback' => 'child_sanitize_google_books_api_key',
 			'default'           => '',
 		]
 	);
@@ -98,17 +111,22 @@ function child_render_book_rating_section_description(): void {
  * Render Google Books key input.
  */
 function child_render_book_rating_api_field(): void {
-	$value = esc_attr( get_option( 'child_google_books_api_key', '' ) );
+	$has_saved_key = '' !== (string) get_option( 'child_google_books_api_key', '' );
 	?>
 	<input
 		type="password"
 		name="child_google_books_api_key"
-		value="<?php echo $value; ?>"
+		value=""
 		class="regular-text"
+		autocomplete="new-password"
+		placeholder="<?php echo esc_attr( $has_saved_key ? __( 'Saved — enter a new key to replace it', 'child' ) : __( 'Enter an API key', 'child' ) ); ?>"
 	/>
 	<p class="description">
-		<?php esc_html_e( 'Your API key will be used to search books without hitting rate limits.', 'child' ); ?>
+		<?php esc_html_e( 'Stored in the WordPress options table and used only for server-side book searches. Leave blank to keep the saved key.', 'child' ); ?>
 	</p>
+	<?php if ( $has_saved_key ) : ?>
+		<label><input type="checkbox" name="child_google_books_api_key_clear" value="1" /> <?php esc_html_e( 'Remove the saved key', 'child' ); ?></label>
+	<?php endif; ?>
 	<?php
 }
 
@@ -121,11 +139,18 @@ function child_register_books_lookup_route(): void {
 		'/books',
 		[
 			'methods'             => 'GET',
-			'permission_callback' => '__return_true',
+			'permission_callback' => static function (): bool {
+				return current_user_can( 'edit_posts' );
+			},
 			'args'                => [
 				'q'          => [
 					'required'          => true,
 					'sanitize_callback' => 'sanitize_text_field',
+					'validate_callback' => static function ( $value ): bool {
+						$length = function_exists( 'mb_strlen' ) ? mb_strlen( (string) $value ) : strlen( (string) $value );
+
+						return $length > 0 && $length <= 160;
+					},
 				],
 				'maxResults' => [
 					'required'          => false,
@@ -153,13 +178,12 @@ function child_books_lookup_callback( WP_REST_Request $request ) {
 		return new WP_Error( 'missing_query', __( 'Bitte gib einen Suchbegriff ein.', 'child' ), [ 'status' => 400 ] );
 	}
 
-	$max_results = max( 1, min( 10, $max_results ) );
-	$cache_key   = 'child_books_' . md5( $query . '|' . $max_results );
-	$cached      = get_transient( $cache_key );
-
-	if ( false !== $cached ) {
-		return rest_ensure_response( $cached );
+	$query_length = function_exists( 'mb_strlen' ) ? mb_strlen( $query ) : strlen( $query );
+	if ( $query_length > 160 ) {
+		return new WP_Error( 'query_too_long', __( 'Der Suchbegriff ist zu lang.', 'child' ), [ 'status' => 400 ] );
 	}
+
+	$max_results = max( 1, min( 10, $max_results ) );
 
 	// Build API URL with query parameters
 	$api_params = [
@@ -174,54 +198,40 @@ function child_books_lookup_callback( WP_REST_Request $request ) {
 
 	$api_url = 'https://www.googleapis.com/books/v1/volumes?' . http_build_query( $api_params );
 
-	$response = wp_remote_get(
+	$data = child_provider_get_json(
 		$api_url,
 		[
 			'timeout' => 8,
-		]
+		],
+		'books',
+		12 * HOUR_IN_SECONDS
 	);
 
-	if ( is_wp_error( $response ) ) {
-		return new WP_Error( 'books_lookup_failed', __( 'Die Buchsuche konnte nicht geladen werden.', 'child' ), [ 'status' => 500 ] );
-	}
+	if ( is_wp_error( $data ) ) {
+		$error_data = $data->get_error_data();
+		$status     = (int) ( $error_data['provider_status'] ?? $error_data['status'] ?? 502 );
+		if ( 429 === $status ) {
+			return new WP_Error(
+				'rate_limited',
+				__( 'Google Books API-Limit erreicht. Bitte einen API-Schlüssel in den Einstellungen hinterlegen.', 'child' ),
+				[ 'status' => 429 ]
+			);
+		}
 
-	$status = wp_remote_retrieve_response_code( $response );
-	$body   = wp_remote_retrieve_body( $response );
+		if ( in_array( $status, [ 400, 401, 403 ], true ) ) {
+			return new WP_Error(
+				'api_auth_failed',
+				__( 'API-Authentifizierung fehlgeschlagen. Bitte überprüfe deinen API-Schlüssel in den Einstellungen.', 'child' ),
+				[ 'status' => $status ]
+			);
+		}
 
-	if ( 429 === $status ) {
-		return new WP_Error(
-			'rate_limited',
-			__( 'Google Books API-Limit erreicht. Bitte einen API-Schlüssel in den Einstellungen hinterlegen.', 'child' ),
-			[ 'status' => 429 ]
-		);
-	}
-
-	if ( 400 === $status || 401 === $status || 403 === $status ) {
-		return new WP_Error(
-			'api_auth_failed',
-			__( 'API-Authentifizierung fehlgeschlagen. Bitte überprüfe deinen API-Schlüssel in den Einstellungen.', 'child' ),
-			[ 'status' => $status ]
-		);
-	}
-
-	if ( $status < 200 || $status >= 300 ) {
 		return new WP_Error(
 			'books_lookup_failed',
-			sprintf(
-				/* translators: %d: HTTP status code */
-				__( 'Die Buchsuche konnte nicht geladen werden. (Fehler: %d)', 'child' ),
-				$status
-			),
-			[ 'status' => $status ]
+			__( 'Die Buchsuche konnte nicht geladen werden.', 'child' ),
+			[ 'status' => 502 ]
 		);
 	}
-
-	$data = json_decode( $body, true );
-	if ( null === $data ) {
-		return new WP_Error( 'invalid_response', __( 'Die Buchsuche lieferte keine gültige Antwort.', 'child' ), [ 'status' => 500 ] );
-	}
-
-	set_transient( $cache_key, $data, HOUR_IN_SECONDS * 12 );
 
 	return rest_ensure_response( $data );
 }

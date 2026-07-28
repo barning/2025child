@@ -120,7 +120,7 @@ function child_append_rss_footer_links( string $content, string $feed_type = '' 
 
 	$message = child_get_rss_footer_message( $post_id );
 
-	$footer  = '<hr />';
+	$footer = '<hr />';
 	if ( $message !== '' ) {
 		$footer .= wpautop( esc_html( $message ) );
 	}

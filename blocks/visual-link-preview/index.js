@@ -7,32 +7,41 @@ import metadata from './block.json';
 import './editor.css';
 import './style.css';
 
-function Edit({ attributes, setAttributes }) {
-  const { url = '' } = attributes;
-  return (
-    <>
-      <InspectorControls>
-        <PanelBody title={__('Link Preview Settings', 'child')}>
-          <TextControl __next40pxDefaultSize __nextHasNoMarginBottom
-            label={__('URL', 'child')}
-            value={url}
-            onChange={(value) => setAttributes({ url: value })}
-            placeholder={__('Paste a URL…', 'child')}
-          />
-        </PanelBody>
-      </InspectorControls>
-      <div {...useBlockProps()}>
-        {url ? (
-          <ServerSideRender block={metadata.name} attributes={attributes} />
-        ) : (
-          <strong>{__('Enter a URL to preview.', 'child')}</strong>
-        )}
-      </div>
-    </>
-  );
+function Edit( { attributes, setAttributes } ) {
+	const { url = '' } = attributes;
+	return (
+		<>
+			<InspectorControls>
+				<PanelBody title={ __( 'Link Preview Settings', 'child' ) }>
+					<TextControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __( 'URL', 'child' ) }
+						value={ url }
+						onChange={ ( value ) =>
+							setAttributes( { url: value } )
+						}
+						placeholder={ __( 'Paste a URL…', 'child' ) }
+					/>
+				</PanelBody>
+			</InspectorControls>
+			<div { ...useBlockProps() }>
+				{ url ? (
+					<ServerSideRender
+						block={ metadata.name }
+						attributes={ attributes }
+					/>
+				) : (
+					<strong>
+						{ __( 'Enter a URL to preview.', 'child' ) }
+					</strong>
+				) }
+			</div>
+		</>
+	);
 }
 
-registerBlockType(metadata.name, {
-  edit: Edit,
-  save: () => null,
-});
+registerBlockType( metadata.name, {
+	edit: Edit,
+	save: () => null,
+} );

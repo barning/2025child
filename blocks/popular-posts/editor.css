@@ -1,35 +1,35 @@
 /* Minimale Block-Styles */
 .wp-block-child-popular-posts {
-  padding: 1em;
-  border: 1px dashed #ccc;
+	padding: 1em;
+	border: 1px dashed #ccc;
 }
 
 /* Selector Styles */
 .child-post-selector__row {
-  position: relative;
-  background: #fff;
-  border: 1px solid #e2e4e7;
-  border-radius: 4px;
-  padding: 12px;
-  margin-bottom: 8px;
+	position: relative;
+	background: #fff;
+	border: 1px solid #e2e4e7;
+	border-radius: 4px;
+	padding: 12px;
+	margin-bottom: 8px;
 }
 
 .child-post-selector__row:hover {
-  border-color: #007cba;
+	border-color: #007cba;
 }
 
 .child-post-selector__row .components-button {
-  height: 40px;
-  min-width: 40px;
-  padding: 6px;
+	height: 40px;
+	min-width: 40px;
+	padding: 6px;
 }
 
 .child-post-selector__add {
-  margin-top: 1em;
-  width: 100%;
-  justify-content: center;
+	margin-top: 1em;
+	width: 100%;
+	justify-content: center;
 }
 
 .child-post-selector__row:not(:first-child) .components-input-control__label {
-  display: none;
+	display: none;
 }

@@ -5,8 +5,8 @@
  * @return callable
  */
 
-return function( $attributes ) {
-	$feed_url = isset( $attributes['feedUrl'] ) ? trim( (string) $attributes['feedUrl'] ) : '';
+return function ( $attributes ) {
+	$feed_url      = isset( $attributes['feedUrl'] ) ? trim( (string) $attributes['feedUrl'] ) : '';
 	$items_to_show = isset( $attributes['itemsToShow'] ) ? (int) $attributes['itemsToShow'] : 9;
 	$items_to_show = max( 1, min( 18, $items_to_show ) );
 
@@ -28,7 +28,7 @@ return function( $attributes ) {
 	}
 
 	$max_items = $feed->get_item_quantity( $items_to_show );
-	$items = $feed->get_items( 0, $max_items );
+	$items     = $feed->get_items( 0, $max_items );
 
 	if ( empty( $items ) ) {
 		return sprintf(
@@ -38,14 +38,14 @@ return function( $attributes ) {
 		);
 	}
 
-	$get_image_dimensions = static function( $html ) {
+	$get_image_dimensions = static function ( $html ) {
 		if ( ! preg_match( '/<img[^>]*>/i', (string) $html, $img_tag_match ) ) {
 			return array( 0, 0 );
 		}
 
 		$img_tag = $img_tag_match[0];
-		$width = 0;
-		$height = 0;
+		$width   = 0;
+		$height  = 0;
 
 		if ( preg_match( '/\bwidth=["\'](\d+)["\']/i', $img_tag, $width_match ) ) {
 			$width = (int) $width_match[1];
@@ -58,15 +58,15 @@ return function( $attributes ) {
 		return array( $width, $height );
 	};
 
-	$get_media_dimensions = static function( $item ) {
+	$get_media_dimensions = static function ( $item ) {
 		$media_namespace = defined( 'SIMPLEPIE_NAMESPACE_MEDIARSS' ) ? SIMPLEPIE_NAMESPACE_MEDIARSS : 'http://search.yahoo.com/mrss/';
-		$media_tags = array_merge(
+		$media_tags      = array_merge(
 			(array) $item->get_item_tags( $media_namespace, 'content' ),
 			(array) $item->get_item_tags( $media_namespace, 'thumbnail' )
 		);
 
-		$url = '';
-		$width = 0;
+		$url    = '';
+		$width  = 0;
 		$height = 0;
 
 		foreach ( $media_tags as $tag ) {
@@ -90,20 +90,25 @@ return function( $attributes ) {
 
 	ob_start();
 	?>
-	<div <?php echo get_block_wrapper_attributes(); ?>>
+	<div
+	<?php
+    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by core.
+	echo get_block_wrapper_attributes();
+	?>
+	>
 		<div class="child-pixelfed-feed-grid">
 			<?php $rendered_count = 0; ?>
 			<?php foreach ( $items as $item ) : ?>
 				<?php
-				$item_link = $item->get_link();
-				$image_url = '';
-				$image_width = 0;
+				$item_link    = $item->get_link();
+				$image_url    = '';
+				$image_width  = 0;
 				$image_height = 0;
 
 				$enclosure = $item->get_enclosure();
 				if ( $enclosure && 0 === strpos( (string) $enclosure->get_type(), 'image/' ) ) {
-					$image_url = $enclosure->get_link();
-					$image_width = (int) $enclosure->get_width();
+					$image_url    = $enclosure->get_link();
+					$image_width  = (int) $enclosure->get_width();
 					$image_height = (int) $enclosure->get_height();
 				}
 
@@ -155,7 +160,7 @@ return function( $attributes ) {
 				$needs_ratio_check = $image_width <= 0 || $image_height <= 0;
 
 				$layout_class = 0 === ( $rendered_count % 7 ) ? 'is-featured-tile' : '';
-				$rendered_count++;
+				++$rendered_count;
 				?>
 				<a class="child-pixelfed-feed-item <?php echo esc_attr( trim( $ratio_class . ' ' . $layout_class ) ); ?>" href="<?php echo esc_url( $item_link ); ?>" target="_blank" rel="noopener noreferrer" <?php echo $needs_ratio_check ? 'data-needs-ratio-check="1"' : ''; ?>>
 					<img

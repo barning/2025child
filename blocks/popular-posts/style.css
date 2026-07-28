@@ -1,67 +1,90 @@
 .wp-block-child-popular-posts {
-  margin: 1em 0;
-  padding: 0;
-}
-.wp-block-child-popular-posts ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.wp-block-child-popular-posts li {
-  margin-bottom: 0.5em;
+	margin: 1em 0;
+	padding: 0;
 }
 
-.wp-block-child-popular-posts .child-popular-card{
-  background: var(--wp--preset--color--accent-5);
-  border-radius: 18px;
-  box-shadow:
-    inset 0 0 0 1px color-mix(in srgb, currentColor 10%, transparent),
-    0 14px 32px color-mix(in srgb, currentColor 8%, transparent);
-.child-popular-card__title{ margin:0; font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.8rem); text-align:center; font-weight:700; text-wrap: balance; }
-  transition: color 0.2s ease, transform 0.15s ease;
+.wp-block-child-popular-posts .child-popular-card {
+	padding: 20px 24px;
+	border-radius: 18px;
+	background: var(--wp--preset--color--accent-5);
+	box-shadow:
+		inset 0 0 0 1px color-mix(in srgb, currentcolor 10%, transparent),
+		0 14px 32px color-mix(in srgb, currentcolor 8%, transparent);
+}
+
+.child-popular-card__header {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+	margin-bottom: 18px;
+}
+
+.child-popular-card__emoji {
+	font-size: 2.25rem;
+	line-height: 1;
+}
+
+.child-popular-card__title {
+	margin: 0;
+	font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.8rem);
+	font-weight: 700;
+	text-align: center;
+	text-wrap: balance;
+}
+
+.wp-block-child-popular-posts .child-popular-card__list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.child-popular-card__item {
+	padding: 16px 0;
+	border-top: 1px solid color-mix(in srgb, currentcolor 10%, transparent);
+}
+
+.child-popular-card__item:first-child {
+	border-top: 0;
+}
+
+.child-popular-card__link {
+	display: block;
+	color: var(--wp--preset--color--contrast);
+	text-decoration: none;
+	transition: color 0.2s ease, transform 0.15s ease;
+}
+
+.child-popular-card__link:hover {
+	color: var(--wp--preset--color--primary);
+	text-decoration: underline;
+}
+
 .child-popular-card__link:active {
-  transform: scale(0.96);
-}
-
-  .wp-block-child-popular-posts .child-popular-card{
-    box-shadow:
-      inset 0 0 0 1px color-mix(in srgb, currentColor 20%, transparent),
-      0 14px 32px color-mix(in srgb, #000 24%, transparent);
-  }
-  padding: 20px 24px;
-}
-.child-popular-card__header{ display:flex; flex-direction:column; align-items:center; gap:10px; margin-bottom:18px; }
-.child-popular-card__emoji{ font-size:36px; line-height:1; }
-.child-popular-card__title{ margin:0; font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.8rem); text-align:center; font-weight:700; text-wrap: balance; }
-.child-popular-card__list{ list-style: none; margin:0; padding:0; }
-.child-popular-card__item{ padding: 16px 0; border-top: 1px solid color-mix(in srgb, currentColor 10%, transparent); }
-.child-popular-card__item:first-child{ border-top: 0; }
-.child-popular-card__link { 
-  text-decoration: none; 
-  color: var(--wp--preset--color--contrast);
-  display: block;
-  transition: color 0.2s ease, transform 0.15s ease;
-}
-
-.child-popular-card__link:hover { 
-  color: var(--wp--preset--color--primary);
-  text-decoration: underline; 
-}
-
-.child-popular-card__link:active {
-  transform: scale(0.96);
+	transform: scale(0.96);
 }
 
 .child-popular-card__link--placeholder {
-  color: #757575;
-  font-style: italic;
+	color: color-mix(in srgb, currentcolor 65%, transparent);
+	font-style: italic;
 }
 
-@media (prefers-color-scheme: dark){
-  .wp-block-child-popular-posts .child-popular-card{
-    box-shadow:
-      inset 0 0 0 1px color-mix(in srgb, currentColor 20%, transparent),
-      0 14px 32px color-mix(in srgb, #000 24%, transparent);
-  }
-  .child-popular-card__item{ border-top-color: color-mix(in srgb, currentColor 20%, transparent); }
+@media (prefers-color-scheme: dark) {
+
+	.wp-block-child-popular-posts .child-popular-card {
+		box-shadow:
+			inset 0 0 0 1px color-mix(in srgb, currentcolor 20%, transparent),
+			0 14px 32px rgb(0 0 0 / 24%);
+	}
+
+	.child-popular-card__item {
+		border-top-color: color-mix(in srgb, currentcolor 20%, transparent);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.child-popular-card__link {
+		transition-duration: 0.01ms;
+	}
 }

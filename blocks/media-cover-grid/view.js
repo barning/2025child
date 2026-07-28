@@ -1,4 +1,5 @@
-const BLOCK_SELECTOR = '.wp-block-child-media-cover-grid, .child-media-cover-grid-block';
+const BLOCK_SELECTOR =
+	'.wp-block-child-media-cover-grid, .child-media-cover-grid-block';
 const FILTER_SELECTOR = '[data-child-media-filter-group="type"]';
 const ITEM_SELECTOR = '[data-child-media-type]';
 const YEAR_SELECTOR = '[data-child-media-year]';
@@ -15,7 +16,10 @@ const getActiveTypes = ( block ) => {
 		.filter( ( button ) => button.classList.contains( 'is-active' ) )
 		.map( ( button ) => button.dataset.childMediaFilterValue );
 
-	if ( activeValues.length === 0 || activeValues.includes( ALL_FILTER_VALUE ) ) {
+	if (
+		activeValues.length === 0 ||
+		activeValues.includes( ALL_FILTER_VALUE )
+	) {
 		return null;
 	}
 
@@ -24,7 +28,9 @@ const getActiveTypes = ( block ) => {
 
 const syncFilterButtons = ( block, activeValues ) => {
 	block.querySelectorAll( FILTER_SELECTOR ).forEach( ( button ) => {
-		const isActive = activeValues.has( button.dataset.childMediaFilterValue );
+		const isActive = activeValues.has(
+			button.dataset.childMediaFilterValue
+		);
 
 		button.classList.toggle( 'is-active', isActive );
 		button.setAttribute( 'aria-pressed', isActive ? 'true' : 'false' );
@@ -36,7 +42,9 @@ const updateGrid = ( block ) => {
 	let visibleItems = 0;
 
 	block.querySelectorAll( ITEM_SELECTOR ).forEach( ( item ) => {
-		const isVisible = activeTypes === null || activeTypes.has( item.dataset.childMediaType );
+		const isVisible =
+			activeTypes === null ||
+			activeTypes.has( item.dataset.childMediaType );
 		const shouldHide = ! isVisible;
 		const ariaHidden = isVisible ? 'false' : 'true';
 
@@ -53,7 +61,9 @@ const updateGrid = ( block ) => {
 		}
 	} );
 
-	const emptyMessage = block.querySelector( '.child-media-cover-grid__empty--filtered' );
+	const emptyMessage = block.querySelector(
+		'.child-media-cover-grid__empty--filtered'
+	);
 	if ( emptyMessage ) {
 		emptyMessage.hidden = visibleItems > 0;
 	}
@@ -72,7 +82,10 @@ const updateGrid = ( block ) => {
 		}
 
 		currentYear.hidden = ! currentYearHasVisibleItems;
-		currentYear.setAttribute( 'aria-hidden', currentYearHasVisibleItems ? 'false' : 'true' );
+		currentYear.setAttribute(
+			'aria-hidden',
+			currentYearHasVisibleItems ? 'false' : 'true'
+		);
 	};
 
 	Array.from( grid.children ).forEach( ( child ) => {
@@ -103,8 +116,13 @@ const initFilterButton = ( block, button ) => {
 		const buttons = Array.from( block.querySelectorAll( FILTER_SELECTOR ) );
 		const activeValues = new Set(
 			buttons
-				.filter( ( currentButton ) => currentButton.classList.contains( 'is-active' ) )
-				.map( ( currentButton ) => currentButton.dataset.childMediaFilterValue )
+				.filter( ( currentButton ) =>
+					currentButton.classList.contains( 'is-active' )
+				)
+				.map(
+					( currentButton ) =>
+						currentButton.dataset.childMediaFilterValue
+				)
 		);
 
 		if ( value === ALL_FILTER_VALUE ) {
@@ -136,7 +154,9 @@ const initMediaCoverGrid = ( block ) => {
 	}
 
 	block.dataset.childMediaCoverGridInitialized = '1';
-	block.querySelectorAll( FILTER_SELECTOR ).forEach( ( button ) => initFilterButton( block, button ) );
+	block
+		.querySelectorAll( FILTER_SELECTOR )
+		.forEach( ( button ) => initFilterButton( block, button ) );
 	syncFilterButtons( block, new Set( [ ALL_FILTER_VALUE ] ) );
 
 	updateGrid( block );
@@ -147,7 +167,9 @@ const initializeMediaCoverGrids = () => {
 };
 
 if ( document.readyState === 'loading' ) {
-	document.addEventListener( 'DOMContentLoaded', initializeMediaCoverGrids, { once: true } );
+	document.addEventListener( 'DOMContentLoaded', initializeMediaCoverGrids, {
+		once: true,
+	} );
 } else {
 	initializeMediaCoverGrids();
 }
