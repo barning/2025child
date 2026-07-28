@@ -63,3 +63,33 @@ test('the visual fixture uses German and leaves the page title as the only h1', 
   assert.match(fixture, /update_option\(\s*'WPLANG',\s*'de_DE'\s*\)/);
   assert.doesNotMatch(fixture, /wp:heading/);
 });
+
+test('the visual fixture migrates translated posts by stable identity', () => {
+  const fixture = fs.readFileSync(
+    path.join(root, 'tests', 'visual', 'mu-plugins', 'child-layout-fixture.php'),
+    'utf8'
+  );
+
+  assert.match(fixture, /CHILD_LAYOUT_FIXTURE_VERSION = '4'/);
+  assert.match(fixture, /CHILD_LAYOUT_FIXTURE_META_KEY/);
+  for (const key of [
+    'source-book',
+    'source-movie',
+    'source-music',
+    'source-game',
+    'layout-page',
+  ]) {
+    assert.match(fixture, new RegExp(`'${key}'`));
+  }
+  for (const legacyTitle of [
+    'Fixture Book Source',
+    'Fixture Movie Source',
+    'Fixture Music Source',
+    'Fixture Game Source',
+    'Child Theme Layout Fixture',
+  ]) {
+    assert.match(fixture, new RegExp(legacyTitle));
+  }
+  assert.match(fixture, /update_post_meta\(/);
+  assert.match(fixture, /wp_delete_post\(/);
+});

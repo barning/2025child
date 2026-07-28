@@ -8,7 +8,8 @@
  * @package TwentyTwentyFiveChild
  */
 
-const CHILD_LAYOUT_FIXTURE_VERSION = '3';
+const CHILD_LAYOUT_FIXTURE_VERSION = '4';
+const CHILD_LAYOUT_FIXTURE_META_KEY = '_child_layout_fixture_key';
 
 /**
  * Keep the disposable fixture deterministic even when Playground workers boot
@@ -41,15 +42,54 @@ function child_layout_fixture_block( string $name, array $attributes = array() )
 }
 
 /**
- * Create or update a named fixture post.
+ * Create or update a fixture post using a stable identity.
  *
- * @param string $title   Post title.
- * @param string $content Post content.
- * @param string $type    Post type.
+ * Legacy title matches are claimed and tagged during migration. If both an
+ * English v2 row and a translated v3 row exist, the older English row is
+ * reused and the duplicate translated row is deleted.
+ *
+ * @param string        $fixture_key  Stable fixture identity.
+ * @param string        $title        Current display title.
+ * @param string        $content      Post content.
+ * @param string        $type         Post type.
+ * @param array<string> $legacy_titles Previous display titles.
  * @return int
  */
-function child_layout_fixture_upsert_post( string $title, string $content, string $type = 'post' ): int {
-	$existing = get_page_by_title( $title, OBJECT, $type );
+function child_layout_fixture_upsert_post(
+	string $fixture_key,
+	string $title,
+	string $content,
+	string $type = 'post',
+	array $legacy_titles = array()
+): int {
+	$tagged_posts = get_posts(
+		array(
+			'post_type'        => $type,
+			'post_status'      => 'any',
+			'posts_per_page'   => -1,
+			'orderby'          => 'ID',
+			'order'            => 'ASC',
+			'meta_key'         => CHILD_LAYOUT_FIXTURE_META_KEY,
+			'meta_value'       => $fixture_key,
+			'suppress_filters' => true,
+		)
+	);
+	$candidates   = array();
+
+	foreach ( $tagged_posts as $tagged_post ) {
+		if ( $tagged_post instanceof WP_Post ) {
+			$candidates[ $tagged_post->ID ] = $tagged_post;
+		}
+	}
+
+	foreach ( array_merge( $legacy_titles, array( $title ) ) as $candidate_title ) {
+		$matching_post = get_page_by_title( $candidate_title, OBJECT, $type );
+		if ( $matching_post instanceof WP_Post ) {
+			$candidates[ $matching_post->ID ] = $matching_post;
+		}
+	}
+
+	$existing = reset( $candidates );
 	$postarr  = array(
 		'post_title'   => $title,
 		'post_content' => $content,
@@ -62,8 +102,20 @@ function child_layout_fixture_upsert_post( string $title, string $content, strin
 	}
 
 	$post_id = wp_insert_post( $postarr, true );
+	if ( is_wp_error( $post_id ) ) {
+		return 0;
+	}
 
-	return is_wp_error( $post_id ) ? 0 : (int) $post_id;
+	$post_id = (int) $post_id;
+	update_post_meta( $post_id, CHILD_LAYOUT_FIXTURE_META_KEY, $fixture_key );
+
+	foreach ( array_keys( $candidates ) as $candidate_id ) {
+		if ( $candidate_id !== $post_id ) {
+			wp_delete_post( $candidate_id, true );
+		}
+	}
+
+	return $post_id;
 }
 
 /**
@@ -127,10 +179,10 @@ function child_layout_fixture_seed(): void {
 
 	$source_ids = array_filter(
 		array(
-			child_layout_fixture_upsert_post( 'Testquelle Buch', $book ),
-			child_layout_fixture_upsert_post( 'Testquelle Film', $movie ),
-			child_layout_fixture_upsert_post( 'Testquelle Musik', $music ),
-			child_layout_fixture_upsert_post( 'Testquelle Spiel', $game ),
+			child_layout_fixture_upsert_post( 'source-book', 'Testquelle Buch', $book, 'post', array( 'Fixture Book Source' ) ),
+			child_layout_fixture_upsert_post( 'source-movie', 'Testquelle Film', $movie, 'post', array( 'Fixture Movie Source' ) ),
+			child_layout_fixture_upsert_post( 'source-music', 'Testquelle Musik', $music, 'post', array( 'Fixture Music Source' ) ),
+			child_layout_fixture_upsert_post( 'source-game', 'Testquelle Spiel', $game, 'post', array( 'Fixture Game Source' ) ),
 		)
 	);
 
@@ -190,7 +242,13 @@ function child_layout_fixture_seed(): void {
 	$content .= child_layout_fixture_block( 'visual-link-preview', array( 'url' => $preview_url ) );
 	$content .= child_layout_fixture_block( 'pixelfed-feed', array( 'feedUrl' => '', 'itemsToShow' => 3 ) );
 
-	$page_id = child_layout_fixture_upsert_post( 'Layout-Testseite des Child-Themes', $content, 'page' );
+	$page_id = child_layout_fixture_upsert_post(
+		'layout-page',
+		'Layout-Testseite des Child-Themes',
+		$content,
+		'page',
+		array( 'Child Theme Layout Fixture' )
+	);
 	if ( $page_id ) {
 		update_option( 'show_on_front', 'page' );
 		update_option( 'page_on_front', $page_id );
