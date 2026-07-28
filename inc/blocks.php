@@ -55,8 +55,13 @@ function child_get_dynamic_blocks(): array {
  */
 function child_register_dynamic_blocks(): void {
 	$theme_dir = get_stylesheet_directory();
+	$registry  = WP_Block_Type_Registry::get_instance();
 
 	foreach ( child_get_dynamic_blocks() as $slug => $config ) {
+		if ( $registry->is_registered( $config['block_name'] ) ) {
+			continue;
+		}
+
 		$render_callback = require $theme_dir . '/' . $config['render_file'];
 		if ( ! is_callable( $render_callback ) ) {
 			continue;
