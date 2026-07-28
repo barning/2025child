@@ -8,9 +8,9 @@ parameters:
 		- blocks
 	excludePaths:
 		analyse:
-			- build
-			- dist
-			- node_modules
+			- build (?)
+			- dist (?)
+			- node_modules (?)
 			- vendor
 	treatPhpDocTypesAsCertain: false
 	reportUnmatchedIgnoredErrors: false
