@@ -20,6 +20,10 @@ function child_get_media_cover_grid_dedupe_key( array $item ): string {
 		return $type . ':tmdb:' . (int) $item['tmdbId'];
 	}
 
+	if ( 'game' === $type && ! empty( $item['igdbId'] ) ) {
+		return 'game:igdb:' . (int) $item['igdbId'];
+	}
+
 	if ( 'game' === $type && ! empty( $item['rawgId'] ) ) {
 		return 'game:rawg:' . (int) $item['rawgId'];
 	}

@@ -26,7 +26,7 @@ export const useGameSearch = () => {
 			const nonce = window.childGameSearch?.nonce || '';
 
 			const response = await fetch(
-				`${ ajaxUrl }?action=child_rawg_search&query=${ encodeURIComponent(
+				`${ ajaxUrl }?action=child_igdb_search&query=${ encodeURIComponent(
 					trimmedTerm
 				) }&nonce=${ encodeURIComponent( nonce ) }`,
 				{ signal }

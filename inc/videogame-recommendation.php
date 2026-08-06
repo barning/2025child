@@ -1,21 +1,74 @@
 <?php
 /**
- * Videogame recommendation integration (RAWG settings + AJAX).
+ * Videogame recommendation integration (IGDB settings + AJAX).
  *
  * @package TwentyTwentyFiveChild
  */
 
 /**
- * Read RAWG key from option, then constant fallback.
+ * Read IGDB client ID from option, then constant fallback.
  */
-function child_get_rawg_api_key(): string {
-	$api_key = (string) get_option( 'child_rawg_api_key', '' );
+function child_get_igdb_client_id(): string {
+	$api_key = (string) get_option( 'child_igdb_client_id', '' );
 
-	if ( '' === $api_key && defined( 'RAWG_API_KEY' ) ) {
-		$api_key = (string) RAWG_API_KEY;
+	if ( '' === $api_key && defined( 'IGDB_CLIENT_ID' ) ) {
+		$api_key = (string) IGDB_CLIENT_ID;
 	}
 
 	return $api_key;
+}
+
+/** Read IGDB client secret from option, then constant fallback. */
+function child_get_igdb_client_secret(): string {
+	$secret = (string) get_option( 'child_igdb_client_secret', '' );
+
+	if ( '' === $secret && defined( 'IGDB_CLIENT_SECRET' ) ) {
+		$secret = (string) IGDB_CLIENT_SECRET;
+	}
+
+	return $secret;
+}
+
+/** Backwards-compatible RAWG key accessor (unused by the IGDB integration). */
+function child_get_rawg_api_key(): string {
+	return (string) get_option( 'child_rawg_api_key', '' );
+}
+
+/** Obtain and cache an IGDB application access token. */
+function child_get_igdb_access_token() {
+	$client_id     = child_get_igdb_client_id();
+	$client_secret = child_get_igdb_client_secret();
+	if ( '' === $client_id || '' === $client_secret ) {
+		return '';
+	}
+
+	$cache_key = 'child_igdb_token_' . md5( $client_id );
+	$cached    = get_transient( $cache_key );
+	if ( is_string( $cached ) && '' !== $cached ) {
+		return $cached;
+	}
+
+	$url  = 'https://id.twitch.tv/oauth2/token?client_id=' . rawurlencode( $client_id ) . '&client_secret=' . rawurlencode( $client_secret ) . '&grant_type=client_credentials';
+	$args = [ 'timeout' => 10, 'headers' => [ 'Accept' => 'application/json' ] ];
+	if ( function_exists( 'wp_safe_remote_post' ) ) {
+		$response = wp_safe_remote_post( $url, $args );
+	} elseif ( function_exists( 'wp_remote_post' ) ) {
+		$response = wp_remote_post( $url, $args );
+	} else {
+		return '';
+	}
+	if ( is_wp_error( $response ) ) {
+		return '';
+	}
+	$status = (int) wp_remote_retrieve_response_code( $response );
+	$data   = json_decode( (string) wp_remote_retrieve_body( $response ), true );
+	if ( $status < 200 || $status >= 300 || ! is_array( $data ) || empty( $data['access_token'] ) ) {
+		return '';
+	}
+
+	$expires = max( 60, absint( $data['expires_in'] ?? HOUR_IN_SECONDS ) - 60 );
+	set_transient( $cache_key, (string) $data['access_token'], $expires );
+	return (string) $data['access_token'];
 }
 
 /**
@@ -42,6 +95,24 @@ function child_sanitize_rawg_api_key( $value ): string {
 	$value = sanitize_text_field( (string) $value );
 
 	return '' !== $value ? $value : (string) get_option( 'child_rawg_api_key', '' );
+}
+
+/** Preserve an IGDB credential unless explicitly replaced or removed. */
+function child_sanitize_igdb_credential( $value, string $option ): string {
+	$clear_key = $option . '_clear';
+	if ( isset( $_POST[ $clear_key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		return '';
+	}
+	$value = sanitize_text_field( (string) $value );
+	return '' !== $value ? $value : (string) get_option( $option, '' );
+}
+
+function child_sanitize_igdb_client_id( $value ): string {
+	return child_sanitize_igdb_credential( $value, 'child_igdb_client_id' );
+}
+
+function child_sanitize_igdb_client_secret( $value ): string {
+	return child_sanitize_igdb_credential( $value, 'child_igdb_client_secret' );
 }
 
 /**
@@ -152,7 +223,7 @@ function child_find_steamgriddb_covers_for_game( string $title ): array {
 }
 
 /**
- * Render RAWG settings page.
+ * Render IGDB settings page.
  */
 function child_render_videogame_recommendation_settings_page(): void {
 	?>
@@ -170,7 +241,7 @@ function child_render_videogame_recommendation_settings_page(): void {
 }
 
 /**
- * Register RAWG settings page.
+ * Register IGDB settings page.
  */
 function child_register_videogame_recommendation_settings_page(): void {
 	add_options_page(
@@ -184,18 +255,11 @@ function child_register_videogame_recommendation_settings_page(): void {
 add_action( 'admin_menu', 'child_register_videogame_recommendation_settings_page' );
 
 /**
- * Register RAWG settings and field.
+ * Register IGDB settings and fields.
  */
 function child_register_videogame_recommendation_settings(): void {
-	register_setting(
-		'child_videogame_recommendation',
-		'child_rawg_api_key',
-		[
-			'type'              => 'string',
-			'sanitize_callback' => 'child_sanitize_rawg_api_key',
-			'default'           => '',
-		]
-	);
+	register_setting( 'child_videogame_recommendation', 'child_igdb_client_id', [ 'type' => 'string', 'sanitize_callback' => 'child_sanitize_igdb_client_id', 'default' => '' ] );
+	register_setting( 'child_videogame_recommendation', 'child_igdb_client_secret', [ 'type' => 'string', 'sanitize_callback' => 'child_sanitize_igdb_client_secret', 'default' => '' ] );
 
 	register_setting(
 		'child_videogame_recommendation',
@@ -209,18 +273,19 @@ function child_register_videogame_recommendation_settings(): void {
 
 	add_settings_section(
 		'child_videogame_recommendation_section',
-		__( 'RAWG-API-Konfiguration', 'child' ),
+		__( 'IGDB-API-Konfiguration', 'child' ),
 		'child_render_videogame_recommendation_section_description',
 		'child-videogame-recommendation'
 	);
 
 	add_settings_field(
-		'child_rawg_api_key',
-		__( 'RAWG-API-Schlüssel', 'child' ),
-		'child_render_videogame_recommendation_api_field',
+		'child_igdb_client_id',
+		__( 'IGDB-Client-ID', 'child' ),
+		'child_render_igdb_client_id_field',
 		'child-videogame-recommendation',
 		'child_videogame_recommendation_section'
 	);
+	add_settings_field( 'child_igdb_client_secret', __( 'IGDB-Client-Secret', 'child' ), 'child_render_igdb_client_secret_field', 'child-videogame-recommendation', 'child_videogame_recommendation_section' );
 
 	add_settings_field(
 		'child_steamgriddb_api_key',
@@ -233,17 +298,39 @@ function child_register_videogame_recommendation_settings(): void {
 add_action( 'admin_init', 'child_register_videogame_recommendation_settings' );
 
 /**
- * Render RAWG section description.
+ * Render IGDB section description.
  */
 function child_render_videogame_recommendation_section_description(): void {
-	echo '<p>' . wp_kses_post(
-		sprintf(
-			/* translators: 1: URL to RAWG API docs. 2: URL to SteamGridDB API docs. */
-			__( 'Für den Videospiel-Block benötigst du einen kostenlosen API-Schlüssel von RAWG. Optional kannst du einen SteamGridDB-API-Schlüssel für zusätzliche Hochformat-Cover hinterlegen. Deinen RAWG-Schlüssel erhältst du unter %1$s und deinen SteamGridDB-Schlüssel unter %2$s.', 'child' ),
-			'<a href="https://rawg.io/apidocs" target="_blank" rel="noopener noreferrer">rawg.io/apidocs</a>',
+	echo '<p>' . wp_kses_post( sprintf(
+			/* translators: 1: URL to IGDB docs. 2: URL to SteamGridDB API docs. */
+			__( 'Für den Videospiel-Block benötigst du eine kostenlose IGDB-Client-ID und ein Client-Secret. Optional kannst du einen SteamGridDB-API-Schlüssel für zusätzliche Hochformat-Cover hinterlegen. IGDB-Zugangsdaten erhältst du über die Twitch-Entwicklerkonsole unter %1$s; SteamGridDB findest du unter %2$s.', 'child' ),
+			'<a href="https://dev.twitch.tv/console" target="_blank" rel="noopener noreferrer">dev.twitch.tv/console</a>',
 			'<a href="https://www.steamgriddb.com/api/v2" target="_blank" rel="noopener noreferrer">steamgriddb.com/api/v2</a>'
-		)
-	) . '</p>';
+			) ) . '</p>';
+}
+
+function child_render_igdb_client_id_field(): void {
+	$has_saved = '' !== (string) get_option( 'child_igdb_client_id', '' );
+	$constant  = defined( 'IGDB_CLIENT_ID' ) && ! empty( IGDB_CLIENT_ID );
+	echo '<input type="text" id="child_igdb_client_id" name="child_igdb_client_id" value="" class="regular-text" autocomplete="off" placeholder="' . esc_attr( $has_saved ? __( 'Gespeichert — neue ID zum Ersetzen eingeben', 'child' ) : __( 'IGDB-Client-ID eingeben', 'child' ) ) . '" />';
+	if ( $constant && ! $has_saved ) {
+		echo '<p class="description">' . esc_html__( 'Aktuell wird die Client-ID aus wp-config.php verwendet.', 'child' ) . '</p>';
+	}
+	if ( $has_saved ) {
+		echo '<label><input type="checkbox" name="child_igdb_client_id_clear" value="1" /> ' . esc_html__( 'Gespeicherte Client-ID entfernen', 'child' ) . '</label>';
+	}
+}
+
+function child_render_igdb_client_secret_field(): void {
+	$has_saved = '' !== (string) get_option( 'child_igdb_client_secret', '' );
+	$constant  = defined( 'IGDB_CLIENT_SECRET' ) && ! empty( IGDB_CLIENT_SECRET );
+	echo '<input type="password" id="child_igdb_client_secret" name="child_igdb_client_secret" value="" class="regular-text" autocomplete="new-password" placeholder="' . esc_attr( $has_saved ? __( 'Gespeichert — neues Secret zum Ersetzen eingeben', 'child' ) : __( 'IGDB-Client-Secret eingeben', 'child' ) ) . '" />';
+	if ( $constant && ! $has_saved ) {
+		echo '<p class="description">' . esc_html__( 'Aktuell wird das Client-Secret aus wp-config.php verwendet.', 'child' ) . '</p>';
+	}
+	if ( $has_saved ) {
+		echo '<label><input type="checkbox" name="child_igdb_client_secret_clear" value="1" /> ' . esc_html__( 'Gespeichertes Client-Secret entfernen', 'child' ) . '</label>';
+	}
 }
 
 /**
@@ -289,7 +376,7 @@ function child_render_steamgriddb_api_field(): void {
 /**
  * AJAX endpoint for RAWG searches from block editor.
  */
-function child_handle_rawg_search_ajax(): void {
+function child_handle_igdb_search_ajax(): void {
 	check_ajax_referer( 'child-game-search', 'nonce' );
 
 	if ( ! current_user_can( 'edit_posts' ) ) {
@@ -305,39 +392,32 @@ function child_handle_rawg_search_ajax(): void {
 		wp_send_json_error( 'Der Suchbegriff ist zu lang', 400 );
 	}
 
-	$api_key = child_get_rawg_api_key();
-	if ( '' === $api_key ) {
-		wp_send_json_error( 'Der RAWG-API-Schlüssel ist nicht konfiguriert. Hinterlege ihn unter Einstellungen > Videospiel-Empfehlung oder als RAWG_API_KEY in wp-config.php.', 500 );
+	$client_id = child_get_igdb_client_id();
+	$token     = child_get_igdb_access_token();
+	if ( '' === $client_id || '' === $token ) {
+		wp_send_json_error( 'Die IGDB-Zugangsdaten sind nicht konfiguriert. Hinterlege Client-ID und Client-Secret unter Einstellungen > Videospiel-Empfehlung oder als IGDB_CLIENT_ID und IGDB_CLIENT_SECRET in wp-config.php.', 500 );
 	}
 
-	$data = child_provider_get_json(
-		'https://api.rawg.io/api/games?key=' . rawurlencode( $api_key ) . '&search=' . rawurlencode( $query ) . '&page_size=10',
-		[ 'timeout' => 10 ],
-		'rawg',
-		6 * HOUR_IN_SECONDS
-	);
-
-	if ( is_wp_error( $data ) ) {
-		$error_data  = $data->get_error_data();
-		$status_code = (int) ( $error_data['provider_status'] ?? $error_data['status'] ?? 502 );
-		switch ( $status_code ) {
-			case 401:
-				$message = 'Die RAWG-API-Anfrage wurde nicht autorisiert. Prüfe, ob der API-Schlüssel gültig ist.';
-				break;
-			case 403:
-				$message = 'Die RAWG-API-Anfrage wurde abgelehnt. Dein API-Schlüssel hat möglicherweise keinen Zugriff auf diese Ressource.';
-				break;
-			case 429:
-				$message = 'Das RAWG-API-Anfragelimit wurde erreicht. Warte einen Moment und versuche es später erneut.';
-				break;
-			default:
-				$message = 'Die RAWG-API hat eine unerwartete Antwort geliefert. HTTP-Statuscode: ' . (int) $status_code;
-		}
-
-		wp_send_json_error( $message, in_array( $status_code, [ 401, 403, 429 ], true ) ? $status_code : 502 );
+	$fields = 'fields id,name,slug,first_release_date,cover.url,websites.url,platforms.name,genres.name; search "' . str_replace( [ '\\', '"' ], [ '\\\\', '\\"' ], $query ) . '"; limit 10;';
+	$args   = [ 'timeout' => 10, 'headers' => [ 'Accept' => 'application/json', 'Client-ID' => $client_id, 'Authorization' => 'Bearer ' . $token, 'Content-Type' => 'text/plain' ], 'body' => $fields ];
+	if ( function_exists( 'wp_safe_remote_post' ) ) {
+		$response = wp_safe_remote_post( 'https://api.igdb.com/v4/games', $args );
+	} elseif ( function_exists( 'wp_remote_post' ) ) {
+		$response = wp_remote_post( 'https://api.igdb.com/v4/games', $args );
+	} else {
+		wp_send_json_error( 'Die IGDB-API konnte nicht erreicht werden.', 502 );
+	}
+	if ( is_wp_error( $response ) ) {
+		wp_send_json_error( 'Die IGDB-API konnte nicht erreicht werden.', 502 );
+	}
+	$status = (int) wp_remote_retrieve_response_code( $response );
+	$data   = json_decode( (string) wp_remote_retrieve_body( $response ), true );
+	if ( $status < 200 || $status >= 300 || ! is_array( $data ) ) {
+		$message = 429 === $status ? 'Das IGDB-Anfragelimit wurde erreicht. Warte einen Moment und versuche es später erneut.' : ( in_array( $status, [ 401, 403 ], true ) ? 'Die IGDB-Anfrage wurde nicht autorisiert. Prüfe Client-ID und Client-Secret.' : 'Die IGDB-API hat eine unerwartete Antwort geliefert. HTTP-Statuscode: ' . $status );
+		wp_send_json_error( $message, in_array( $status, [ 401, 403, 429 ], true ) ? $status : 502 );
 	}
 
-	$raw_games = is_array( $data['results'] ?? null ) ? array_slice( $data['results'], 0, 10 ) : [];
+	$raw_games = array_slice( array_values( array_filter( $data, 'is_array' ) ), 0, 10 );
 	$raw_games = array_values( array_filter( $raw_games, 'is_array' ) );
 
 	$games = array_map(
@@ -347,19 +427,25 @@ function child_handle_rawg_search_ajax(): void {
 			$cover_url          = (string) ( $steamgriddb_covers[0]['url'] ?? '' );
 			$cover_format       = (string) ( $steamgriddb_covers[0]['cover_format'] ?? '' );
 
+			$release = ! empty( $game['first_release_date'] ) ? gmdate( 'Y-m-d', absint( $game['first_release_date'] ) ) : '';
+			$cover   = (string) ( $game['cover']['url'] ?? '' );
+			$cover   = 0 === strpos( $cover, '//' ) ? 'https:' . $cover : $cover;
+			$website = (string) ( $game['websites'][0]['url'] ?? '' );
 			return [
 				'id'               => $game['id'] ?? 0,
+				'igdbId'           => $game['id'] ?? 0,
+				'provider'         => 'igdb',
 				'name'             => $game['name'] ?? '',
-				'released'         => $game['released'] ?? '',
-				'background_image' => $game['background_image'] ?? '',
-				'cover_url'        => $cover_url,
+				'released'         => $release,
+				'background_image' => $cover,
+				'cover_url'        => $cover_url ?: $cover,
 				'cover_format'     => $cover_format ?: 'landscape',
 				'cover_variants'   => $steamgriddb_covers,
 				'slug'             => $game['slug'] ?? '',
-				'website'          => $game['website'] ?? '',
+				'website'          => $website,
 				'platforms'        => array_map(
 					static function ( array $platform ): string {
-						return $platform['platform']['name'] ?? '';
+						return $platform['name'] ?? '';
 					},
 					$game['platforms'] ?? []
 				),
@@ -377,7 +463,9 @@ function child_handle_rawg_search_ajax(): void {
 
 	wp_send_json_success( [ 'games' => $games ] );
 }
-add_action( 'wp_ajax_child_rawg_search', 'child_handle_rawg_search_ajax' );
+add_action( 'wp_ajax_child_igdb_search', 'child_handle_igdb_search_ajax' );
+// Keep existing editor builds functional during migration.
+add_action( 'wp_ajax_child_rawg_search', 'child_handle_igdb_search_ajax' );
 
 /**
  * Provide AJAX data in editor.

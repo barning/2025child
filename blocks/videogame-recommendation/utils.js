@@ -100,9 +100,25 @@ export const transformGameData = ( game ) => {
 		? game.cover_variants
 		: [];
 
+	const provider = game.provider || '';
+	const hasIgdbIdentity = Boolean(
+		game.igdbId || game.igdb_id || 'igdb' === provider
+	);
+	const igdbId = Number(
+		game.igdbId || game.igdb_id || ( 'igdb' === provider ? game.id : 0 )
+	);
+	const legacyRawgId = ! provider && ! hasIgdbIdentity ? game.id : 0;
+	const rawgSource =
+		game.rawgId ||
+		game.rawg_id ||
+		( 'rawg' === provider ? game.id : legacyRawgId );
+	const rawgId = Number( rawgSource );
+
 	return {
 		id: `game-${ game.id }`,
-		rawgId: game.id,
+		igdbId: Number.isFinite( igdbId ) ? igdbId : 0,
+		// Legacy RAWG responses and saved blocks remain readable.
+		rawgId: Number.isFinite( rawgId ) ? rawgId : 0,
 		title: game.name || '',
 		year: game.released
 			? new Date( game.released ).getFullYear().toString()
@@ -121,7 +137,8 @@ export const transformGameData = ( game ) => {
 			.filter( ( variant ) => variant.url ),
 		shopUrl:
 			game.website ||
-			( game.slug ? `https://rawg.io/games/${ game.slug }` : '' ),
+			game.url ||
+			( game.slug ? `https://www.igdb.com/games/${ game.slug }` : '' ),
 		platforms: game.platforms || [],
 		genres: game.genres || [],
 	};
