@@ -10,7 +10,7 @@
  * Get platform display info from platform name
  *
  * @param string $platform_name - Raw platform name from API
- * @return array - ['name' => string, 'color' => string]
+ * @return array - ['name' => string, 'color' => string, 'key' => string]
  */
 if ( ! function_exists( 'child_get_platform_info' ) ) {
 	function child_get_platform_info( $platform_name ) {
@@ -19,66 +19,79 @@ if ( ! function_exists( 'child_get_platform_info' ) ) {
 		$platforms = [
 			[
 				'match' => [ 'playstation 5', 'ps5' ],
+				'key'   => 'playstation5',
 				'name'  => 'PS5',
 				'color' => '#003087',
 			],
 			[
 				'match' => [ 'playstation 4', 'ps4' ],
+				'key'   => 'playstation4',
 				'name'  => 'PS4',
 				'color' => '#003087',
 			],
 			[
 				'match' => [ 'playstation' ],
+				'key'   => 'playstation',
 				'name'  => 'PlayStation',
 				'color' => '#003087',
 			],
 			[
 				'match' => [ 'xbox series' ],
+				'key'   => 'xboxSeries',
 				'name'  => 'Xbox Series',
 				'color' => '#107C10',
 			],
 			[
 				'match' => [ 'xbox one' ],
+				'key'   => 'xboxOne',
 				'name'  => 'Xbox One',
 				'color' => '#107C10',
 			],
 			[
 				'match' => [ 'xbox' ],
+				'key'   => 'xbox',
 				'name'  => 'Xbox',
 				'color' => '#107C10',
 			],
 			[
 				'match' => [ 'nintendo switch', 'switch' ],
+				'key'   => 'switch',
 				'name'  => 'Switch',
 				'color' => '#E60012',
 			],
 			[
 				'match' => [ 'nintendo' ],
+				'key'   => 'nintendo',
 				'name'  => 'Nintendo',
 				'color' => '#E60012',
 			],
 			[
 				'match' => [ 'pc', 'windows' ],
+				'key'   => 'pc',
 				'name'  => 'PC',
 				'color' => '#0078D4',
 			],
 			[
 				'match' => [ 'ios', 'iphone' ],
+				'key'   => 'ios',
 				'name'  => 'iOS',
 				'color' => '#555555',
 			],
 			[
 				'match' => [ 'android' ],
+				'key'   => 'android',
 				'name'  => 'Android',
 				'color' => '#3DDC84',
 			],
 			[
 				'match' => [ 'linux' ],
+				'key'   => 'linux',
 				'name'  => 'Linux',
 				'color' => '#FCC624',
 			],
 			[
 				'match' => [ 'mac' ],
+				'key'   => 'macos',
 				'name'  => 'macOS',
 				'color' => '#999999',
 			],
@@ -90,6 +103,7 @@ if ( ! function_exists( 'child_get_platform_info' ) ) {
 					return [
 						'name'  => $platform['name'],
 						'color' => $platform['color'],
+						'key'   => $platform['key'],
 					];
 				}
 			}
@@ -98,6 +112,7 @@ if ( ! function_exists( 'child_get_platform_info' ) ) {
 		return [
 			'name'  => $platform_name,
 			'color' => '#666666',
+			'key'   => 'default',
 		];
 	}
 }

@@ -53,6 +53,9 @@ function Edit( { attributes, setAttributes } ) {
 			releaseDate: selectedGame.releaseDate,
 			platforms: selectedGame.platforms,
 			genres: selectedGame.genres,
+			igdbId: selectedGame.igdbId || 0,
+			// Keep rawgId in the serialized shape for backwards compatibility
+			// with blocks created before the provider migration.
 			rawgId: selectedGame.rawgId,
 			shopUrl: selectedGame.shopUrl || attributes.shopUrl || '',
 		} );
@@ -178,7 +181,7 @@ function Edit( { attributes, setAttributes } ) {
 							setAttributes( { shopUrl: value } )
 						}
 						help={ __(
-							'Wird bei der Suche automatisch befüllt (RAWG-Link), kann aber manuell überschrieben werden.',
+							'Wird bei der Suche automatisch befüllt (IGDB-Link), kann aber manuell überschrieben werden.',
 							'child'
 						) }
 					/>

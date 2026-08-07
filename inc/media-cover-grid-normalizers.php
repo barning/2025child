@@ -169,6 +169,8 @@ function child_normalize_media_cover_grid_videogame_block( array $attrs ): ?arra
 			'coverUrl'    => (string) ( $attrs['coverUrl'] ?? '' ),
 			'coverFormat' => 'portrait' === ( $attrs['coverFormat'] ?? '' ) ? 'portrait' : 'landscape',
 			'externalUrl' => (string) ( $attrs['shopUrl'] ?? '' ),
+			'igdbId'      => absint( $attrs['igdbId'] ?? 0 ),
+			// Keep legacy RAWG IDs readable for already-saved blocks.
 			'rawgId'      => absint( $attrs['rawgId'] ?? 0 ),
 		]
 	);

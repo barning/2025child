@@ -46,7 +46,7 @@ async function copyIfExists( src, dest ) {
 	await safeCopy( src, dest );
 }
 
-async function copyBlocksRenderPhp() {
+async function copyBlocksRuntimePhp() {
 	const blocksDir = path.join( root, 'blocks' );
 	if ( ! fs.existsSync( blocksDir ) ) {
 		return;
@@ -54,15 +54,17 @@ async function copyBlocksRenderPhp() {
 	const entries = await fsp.readdir( blocksDir, { withFileTypes: true } );
 	for ( const ent of entries ) {
 		if ( ent.isDirectory() ) {
-			const renderPhp = path.join( blocksDir, ent.name, 'render.php' );
-			if ( fs.existsSync( renderPhp ) ) {
-				const dest = path.join(
-					outDir,
-					'blocks',
-					ent.name,
-					'render.php'
-				);
-				await safeCopy( renderPhp, dest );
+			for ( const runtimeFile of [ 'render.php', 'utils.php' ] ) {
+				const source = path.join( blocksDir, ent.name, runtimeFile );
+				if ( fs.existsSync( source ) ) {
+					const dest = path.join(
+						outDir,
+						'blocks',
+						ent.name,
+						runtimeFile
+					);
+					await safeCopy( source, dest );
+				}
 			}
 		}
 	}
@@ -138,7 +140,7 @@ async function main() {
 		path.join( root, 'build' ),
 		path.join( outDir, 'build' )
 	);
-	await copyBlocksRenderPhp();
+	await copyBlocksRuntimePhp();
 
 	// Optional readme
 	await copyIfExists(

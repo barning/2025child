@@ -116,11 +116,11 @@ The grid intentionally keeps the recommendation block schemas unchanged and trea
 - Supports songs and albums while only loading audio previews on explicit front-end interaction.
 - Keeps legal/privacy messaging in the block editor.
 
-### Videogame Recommendation (RAWG)
+### Videogame Recommendation (IGDB)
 
 - Admin settings page under **Settings → Videogame Recommendation**.
-- API key lookup order: option `child_rawg_api_key`, then `RAWG_API_KEY` constant fallback.
-- Editor AJAX endpoint: `wp_ajax_child_rawg_search`.
+- IGDB credential lookup order: options `child_igdb_client_id` and `child_igdb_client_secret`, then `IGDB_CLIENT_ID` and `IGDB_CLIENT_SECRET` constants.
+- Editor AJAX endpoint: `wp_ajax_child_igdb_search`.
 - Platform chip display helpers live in `blocks/videogame-recommendation/utils.php` for PHP rendering.
 
 ## RSS Feed Footer
