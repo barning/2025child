@@ -40,6 +40,9 @@ export const GamePreview = ( {
 	const mediaClassName = `child-game-card__media child-game-card__media--${
 		coverFormat === 'landscape' ? 'landscape' : 'portrait'
 	}`;
+	const cardClassName = `child-game-card child-game-card--${
+		coverFormat === 'landscape' ? 'landscape' : 'portrait'
+	}`;
 	const coverImage = coverUrl ? (
 		<img
 			className="child-game-card__cover"
@@ -65,7 +68,7 @@ export const GamePreview = ( {
 
 	return (
 		<div
-			className="child-game-card"
+			className={ cardClassName }
 			role="group"
 			aria-label={ __( 'Videospiel', 'child' ) }
 		>
@@ -121,8 +124,9 @@ const PlatformChips = ( { platforms } ) => (
 			return (
 				<span
 					key={ index }
-					className="child-game-card__platform-chip"
-					style={ { backgroundColor: platformInfo.color } }
+					className={ `child-game-card__platform-chip child-game-card__platform-chip--${
+						platformInfo.key || 'default'
+					}` }
 					title={ platform }
 				>
 					{ platformInfo.name }

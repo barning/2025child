@@ -11,14 +11,24 @@
 
 /* Game Card Container */
 .child-game-card {
+	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
+	width: min(100%, 520px);
 	max-width: 520px;
 	background: var(--wp--preset--color--base, #fff);
 	border-radius: 16px;
 	overflow: hidden;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.05);
 	transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.child-game-card--portrait {
+	max-width: 340px;
+}
+
+.child-game-card--landscape {
+	max-width: 520px;
 }
 
 .child-game-card:hover {
@@ -37,7 +47,7 @@
 }
 
 .child-game-card__media--portrait {
-	max-width: min(100%, 340px);
+	max-width: 100%;
 }
 
 .child-game-card__media--landscape {
@@ -115,6 +125,47 @@
 	text-transform: uppercase;
 	letter-spacing: 0.02em;
 	line-height: 1.2;
+}
+
+.child-game-card__platform-chip--playstation5,
+.child-game-card__platform-chip--playstation4,
+.child-game-card__platform-chip--playstation {
+	background-color: #003087;
+}
+
+.child-game-card__platform-chip--xboxSeries,
+.child-game-card__platform-chip--xboxOne,
+.child-game-card__platform-chip--xbox {
+	background-color: #107c10;
+}
+
+.child-game-card__platform-chip--switch,
+.child-game-card__platform-chip--nintendo {
+	background-color: #e60012;
+}
+
+.child-game-card__platform-chip--pc {
+	background-color: #0078d4;
+}
+
+.child-game-card__platform-chip--ios {
+	background-color: #555;
+}
+
+.child-game-card__platform-chip--android {
+	background-color: #176b42;
+}
+
+.child-game-card__platform-chip--linux {
+	background-color: #665000;
+}
+
+.child-game-card__platform-chip--macos {
+	background-color: #595959;
+}
+
+.child-game-card__platform-chip--default {
+	background-color: #666;
 }
 
 /* Title */

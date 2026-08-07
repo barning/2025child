@@ -21,6 +21,7 @@ return function ( $attributes ) {
 	$platforms          = $attributes['platforms'] ?? [];
 	$genres             = $attributes['genres'] ?? [];
 	$shop_url           = $attributes['shopUrl'] ?? '';
+	$card_variant       = 'portrait' === $cover_format ? 'portrait' : 'landscape';
 
 	if ( empty( $game_title ) ) {
 		return '';
@@ -42,7 +43,7 @@ return function ( $attributes ) {
 	echo $wrapper_attributes;
 	?>
 	>
-		<div class="child-game-card" aria-label="<?php echo esc_attr( __( 'Videospiel', 'child' ) ); ?>">
+		<div class="child-game-card child-game-card--<?php echo esc_attr( $card_variant ); ?>" aria-label="<?php echo esc_attr( __( 'Videospiel', 'child' ) ); ?>">
 			<div class="child-game-card__media child-game-card__media--<?php echo esc_attr( $cover_format ); ?>">
 				<?php if ( ! empty( $cover_url ) ) : ?>
 					<?php if ( ! empty( $shop_url ) ) : ?>
@@ -84,8 +85,7 @@ return function ( $attributes ) {
 								];
 							?>
 							<span
-								class="child-game-card__platform-chip"
-								style="background-color: <?php echo esc_attr( $platform_info['color'] ); ?>"
+								class="child-game-card__platform-chip child-game-card__platform-chip--<?php echo esc_attr( $platform_info['key'] ?? 'default' ); ?>"
 								title="<?php echo esc_attr( $platform ); ?>"
 							>
 								<?php echo esc_html( $platform_info['name'] ); ?>

@@ -47,16 +47,24 @@ export const PLATFORM_CONFIG = {
 export const getPlatformInfo = ( platformName ) => {
 	const name = platformName.toLowerCase();
 
-	for ( const config of Object.values( PLATFORM_CONFIG ) ) {
+	for ( const [ key, config ] of Object.entries( PLATFORM_CONFIG ) ) {
 		if (
 			config.match &&
 			config.match.some( ( match ) => name.includes( match ) )
 		) {
-			return { name: config.name, color: config.color };
+			return {
+				name: config.name,
+				color: config.color,
+				key,
+			};
 		}
 	}
 
-	return { name: platformName, color: PLATFORM_CONFIG.default.color };
+	return {
+		name: platformName,
+		color: PLATFORM_CONFIG.default.color,
+		key: 'default',
+	};
 };
 
 /**
