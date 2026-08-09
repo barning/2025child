@@ -58,6 +58,28 @@ function render_posts_list( \WP_Query $query ): string {
 }
 
 /**
+ * Render a feed-safe selected-post list.
+ */
+function render_feed_posts_list( \WP_Query $query ): string {
+	if ( ! $query->have_posts() ) {
+		return sprintf( '<p>%s</p>', esc_html__( 'Noch keine beliebten Beiträge vorhanden.', 'child' ) );
+	}
+
+	$items = array_map(
+		static function ( $post ): string {
+			return sprintf(
+				'<li><a href="%s">%s</a></li>',
+				esc_url( get_permalink( $post ) ),
+				esc_html( get_the_title( $post ) )
+			);
+		},
+		$query->posts
+	);
+
+	return sprintf( '<ul>%s</ul>', implode( '', $items ) );
+}
+
+/**
  * Render callback.
  *
  * @param array<string, mixed> $attributes Block attributes.
@@ -84,6 +106,15 @@ return function ( array $attributes ): string {
 			'post_status'   => 'publish',
 		)
 	);
+
+	if ( \child_is_feed_render() ) {
+		return sprintf(
+			'<div class="child-rss-card" style="margin:1.5em 0;padding:1em;border:1px solid #d6d6d6;border-radius:12px;"><p style="margin:.5em 0;font-size:1.15em;"><strong>%s %s</strong></p>%s</div>',
+			esc_html( $emoji ),
+			esc_html( $title ),
+			render_feed_posts_list( $query )
+		);
+	}
 
 	$content = sprintf(
 		'<div class="child-popular-card">%s%s</div>',

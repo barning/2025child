@@ -8,7 +8,7 @@
  * @package TwentyTwentyFiveChild
  */
 
-const CHILD_LAYOUT_FIXTURE_VERSION = '4';
+const CHILD_LAYOUT_FIXTURE_VERSION = '5';
 const CHILD_LAYOUT_FIXTURE_META_KEY = '_child_layout_fixture_key';
 
 /**
@@ -241,6 +241,13 @@ function child_layout_fixture_seed(): void {
 	);
 	$content .= child_layout_fixture_block( 'visual-link-preview', array( 'url' => $preview_url ) );
 	$content .= child_layout_fixture_block( 'pixelfed-feed', array( 'feedUrl' => '', 'itemsToShow' => 3 ) );
+
+	child_layout_fixture_upsert_post(
+		'feed-post',
+		'RSS-Block-Fallback-Test',
+		$content,
+		'post'
+	);
 
 	$page_id = child_layout_fixture_upsert_post(
 		'layout-page',

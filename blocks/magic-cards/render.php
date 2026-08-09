@@ -11,6 +11,35 @@ return function ( $attributes ) {
 	$wrapper_attributes = get_block_wrapper_attributes();
 	$display_type       = $attributes['displayType'] ?? 'single';
 
+	if ( child_is_feed_render() ) {
+		$post_url = child_get_feed_post_url();
+		if ( 'moxfield' === $display_type ) {
+			$moxfield_url = esc_url( (string) ( $attributes['moxfieldUrl'] ?? '' ) );
+			return child_render_feed_card(
+				[
+					'title' => __( 'Magic-Deck auf Moxfield', 'child' ),
+					'url'   => $moxfield_url ?: $post_url,
+					'links' => $post_url ? [
+						[
+							'url'   => $post_url,
+							'label' => __( 'Beitrag auf der Website ansehen', 'child' ),
+						],
+					] : [],
+				]
+			);
+		}
+
+		return child_render_feed_card(
+			[
+				'title'        => (string) ( $attributes['cardName'] ?? '' ),
+				'url'          => $post_url,
+				'image'        => (string) ( $attributes['cardImageUrl'] ?? '' ),
+				'image_width'  => 488,
+				'image_height' => 680,
+			]
+		);
+	}
+
 	if ( $display_type === 'moxfield' ) {
 		return child_render_moxfield_embed( $attributes, $wrapper_attributes );
 	} else {

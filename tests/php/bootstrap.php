@@ -17,6 +17,9 @@ $GLOBALS['child_test_options']    = array();
 $GLOBALS['child_test_transients'] = array();
 $GLOBALS['child_test_scheduled']  = array();
 $GLOBALS['child_test_post_status'] = array();
+$GLOBALS['child_test_is_feed']    = false;
+$GLOBALS['child_test_post_id']    = 0;
+$GLOBALS['child_test_permalink']  = '';
 $GLOBALS['child_test_response']   = array(
 	'response' => array( 'code' => 200 ),
 	'headers'  => array(),
@@ -213,6 +216,36 @@ if ( ! function_exists( 'esc_html' ) ) {
 	}
 }
 
+if ( ! function_exists( 'esc_attr' ) ) {
+	function esc_attr( string $value ): string {
+		return htmlspecialchars( $value, ENT_QUOTES, 'UTF-8' );
+	}
+}
+
+if ( ! function_exists( 'wp_strip_all_tags' ) ) {
+	function wp_strip_all_tags( string $value ): string {
+		return strip_tags( $value );
+	}
+}
+
+if ( ! function_exists( 'is_feed' ) ) {
+	function is_feed(): bool {
+		return (bool) $GLOBALS['child_test_is_feed'];
+	}
+}
+
+if ( ! function_exists( 'get_the_ID' ) ) {
+	function get_the_ID(): int {
+		return (int) $GLOBALS['child_test_post_id'];
+	}
+}
+
+if ( ! function_exists( 'get_permalink' ) ) {
+	function get_permalink(): string {
+		return (string) $GLOBALS['child_test_permalink'];
+	}
+}
+
 if ( ! function_exists( 'wp_parse_url' ) ) {
 	function wp_parse_url( string $url, int $component = -1 ) {
 		return parse_url( $url, $component );
@@ -296,5 +329,6 @@ if ( ! function_exists( 'get_post_status' ) ) {
 require_once dirname( __DIR__, 2 ) . '/inc/media-cover-grid-dedupe.php';
 require_once dirname( __DIR__, 2 ) . '/inc/media-cover-grid-normalizers.php';
 require_once dirname( __DIR__, 2 ) . '/inc/post-likes.php';
+require_once dirname( __DIR__, 2 ) . '/inc/rss-block-fallbacks.php';
 require_once dirname( __DIR__, 2 ) . '/inc/provider-http.php';
 require_once dirname( __DIR__, 2 ) . '/inc/visual-link-preview-async.php';

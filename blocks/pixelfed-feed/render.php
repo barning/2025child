@@ -11,7 +11,7 @@ return function ( $attributes ) {
 	$items_to_show = max( 1, min( 18, $items_to_show ) );
 
 	if ( '' === $feed_url || ! wp_http_validate_url( $feed_url ) ) {
-		return '';
+		return child_is_feed_render() ? child_render_feed_post_link( __( 'Fotos auf der Website ansehen', 'child' ) ) : '';
 	}
 
 	if ( ! function_exists( 'fetch_feed' ) ) {
@@ -20,6 +20,9 @@ return function ( $attributes ) {
 
 	$feed = fetch_feed( $feed_url );
 	if ( is_wp_error( $feed ) ) {
+		if ( child_is_feed_render() ) {
+			return child_render_feed_post_link( __( 'Fotos auf der Website ansehen', 'child' ) );
+		}
 		return sprintf(
 			'<p %s>%s</p>',
 			get_block_wrapper_attributes(),
@@ -31,6 +34,9 @@ return function ( $attributes ) {
 	$items     = $feed->get_items( 0, $max_items );
 
 	if ( empty( $items ) ) {
+		if ( child_is_feed_render() ) {
+			return child_render_feed_post_link( __( 'Fotos auf der Website ansehen', 'child' ) );
+		}
 		return sprintf(
 			'<p %s>%s</p>',
 			get_block_wrapper_attributes(),
@@ -87,6 +93,67 @@ return function ( $attributes ) {
 
 		return array( $url, $width, $height );
 	};
+
+	if ( child_is_feed_render() ) {
+		foreach ( $items as $item ) {
+			$item_link    = (string) $item->get_link();
+			$image_url    = '';
+			$image_width  = 0;
+			$image_height = 0;
+
+			$enclosure = $item->get_enclosure();
+			if ( $enclosure && 0 === strpos( (string) $enclosure->get_type(), 'image/' ) ) {
+				$image_url    = (string) $enclosure->get_link();
+				$image_width  = (int) $enclosure->get_width();
+				$image_height = (int) $enclosure->get_height();
+			}
+
+			[ $media_url, $media_width, $media_height ] = $get_media_dimensions( $item );
+			$image_url                                  = $image_url ?: $media_url;
+			$image_width                                = $image_width ?: $media_width;
+			$image_height                               = $image_height ?: $media_height;
+			$content                                    = (string) $item->get_content();
+
+			if ( ! $image_url && preg_match( '/<img[^>]+src=["\']([^"\']+)["\']/i', $content, $matches ) ) {
+				$image_url = $matches[1];
+			}
+			if ( ! $image_width || ! $image_height ) {
+				[ $image_width, $image_height ] = $get_image_dimensions( $content );
+			}
+
+			$description = (string) $item->get_description();
+			if ( ! $image_url && preg_match( '/<img[^>]+src=["\']([^"\']+)["\']/i', $description, $matches ) ) {
+				$image_url = $matches[1];
+			}
+			if ( ! $image_width || ! $image_height ) {
+				[ $description_width, $description_height ] = $get_image_dimensions( $description );
+				$image_width                                = $image_width ?: $description_width;
+				$image_height                               = $image_height ?: $description_height;
+			}
+
+			if ( ! $image_url || ! $item_link ) {
+				continue;
+			}
+
+			return child_render_feed_card(
+				[
+					'title'        => wp_strip_all_tags( (string) $item->get_title() ) ?: __( 'Pixelfed-Foto', 'child' ),
+					'url'          => $item_link,
+					'image'        => $image_url,
+					'image_width'  => $image_width ?: 1000,
+					'image_height' => $image_height ?: 1000,
+					'links'        => child_get_feed_post_url() ? [
+						[
+							'url'   => child_get_feed_post_url(),
+							'label' => __( 'Beitrag auf der Website ansehen', 'child' ),
+						],
+					] : [],
+				]
+			);
+		}
+
+		return child_render_feed_post_link( __( 'Fotos auf der Website ansehen', 'child' ) );
+	}
 
 	ob_start();
 	?>

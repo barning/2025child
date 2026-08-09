@@ -21,6 +21,26 @@ return function ( $attributes ) {
 
 	$type_label = $media_type === 'movie' ? __( 'Film', 'child' ) : __( 'Serie', 'child' );
 
+	if ( child_is_feed_render() ) {
+		$post_url = child_get_feed_post_url();
+		return child_render_feed_card(
+			[
+				'title'        => (string) $media_title,
+				'url'          => $service_url ?: $post_url,
+				'image'        => (string) $poster_url,
+				'image_width'  => 600,
+				'image_height' => 900,
+				'meta'         => array_filter( [ $type_label, (string) $release_year ] ),
+				'links'        => $post_url ? [
+					[
+						'url'   => $post_url,
+						'label' => __( 'Beitrag auf der Website ansehen', 'child' ),
+					],
+				] : [],
+			]
+		);
+	}
+
 	ob_start(); ?>
 	<div
 	<?php

@@ -18,6 +18,31 @@ return function ( $attributes ) {
 		return '';
 	}
 
+	if ( child_is_feed_render() ) {
+		$post_url    = child_get_feed_post_url();
+		$author_meta = [];
+		if ( $author ) {
+			/* translators: %s: book author. */
+			$author_meta[] = sprintf( __( 'Von %s', 'child' ), $author );
+		}
+		return child_render_feed_card(
+			[
+				'title'        => (string) $book_title,
+				'url'          => $shop_url ?: $post_url,
+				'image'        => (string) $cover_url,
+				'image_width'  => 600,
+				'image_height' => 900,
+				'meta'         => $author_meta,
+				'links'        => $post_url ? [
+					[
+						'url'   => $post_url,
+						'label' => __( 'Beitrag auf der Website ansehen', 'child' ),
+					],
+				] : [],
+			]
+		);
+	}
+
 	ob_start(); ?>
 	<div
 	<?php

@@ -36,6 +36,40 @@ return function ( $attributes ) {
 		}
 	}
 
+	if ( child_is_feed_render() ) {
+		$post_url = child_get_feed_post_url();
+		$meta     = [];
+		if ( $formatted_date ) {
+			/* translators: %s: formatted videogame release date. */
+			$meta[] = sprintf( __( 'Veröffentlichung: %s', 'child' ), $formatted_date );
+		}
+		if ( is_array( $platforms ) && [] !== $platforms ) {
+			/* translators: %s: comma-separated videogame platform names. */
+			$meta[] = sprintf( __( 'Plattformen: %s', 'child' ), implode( ', ', array_slice( $platforms, 0, 5 ) ) );
+		}
+		if ( is_array( $genres ) && [] !== $genres ) {
+			/* translators: %s: comma-separated videogame genres. */
+			$meta[] = sprintf( __( 'Genres: %s', 'child' ), implode( ', ', array_slice( $genres, 0, 3 ) ) );
+		}
+
+		return child_render_feed_card(
+			[
+				'title'        => (string) $game_title,
+				'url'          => $shop_url ?: $post_url,
+				'image'        => (string) $cover_url,
+				'image_width'  => $cover_width,
+				'image_height' => 900,
+				'meta'         => $meta,
+				'links'        => $post_url ? [
+					[
+						'url'   => $post_url,
+						'label' => __( 'Beitrag auf der Website ansehen', 'child' ),
+					],
+				] : [],
+			]
+		);
+	}
+
 	ob_start(); ?>
 	<div
 	<?php
