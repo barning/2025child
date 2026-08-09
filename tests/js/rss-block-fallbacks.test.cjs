@@ -30,5 +30,7 @@ test('collection feed fallbacks keep their compact item caps', () => {
   const pixelfed = fs.readFileSync(path.join(root, 'blocks/pixelfed-feed/render.php'), 'utf8');
 
   assert.match(grid, /array_slice\( \$items, 0, 4 \)/);
+  assert.match(grid, /'title'\s*=> \$show_title \? \$title : ''/);
+  assert.match(grid, /'image_alt'\s*=> \$title/);
   assert.match(pixelfed, /return child_render_feed_card/);
 });

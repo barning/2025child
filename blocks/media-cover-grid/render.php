@@ -73,9 +73,10 @@ return function ( array $attributes ): string {
 
 			$out .= child_render_feed_card(
 				[
-					'title'        => $title,
+					'title'        => $show_title ? $title : '',
 					'url'          => $link_url,
 					'image'        => (string) ( $item['coverUrl'] ?? '' ),
+					'image_alt'    => $title,
 					'image_width'  => $dimensions[0],
 					'image_height' => $dimensions[1],
 					'meta'         => array_filter(
