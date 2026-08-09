@@ -19,5 +19,22 @@ return function ( $attributes ) {
 		child_vlp_schedule_refresh( $cache_url );
 	}
 
+	if ( child_is_feed_render() ) {
+		$data = child_vlp_normalize_metadata_shape( $metadata['data'], $cache_url );
+		$host = (string) wp_parse_url( $data['url'], PHP_URL_HOST );
+		return child_render_feed_card(
+			[
+				'title'        => $data['title'] ?: ( $host ?: $data['url'] ),
+				'url'          => $data['url'],
+				'image'        => $data['image'],
+				'image_alt'    => '',
+				'image_width'  => 1200,
+				'image_height' => 630,
+				'meta'         => $host ? [ $host ] : [],
+				'description'  => $data['desc'],
+			]
+		);
+	}
+
 	return child_vlp_render_card( $metadata['data'], $cache_url );
 };

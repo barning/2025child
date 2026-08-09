@@ -128,6 +128,8 @@ The grid intentionally keeps the recommendation block schemas unchanged and trea
 `inc/rss-feed-footer.php` appends lightweight links to feed-only post content so RSS readers include a route back to the original post and a mail reply option.
 Posts can include a custom RSS footer message via a post editor metabox.
 
+Dynamic child-theme blocks render compact, feed-safe cards when full post content is published in RSS. Interactive controls become normal links, media collections are capped at four items, and Pixelfed contributes at most one image.
+
 ## Notes Custom Post Type
 
 `inc/notes.php` provides a `note` post type for short-form posts, with:

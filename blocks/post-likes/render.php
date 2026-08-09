@@ -6,16 +6,31 @@
  */
 
 return function ( array $attributes ): string {
-	if ( ! is_singular() ) {
-		return '';
-	}
-
 	$post_id = get_the_ID();
 	if ( ! $post_id ) {
 		return '';
 	}
 
 	$count = child_post_likes_get_count( (int) $post_id );
+	if ( child_is_feed_render() ) {
+		$reaction_emoji = trim( wp_strip_all_tags( (string) ( $attributes['reactionEmoji'] ?? '❤️' ) ) ) ?: '❤️';
+		return child_render_feed_card(
+			[
+				'title' => sprintf(
+					/* translators: 1: reaction emoji, 2: like count. */
+					__( '%1$s %2$d Likes', 'child' ),
+					$reaction_emoji,
+					$count
+				),
+				'url'   => child_get_feed_post_url(),
+			]
+		);
+	}
+
+	if ( ! is_singular() ) {
+		return '';
+	}
+
 	$liked = child_post_likes_has_current_visitor_liked( (int) $post_id );
 
 	$size_presets = [

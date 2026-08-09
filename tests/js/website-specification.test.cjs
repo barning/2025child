@@ -70,7 +70,7 @@ test('the visual fixture migrates translated posts by stable identity', () => {
     'utf8'
   );
 
-  assert.match(fixture, /CHILD_LAYOUT_FIXTURE_VERSION = '4'/);
+  assert.match(fixture, /CHILD_LAYOUT_FIXTURE_VERSION = '5'/);
   assert.match(fixture, /CHILD_LAYOUT_FIXTURE_META_KEY/);
   for (const key of [
     'source-book',

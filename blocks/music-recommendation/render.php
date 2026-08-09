@@ -18,6 +18,36 @@ return function ( array $attributes ): string {
 	$release_year = trim( (string) ( $attributes['releaseYear'] ?? '' ) );
 	$cover_url    = esc_url( (string) ( $attributes['coverUrl'] ?? '' ) );
 	$preview_url  = 'song' === $music_type ? esc_url( (string) ( $attributes['previewUrl'] ?? '' ) ) : '';
+	$provider_url = esc_url( (string) ( $attributes['providerUrl'] ?? '' ) );
+
+	if ( child_is_feed_render() ) {
+		$post_url = child_get_feed_post_url();
+		$links    = [];
+		if ( $preview_url ) {
+			$links[] = [
+				'url'   => $preview_url,
+				'label' => __( 'Hörprobe öffnen', 'child' ),
+			];
+		}
+		if ( $post_url ) {
+			$links[] = [
+				'url'   => $post_url,
+				'label' => __( 'Beitrag auf der Website ansehen', 'child' ),
+			];
+		}
+
+		return child_render_feed_card(
+			[
+				'title'        => $title,
+				'url'          => $provider_url ?: $post_url,
+				'image'        => $cover_url,
+				'image_width'  => 600,
+				'image_height' => 600,
+				'meta'         => array_filter( [ $type_label, $artist, $album_title !== $title ? $album_title : '', $release_year ] ),
+				'links'        => $links,
+			]
+		);
+	}
 
 	ob_start();
 	?>

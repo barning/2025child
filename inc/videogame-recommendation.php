@@ -49,7 +49,10 @@ function child_get_igdb_access_token() {
 	}
 
 	$url  = 'https://id.twitch.tv/oauth2/token?client_id=' . rawurlencode( $client_id ) . '&client_secret=' . rawurlencode( $client_secret ) . '&grant_type=client_credentials';
-	$args = [ 'timeout' => 10, 'headers' => [ 'Accept' => 'application/json' ] ];
+	$args = [
+		'timeout' => 10,
+		'headers' => [ 'Accept' => 'application/json' ],
+	];
 	if ( function_exists( 'wp_safe_remote_post' ) ) {
 		$response = wp_safe_remote_post( $url, $args );
 	} elseif ( function_exists( 'wp_remote_post' ) ) {
@@ -258,8 +261,24 @@ add_action( 'admin_menu', 'child_register_videogame_recommendation_settings_page
  * Register IGDB settings and fields.
  */
 function child_register_videogame_recommendation_settings(): void {
-	register_setting( 'child_videogame_recommendation', 'child_igdb_client_id', [ 'type' => 'string', 'sanitize_callback' => 'child_sanitize_igdb_client_id', 'default' => '' ] );
-	register_setting( 'child_videogame_recommendation', 'child_igdb_client_secret', [ 'type' => 'string', 'sanitize_callback' => 'child_sanitize_igdb_client_secret', 'default' => '' ] );
+	register_setting(
+		'child_videogame_recommendation',
+		'child_igdb_client_id',
+		[
+			'type'              => 'string',
+			'sanitize_callback' => 'child_sanitize_igdb_client_id',
+			'default'           => '',
+		]
+	);
+	register_setting(
+		'child_videogame_recommendation',
+		'child_igdb_client_secret',
+		[
+			'type'              => 'string',
+			'sanitize_callback' => 'child_sanitize_igdb_client_secret',
+			'default'           => '',
+		]
+	);
 
 	register_setting(
 		'child_videogame_recommendation',
@@ -301,12 +320,14 @@ add_action( 'admin_init', 'child_register_videogame_recommendation_settings' );
  * Render IGDB section description.
  */
 function child_render_videogame_recommendation_section_description(): void {
-	echo '<p>' . wp_kses_post( sprintf(
+	echo '<p>' . wp_kses_post(
+		sprintf(
 			/* translators: 1: URL to IGDB docs. 2: URL to SteamGridDB API docs. */
 			__( 'Für den Videospiel-Block benötigst du eine kostenlose IGDB-Client-ID und ein Client-Secret. Optional kannst du einen SteamGridDB-API-Schlüssel für zusätzliche Hochformat-Cover hinterlegen. IGDB-Zugangsdaten erhältst du über die Twitch-Entwicklerkonsole unter %1$s; SteamGridDB findest du unter %2$s.', 'child' ),
 			'<a href="https://dev.twitch.tv/console" target="_blank" rel="noopener noreferrer">dev.twitch.tv/console</a>',
 			'<a href="https://www.steamgriddb.com/api/v2" target="_blank" rel="noopener noreferrer">steamgriddb.com/api/v2</a>'
-			) ) . '</p>';
+		)
+	) . '</p>';
 }
 
 function child_render_igdb_client_id_field(): void {
@@ -399,7 +420,16 @@ function child_handle_igdb_search_ajax(): void {
 	}
 
 	$fields = 'fields id,name,slug,first_release_date,cover.url,websites.url,platforms.name,genres.name; search "' . str_replace( [ '\\', '"' ], [ '\\\\', '\\"' ], $query ) . '"; limit 10;';
-	$args   = [ 'timeout' => 10, 'headers' => [ 'Accept' => 'application/json', 'Client-ID' => $client_id, 'Authorization' => 'Bearer ' . $token, 'Content-Type' => 'text/plain' ], 'body' => $fields ];
+	$args   = [
+		'timeout' => 10,
+		'headers' => [
+			'Accept'        => 'application/json',
+			'Client-ID'     => $client_id,
+			'Authorization' => 'Bearer ' . $token,
+			'Content-Type'  => 'text/plain',
+		],
+		'body'    => $fields,
+	];
 	if ( function_exists( 'wp_safe_remote_post' ) ) {
 		$response = wp_safe_remote_post( 'https://api.igdb.com/v4/games', $args );
 	} elseif ( function_exists( 'wp_remote_post' ) ) {

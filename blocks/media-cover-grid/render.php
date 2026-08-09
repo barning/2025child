@@ -52,6 +52,47 @@ return function ( array $attributes ): string {
 		}
 	);
 
+	if ( child_is_feed_render() ) {
+		if ( [] === $items ) {
+			return child_render_feed_post_link( __( 'Mediensammlung auf der Website ansehen', 'child' ) );
+		}
+
+		$out = '<div class="child-rss-collection">';
+		foreach ( array_slice( $items, 0, 4 ) as $item ) {
+			$type         = (string) ( $item['type'] ?? '' );
+			$title        = (string) ( $item['title'] ?? '' );
+			$cover_format = child_get_media_cover_grid_cover_format( $item );
+			$dimensions   = [
+				'portrait'  => [ 600, 900 ],
+				'square'    => [ 600, 600 ],
+				'landscape' => [ 1600, 900 ],
+			][ $cover_format ] ?? [ 600, 900 ];
+			$link_url     = 'external' === $link_to
+				? (string) ( $item['externalUrl'] ?? '' )
+				: ( 'none' === $link_to ? '' : (string) ( $item['sourcePostUrl'] ?? '' ) );
+
+			$out .= child_render_feed_card(
+				[
+					'title'        => $show_title ? $title : '',
+					'url'          => $link_url,
+					'image'        => (string) ( $item['coverUrl'] ?? '' ),
+					'image_alt'    => $title,
+					'image_width'  => $dimensions[0],
+					'image_height' => $dimensions[1],
+					'meta'         => array_filter(
+						[
+							$show_type ? child_get_media_cover_grid_type_label( $type ) : '',
+							$show_meta ? (string) ( $item['meta'] ?? '' ) : '',
+						]
+					),
+				]
+			);
+		}
+
+		$out .= child_render_feed_post_link( __( 'Mediensammlung auf der Website ansehen', 'child' ) );
+		return $out . '</div>';
+	}
+
 	$item_types = array_values(
 		array_filter(
 			array_unique(
