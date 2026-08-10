@@ -101,6 +101,20 @@
 	text-decoration: none;
 }
 
+.child-media-cover-grid__item--music {
+	--child-media-cover-grid-image-outline: rgba(0, 0, 0, 0.1);
+
+	background: var(--wp--preset--color--contrast, #241f1a);
+	border-radius: 18px;
+	box-shadow: 0 12px 28px color-mix(in srgb, currentcolor 10%, transparent);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	outline: 1px solid var(--child-media-cover-grid-image-outline);
+	outline-offset: -1px;
+	transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
 .child-media-cover-grid__year {
 	align-items: center;
 	color: color-mix(in srgb, currentcolor 50%, transparent);
@@ -162,6 +176,22 @@
 	transform: scale(0.96);
 }
 
+.child-media-cover-grid__item--music:is(a):hover,
+.child-media-cover-grid__item--music:is(a):focus-visible {
+	box-shadow: 0 16px 32px color-mix(in srgb, currentcolor 16%, transparent);
+	transform: translateY(-1px);
+}
+
+.child-media-cover-grid__item--music:is(a):active {
+	transform: scale(0.96);
+}
+
+.child-media-cover-grid__item--music:is(a):hover .child-media-cover-grid__cover,
+.child-media-cover-grid__item--music:is(a):focus-visible .child-media-cover-grid__cover,
+.child-media-cover-grid__item--music:is(a):active .child-media-cover-grid__cover {
+	box-shadow: none;
+	transform: none;
+}
 
 .child-media-cover-grid__cover--portrait {
 	aspect-ratio: 2 / 3;
@@ -179,6 +209,12 @@
 	aspect-ratio: 3 / 2.1;
 }
 
+.child-media-cover-grid__item--music .child-media-cover-grid__cover--square {
+	border-radius: 0;
+	box-shadow: none;
+	flex: 0 0 auto;
+}
+
 .child-media-cover-grid__cover img {
 	display: block;
 	height: 100%;
@@ -186,6 +222,11 @@
 	outline: 1px solid rgba(0, 0, 0, 0.1);
 	outline-offset: -1px;
 	width: 100%;
+}
+
+.child-media-cover-grid__item--music .child-media-cover-grid__cover img {
+	background: color-mix(in srgb, currentcolor 8%, transparent);
+	object-fit: contain;
 }
 
 .child-media-cover-grid__placeholder {
@@ -205,6 +246,43 @@
 	padding-block-start: 0.8rem;
 }
 
+.child-media-cover-grid__item--music .child-media-cover-grid__content {
+	aspect-ratio: 2 / 1;
+	box-sizing: border-box;
+	contain: paint;
+	color: rgb(255 255 255 / 0.96);
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	padding-block: clamp(0.65rem, 1.5vw, 0.85rem);
+	padding-inline: clamp(0.75rem, 1.7vw, 1rem);
+	position: relative;
+	z-index: 0;
+}
+
+.child-media-cover-grid__item--music .child-media-cover-grid__content::after {
+	background: linear-gradient(to bottom, rgb(0 0 0 / 0.6), rgb(0 0 0 / 0.84));
+	content: "";
+	inset: 0;
+	pointer-events: none;
+	position: absolute;
+	z-index: -1;
+}
+
+.child-media-cover-grid__music-background {
+	filter: blur(22px);
+	height: calc(100% + 2rem);
+	inset: -1rem;
+	max-width: none;
+	object-fit: cover;
+	opacity: 0.9;
+	pointer-events: none;
+	position: absolute;
+	transform: scale(1.08);
+	width: calc(100% + 2rem);
+	z-index: -2;
+}
+
 .child-media-cover-grid__type {
 	color: color-mix(in srgb, currentcolor 64%, transparent);
 	display: block;
@@ -220,7 +298,18 @@
 	font-size: clamp(0.98rem, 0.94rem + 0.18vw, 1.08rem);
 	line-height: 1.22;
 	margin: 0;
+	overflow-wrap: break-word;
 	text-wrap: balance;
+}
+
+.child-media-cover-grid__item--music .child-media-cover-grid__type,
+.child-media-cover-grid__item--music .child-media-cover-grid__title {
+	color: inherit;
+}
+
+.child-media-cover-grid__item--music .child-media-cover-grid__type {
+	margin-block-end: 0.25rem;
+	opacity: 0.9;
 }
 
 .child-media-cover-grid__meta,
@@ -251,7 +340,8 @@
 @media (prefers-reduced-motion: reduce) {
 
 	.child-media-cover-grid__filter,
-	.child-media-cover-grid__cover {
+	.child-media-cover-grid__cover,
+	.child-media-cover-grid__item--music {
 		transition: none;
 	}
 
@@ -259,6 +349,19 @@
 	.child-media-cover-grid__item:is(a):focus-visible .child-media-cover-grid__cover,
 	.child-media-cover-grid__item:is(a):active .child-media-cover-grid__cover {
 		transform: none;
+	}
+
+	.child-media-cover-grid__item--music:is(a):hover,
+	.child-media-cover-grid__item--music:is(a):focus-visible,
+	.child-media-cover-grid__item--music:is(a):active {
+		transform: none;
+	}
+}
+
+@media (prefers-color-scheme: dark) {
+
+	.child-media-cover-grid__item--music {
+		--child-media-cover-grid-image-outline: rgba(255, 255, 255, 0.1);
 	}
 }
 

@@ -58,3 +58,22 @@ test('block registration and the WordPress smoke test are idempotent', () => {
   );
   assert.doesNotMatch(workflow, /wp eval 'do_action\\?\(["']init["']\)/);
 });
+
+test('media grid music cards reuse artwork in an accessible portrait treatment', () => {
+  const render = fs.readFileSync(
+    path.join(root, 'blocks', 'media-cover-grid', 'render.php'),
+    'utf8'
+  );
+  const styles = fs.readFileSync(
+    path.join(root, 'blocks', 'media-cover-grid', 'style.css'),
+    'utf8'
+  );
+
+  assert.match(render, /class="child-media-cover-grid__music-background"/);
+  assert.match(render, /class="child-media-cover-grid__music-background"[\s\S]+?alt=""[\s\S]+?aria-hidden="true"/);
+  assert.match(render, /'music' !== \$type && \$show_meta && \$meta/);
+  assert.match(styles, /\.child-media-cover-grid__item--music \.child-media-cover-grid__content\s*{[\s\S]+?aspect-ratio:\s*2\s*\/\s*1/);
+  assert.match(styles, /\.child-media-cover-grid__item--music \.child-media-cover-grid__cover img\s*{[\s\S]+?object-fit:\s*contain/);
+  assert.match(styles, /\.child-media-cover-grid__music-background\s*{[\s\S]+?filter:\s*blur\(/);
+  assert.match(styles, /\.child-media-cover-grid__item--music \.child-media-cover-grid__content::after\s*{[\s\S]+?linear-gradient\(/);
+});

@@ -53,7 +53,7 @@ const PREVIEW_ITEMS = [
 		coverFormat: 'square',
 		typeLabel: __( 'Musik', 'child' ),
 		title: __( 'Beispielsong', 'child' ),
-		meta: __( 'Künstler:in', 'child' ),
+		meta: '',
 	},
 ];
 
@@ -217,7 +217,10 @@ function Edit( { attributes, setAttributes } ) {
 							>
 								<span>{ item.typeLabel.charAt( 0 ) }</span>
 							</div>
-							{ ( showType || showTitle || showMeta ) && (
+							{ ( item.type === 'music' ||
+								showType ||
+								showTitle ||
+								showMeta ) && (
 								<div className="child-media-cover-grid__content">
 									{ showType && (
 										<span className="child-media-cover-grid__type">
@@ -229,7 +232,7 @@ function Edit( { attributes, setAttributes } ) {
 											{ item.title }
 										</p>
 									) }
-									{ showMeta && (
+									{ showMeta && item.meta && (
 										<p className="child-media-cover-grid__meta">
 											{ item.meta }
 										</p>

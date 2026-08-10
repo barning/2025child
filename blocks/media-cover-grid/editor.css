@@ -34,3 +34,8 @@
 .child-media-cover-grid-block .child-media-cover-grid__cover--game {
 	background: linear-gradient(135deg, #e6f8ec, #79d498);
 }
+
+.wp-block-child-media-cover-grid .child-media-cover-grid__cover--music,
+.child-media-cover-grid-block .child-media-cover-grid__cover--music {
+	background: linear-gradient(135deg, #ded7ea, #817294);
+}
