@@ -71,9 +71,9 @@ test('media grid music cards reuse artwork in an accessible portrait treatment',
 
   assert.match(render, /class="child-media-cover-grid__music-background"/);
   assert.match(render, /class="child-media-cover-grid__music-background"[\s\S]+?alt=""[\s\S]+?aria-hidden="true"/);
-  assert.match(render, /'music' !== \$type && \$show_meta && \$meta/);
-  assert.match(styles, /\.child-media-cover-grid__item--music \.child-media-cover-grid__content\s*{[\s\S]+?aspect-ratio:\s*2\s*\/\s*1/);
-  assert.match(styles, /\.child-media-cover-grid__item--music \.child-media-cover-grid__cover img\s*{[\s\S]+?object-fit:\s*contain/);
+  assert.match(render, /class="child-media-cover-grid__artwork"/);
+  assert.match(styles, /\.child-media-cover-grid__item--music \.child-media-cover-grid__cover--square\s*{[\s\S]+?aspect-ratio:\s*2\s*\/\s*3/);
+  assert.match(styles, /\.child-media-cover-grid__item--music \.child-media-cover-grid__artwork\s*{[\s\S]+?aspect-ratio:\s*1\s*\/\s*1[\s\S]+?object-fit:\s*contain/);
   assert.match(styles, /\.child-media-cover-grid__music-background\s*{[\s\S]+?filter:\s*blur\(/);
-  assert.match(styles, /\.child-media-cover-grid__item--music \.child-media-cover-grid__content::after\s*{[\s\S]+?linear-gradient\(/);
+  assert.doesNotMatch(styles, /\.child-media-cover-grid__item--music \.child-media-cover-grid__content\s*{/);
 });

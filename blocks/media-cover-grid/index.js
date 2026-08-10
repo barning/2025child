@@ -217,10 +217,7 @@ function Edit( { attributes, setAttributes } ) {
 							>
 								<span>{ item.typeLabel.charAt( 0 ) }</span>
 							</div>
-							{ ( item.type === 'music' ||
-								showType ||
-								showTitle ||
-								showMeta ) && (
+							{ ( showType || showTitle || showMeta ) && (
 								<div className="child-media-cover-grid__content">
 									{ showType && (
 										<span className="child-media-cover-grid__type">

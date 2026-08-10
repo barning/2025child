@@ -37,5 +37,16 @@
 
 .wp-block-child-media-cover-grid .child-media-cover-grid__cover--music,
 .child-media-cover-grid-block .child-media-cover-grid__cover--music {
+	align-items: flex-start;
 	background: linear-gradient(135deg, #ded7ea, #817294);
+}
+
+.wp-block-child-media-cover-grid .child-media-cover-grid__cover--music span,
+.child-media-cover-grid-block .child-media-cover-grid__cover--music span {
+	align-items: center;
+	aspect-ratio: 1 / 1;
+	background: linear-gradient(135deg, #eee9f3, #aea2bc);
+	display: flex;
+	justify-content: center;
+	width: 100%;
 }

@@ -187,7 +187,20 @@ return function ( array $attributes ): string {
 	rel="<?php echo esc_attr( $link_rel ); ?>"<?php endif; ?> role="listitem" aria-label="<?php echo esc_attr( $title ); ?>">
 						<div class="child-media-cover-grid__cover child-media-cover-grid__cover--<?php echo esc_attr( $cover_format ); ?>">
 							<?php if ( $cover_url ) : ?>
+								<?php if ( 'music' === $type ) : ?>
+									<img
+										class="child-media-cover-grid__music-background"
+										src="<?php echo esc_url( $cover_url ); ?>"
+										alt=""
+										aria-hidden="true"
+										loading="lazy"
+										decoding="async"
+										width="600"
+										height="600"
+									/>
+								<?php endif; ?>
 								<img
+									class="child-media-cover-grid__artwork"
 									src="<?php echo esc_url( $cover_url ); ?>"
 									alt="<?php echo esc_attr( $title ); ?>"
 									loading="lazy"
@@ -202,30 +215,18 @@ return function ( array $attributes ): string {
 							<?php endif; ?>
 						</div>
 
-						<?php if ( 'music' === $type || $show_type || $show_title || $show_meta ) : ?>
+						<?php if ( $show_type || $show_title || $show_meta ) : ?>
 							<div class="child-media-cover-grid__content">
-								<?php if ( 'music' === $type && $cover_url ) : ?>
-									<img
-										class="child-media-cover-grid__music-background"
-										src="<?php echo esc_url( $cover_url ); ?>"
-										alt=""
-										aria-hidden="true"
-										loading="lazy"
-										decoding="async"
-										width="600"
-										height="600"
-									/>
-								<?php endif; ?>
 								<?php if ( $show_type ) : ?>
 									<span class="child-media-cover-grid__type"><?php echo esc_html( $type_label ); ?></span>
 								<?php endif; ?>
 								<?php if ( $show_title ) : ?>
 									<p class="child-media-cover-grid__title"><?php echo esc_html( $title ); ?></p>
 								<?php endif; ?>
-								<?php if ( 'music' !== $type && $show_meta && $meta ) : ?>
+								<?php if ( $show_meta && $meta ) : ?>
 									<p class="child-media-cover-grid__meta"><?php echo esc_html( $meta ); ?></p>
 								<?php endif; ?>
-								<?php if ( 'music' !== $type && $show_meta && $source_title ) : ?>
+								<?php if ( $show_meta && $source_title ) : ?>
 									<p class="child-media-cover-grid__source">
 										<?php
 										if ( $mention_count > 1 ) {
