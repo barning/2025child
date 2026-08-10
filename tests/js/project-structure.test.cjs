@@ -59,7 +59,7 @@ test('block registration and the WordPress smoke test are idempotent', () => {
   assert.doesNotMatch(workflow, /wp eval 'do_action\\?\(["']init["']\)/);
 });
 
-test('media grid music cards reuse artwork in an accessible portrait treatment', () => {
+test('media grid music cards use an accessible portrait artwork stage', () => {
   const render = fs.readFileSync(
     path.join(root, 'blocks', 'media-cover-grid', 'render.php'),
     'utf8'
@@ -73,7 +73,8 @@ test('media grid music cards reuse artwork in an accessible portrait treatment',
   assert.match(render, /class="child-media-cover-grid__music-background"[\s\S]+?alt=""[\s\S]+?aria-hidden="true"/);
   assert.match(render, /class="child-media-cover-grid__artwork"/);
   assert.match(styles, /\.child-media-cover-grid__item--music \.child-media-cover-grid__cover--square\s*{[\s\S]+?aspect-ratio:\s*2\s*\/\s*3/);
-  assert.match(styles, /\.child-media-cover-grid__item--music \.child-media-cover-grid__artwork\s*{[\s\S]+?aspect-ratio:\s*1\s*\/\s*1[\s\S]+?object-fit:\s*contain/);
+  assert.match(styles, /\.child-media-cover-grid__item--music \.child-media-cover-grid__artwork\s*{[\s\S]+?aspect-ratio:\s*1\s*\/\s*1[\s\S]+?object-fit:\s*contain[\s\S]+?width:\s*82%/);
   assert.match(styles, /\.child-media-cover-grid__music-background\s*{[\s\S]+?filter:\s*blur\(/);
+  assert.match(styles, /\.child-media-cover-grid__item--music \.child-media-cover-grid__cover--square::after\s*{[\s\S]+?inset:\s*0/);
   assert.doesNotMatch(styles, /\.child-media-cover-grid__item--music \.child-media-cover-grid__content\s*{/);
 });
