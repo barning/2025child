@@ -1,0 +1,30 @@
+{
+  "apiVersion": 3,
+  "name": "child/code-highlight",
+  "title": "Code Highlight",
+  "category": "widgets",
+  "icon": "code",
+  "description": "Display code with syntax highlighting using Microlighter",
+  "supports": {
+    "html": false
+  },
+  "attributes": {
+    "code": {
+      "type": "string",
+      "default": ""
+    },
+    "language": {
+      "type": "string",
+      "default": "javascript"
+    },
+    "showLineNumbers": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "textdomain": "child",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./editor.css",
+  "style": "file:./style.css",
+  "render": "file:./render.php"
+}
