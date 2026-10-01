@@ -80,7 +80,7 @@ const usePosts = ( selectedPosts ) => {
 					? getEntityRecords( 'postType', 'post', {
 							include: selectedPosts,
 							per_page: 100,
-					  } )
+						} )
 					: [],
 				allPosts:
 					getEntityRecords( 'postType', 'post', {
