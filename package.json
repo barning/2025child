@@ -3,7 +3,7 @@
   "version": "1.7.0",
   "description": "Custom blocks for the TwentyTwentyFive child theme.",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=24.0.0 <25"
   },
   "scripts": {
     "build": "wp-scripts build --webpack-src-dir=blocks",

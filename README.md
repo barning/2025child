@@ -142,6 +142,9 @@ Dynamic child-theme blocks render compact, feed-safe cards when full post conten
 
 Install dependencies and build compiled block assets:
 
+Frontend development requires Node 24; `.nvmrc` selects the project's tested
+version. npm installs enforce the supported Node 24 release line.
+
 ```bash
 npm ci
 composer install
@@ -170,7 +173,7 @@ composer analyse
 composer lint
 ```
 
-The release workflow runs these gates across PHP 8.1, 8.3, and 8.5, audits production npm dependencies, validates generated block manifests, tests the ZIP, and activates the packaged child theme in a fresh WordPress installation.
+The release workflow gates the minimum supported PHP 8.3 release and PHP 8.5, audits production npm dependencies, validates generated block manifests, tests the ZIP, and activates the packaged child theme in a fresh WordPress installation.
 
 Release notes are tracked in `releases/` instead of a running devlog.
 
@@ -192,4 +195,4 @@ The theme covers document structure, responsive rendering, reduced motion, intri
 - Keeps child-theme overrides intentionally minimal.
 - Uses consistent prefixed function names (`child_*`) to avoid collisions.
 - Consolidates duplicated registration/enqueue logic to simplify future parent-theme updates.
-- Requires WordPress 6.7+, PHP 8.1+, and Node 20+ for development.
+- Requires WordPress 6.7+, PHP 8.3+, and Node 24 for development.
