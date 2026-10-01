@@ -3,7 +3,7 @@
   "version": "1.7.0",
   "description": "Custom blocks for the TwentyTwentyFive child theme.",
   "engines": {
-    "node": ">=20.0.0"
+    "node": "^20.19.0 || >=22.13.0"
   },
   "scripts": {
     "build": "wp-scripts build --webpack-src-dir=blocks",
@@ -20,19 +20,19 @@
     "dist": "npm run build && npm run check:build && npm run package"
   },
   "devDependencies": {
-    "@wordpress/api-fetch": "^7.51.0",
-    "@wordpress/block-editor": "^16.0.0",
-    "@wordpress/blocks": "^15.24.0",
-    "@wordpress/components": "^37.0.0",
-    "@wordpress/core-data": "^7.51.0",
-    "@wordpress/data": "^10.51.0",
-    "@wordpress/element": "^8.3.0",
-    "@wordpress/i18n": "^6.24.0",
-    "@wordpress/scripts": "^32.5.0",
-    "@wordpress/server-side-render": "^6.27.0",
-    "@wordpress/url": "^4.51.0"
+    "@wordpress/api-fetch": "7.8.2",
+    "@wordpress/block-editor": "14.3.16",
+    "@wordpress/blocks": "13.8.6",
+    "@wordpress/components": "28.8.12",
+    "@wordpress/core-data": "7.8.16",
+    "@wordpress/data": "10.8.4",
+    "@wordpress/element": "6.8.1",
+    "@wordpress/i18n": "5.8.2",
+    "@wordpress/scripts": "35.0.0",
+    "@wordpress/server-side-render": "5.8.12",
+    "@wordpress/url": "4.8.1"
   },
   "dependencies": {
-    "@wordpress/html-entities": "^4.43.0"
+    "@wordpress/html-entities": "4.8.1"
   }
 }

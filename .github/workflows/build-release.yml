@@ -152,7 +152,39 @@ jobs:
 
       - name: Verify block registration
         run: |
-          wp eval '$blocks = WP_Block_Type_Registry::get_instance()->get_all_registered(); foreach (array("child/book-rating", "child/media-cover-grid", "child/post-likes", "child/visual-link-preview") as $name) { if (!isset($blocks[$name])) { throw new RuntimeException("Missing block: " . $name); } }' --path=/tmp/child-theme-smoke
+          wp eval '
+            $expected = array(
+              "child/book-rating",
+              "child/magic-cards",
+              "child/media-cover-grid",
+              "child/media-recommendation",
+              "child/music-recommendation",
+              "child/pixelfed-feed",
+              "child/popular-posts",
+              "child/post-likes",
+              "child/videogame-recommendation",
+              "child/visual-link-preview",
+            );
+            $blocks = WP_Block_Type_Registry::get_instance()->get_all_registered();
+            foreach ($expected as $name) {
+              if (!isset($blocks[$name])) {
+                throw new RuntimeException("Missing block: " . $name);
+              }
+              if (empty($blocks[$name]->editor_script_handles)) {
+                throw new RuntimeException("Missing editor script for: " . $name);
+              }
+              foreach ($blocks[$name]->editor_script_handles as $handle) {
+                if (!wp_scripts()->query($handle, "registered")) {
+                  throw new RuntimeException("Unregistered editor script " . $handle . " for: " . $name);
+                }
+                foreach (wp_scripts()->registered[$handle]->deps as $dependency) {
+                  if (!wp_scripts()->query($dependency, "registered")) {
+                    throw new RuntimeException("Missing editor dependency " . $dependency . " for: " . $name);
+                  }
+                }
+              }
+            }
+          ' --path=/tmp/child-theme-smoke
 
   release:
     # Tag pushes are the single release path. Published-release events are intentionally
