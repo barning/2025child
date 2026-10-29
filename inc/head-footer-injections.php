@@ -1,6 +1,6 @@
 <?php
 /**
- * Fediverse creator meta integration.
+ * Browser metadata integrations.
  *
  * @package TwentyTwentyFiveChild
  */
@@ -56,3 +56,12 @@ function child_output_fediverse_meta_tag(): void {
 	echo '<meta name="fediverse:creator" content="' . esc_attr( $handle ) . '" />' . "\n";
 }
 add_action( 'wp_head', 'child_output_fediverse_meta_tag' );
+
+/**
+ * Print light and dark browser chrome colors.
+ */
+function child_output_color_scheme_meta_tags(): void {
+	echo '<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)" />' . "\n";
+	echo '<meta name="theme-color" content="#161513" media="(prefers-color-scheme: dark)" />' . "\n";
+}
+add_action( 'wp_head', 'child_output_color_scheme_meta_tags', 1 );

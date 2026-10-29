@@ -70,7 +70,7 @@ test('the visual fixture migrates translated posts by stable identity', () => {
     'utf8'
   );
 
-  assert.match(fixture, /CHILD_LAYOUT_FIXTURE_VERSION = '5'/);
+  assert.match(fixture, /CHILD_LAYOUT_FIXTURE_VERSION = '6'/);
   assert.match(fixture, /CHILD_LAYOUT_FIXTURE_META_KEY/);
   for (const key of [
     'source-book',
@@ -92,4 +92,15 @@ test('the visual fixture migrates translated posts by stable identity', () => {
   }
   assert.match(fixture, /update_post_meta\(/);
   assert.match(fixture, /wp_delete_post\(/);
+});
+
+test('the visual fixture covers inherited section styles and the section 4 button', () => {
+  const fixture = fs.readFileSync(
+    path.join(root, 'tests', 'visual', 'mu-plugins', 'child-layout-fixture.php'),
+    'utf8'
+  );
+
+  assert.match(fixture, /range\( 1, 5 \)/);
+  assert.match(fixture, /is-style-section-%1\$d/);
+  assert.match(fixture, /Testschaltfläche/);
 });

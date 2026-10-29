@@ -8,7 +8,7 @@
  * @package TwentyTwentyFiveChild
  */
 
-const CHILD_LAYOUT_FIXTURE_VERSION = '5';
+const CHILD_LAYOUT_FIXTURE_VERSION = '6';
 const CHILD_LAYOUT_FIXTURE_META_KEY = '_child_layout_fixture_key';
 
 /**
@@ -39,6 +39,29 @@ function child_layout_fixture_block( string $name, array $attributes = array() )
 			'innerContent' => array(),
 		)
 	);
+}
+
+/**
+ * Render every inherited Twenty Twenty-Five section style, including the
+ * Section 4 button color pairing that needs a dark-mode correction.
+ */
+function child_layout_fixture_section_styles(): string {
+	$sections = '';
+
+	foreach ( range( 1, 5 ) as $style_number ) {
+		$button = '';
+		if ( 4 === $style_number ) {
+			$button = '<!-- wp:buttons --><div class="wp-block-buttons"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button">Testschaltfläche</a></div><!-- /wp:button --></div><!-- /wp:buttons -->';
+		}
+
+		$sections .= sprintf(
+			'<!-- wp:group {"className":"is-style-section-%1$d","style":{"spacing":{"padding":{"top":"var:preset|spacing|30","right":"var:preset|spacing|30","bottom":"var:preset|spacing|30","left":"var:preset|spacing|30"}}},"layout":{"type":"constrained"}} --><div class="wp-block-group is-style-section-%1$d" style="padding-top:var(--wp--preset--spacing--30);padding-right:var(--wp--preset--spacing--30);padding-bottom:var(--wp--preset--spacing--30);padding-left:var(--wp--preset--spacing--30)"><!-- wp:paragraph --><p>Abschnittsstil %1$d</p><!-- /wp:paragraph -->%2$s</div><!-- /wp:group -->',
+			$style_number,
+			$button
+		);
+	}
+
+	return $sections;
 }
 
 /**
@@ -218,6 +241,7 @@ function child_layout_fixture_seed(): void {
 			'emoji'         => '✨',
 		)
 	);
+	$content .= child_layout_fixture_section_styles();
 	$content .= child_layout_fixture_block(
 		'media-cover-grid',
 		array(

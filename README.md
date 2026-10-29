@@ -6,7 +6,7 @@ A production-focused child theme for **Twenty Twenty-Five** that keeps customiza
 
 ```text
 .
-├── assets/                      # Reserved for custom static assets.
+├── assets/                      # Theme-wide editor and static assets.
 ├── blocks/                      # Block source files (editor JS/CSS + render callbacks).
 │   └── shared/                  # Shared block-editor utilities used by multiple blocks.
 ├── build/                       # Compiled block assets used by register_block_type().
@@ -30,7 +30,8 @@ A production-focused child theme for **Twenty Twenty-Five** that keeps customiza
 │   └── visual-link-preview-async.php
 ├── functions.php                # Thin entrypoint (version constant + bootstrap include).
 ├── package.json                 # Build, watch, and distribution scripts.
-└── style.css                    # Child theme metadata + minimal global styles.
+├── style.css                    # Child theme metadata + adaptive global styles.
+└── theme.json                   # Paired light/dark Twenty Twenty-Five palette.
 ```
 
 ## Architectural Decisions
@@ -40,6 +41,12 @@ A production-focused child theme for **Twenty Twenty-Five** that keeps customiza
 - **Minimal `functions.php`:** Startup logic is delegated to `inc/bootstrap.php` for maintainability.
 - **Minimal template overrides:** The child theme favors extensibility through block render callbacks and hooks.
 - **README as project guide:** High-level project documentation now lives here, while release-specific details live in `releases/`.
+
+## Automatic Color Scheme
+
+The child theme follows the visitor's operating-system light or dark preference without storing a separate setting. `theme.json` preserves Twenty Twenty-Five's palette slugs with paired colors, while `style.css` supplies shared semantic surface tokens and a light fallback for browsers without `light-dark()` support. The editor canvas and color controls use the same appearance, and compatible mobile browsers receive matching `theme-color` metadata.
+
+Saved Global Styles colors override theme defaults. Site-specific palette changes therefore need their own paired light and dark values to preserve automatic switching.
 
 ## Dynamic Blocks Registered
 

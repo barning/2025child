@@ -7,8 +7,77 @@ Author URI: https://github.com/barning
 Template: twentytwentyfive
 Requires at least: 6.7
 Requires PHP: 8.3
-Version: 1.7.0
+Version: 1.8.0
 */
+
+:root {
+	color-scheme: light;
+	--child-color-card-surface: #fff;
+	--child-color-elevated-surface: #fbfaf3;
+	--child-color-control-surface: #dfe2e5;
+	--child-color-text-muted: #6b7280;
+	--child-color-text-subtle: #374151;
+	--child-color-border-subtle: rgb(15 23 42 / 12%);
+	--child-color-image-outline: rgb(0 0 0 / 10%);
+	--child-color-shadow-soft: rgb(15 23 42 / 10%);
+	--child-color-shadow-medium: rgb(0 0 0 / 15%);
+	--child-color-placeholder-stripe-1: rgb(220 211 196 / 55%);
+	--child-color-placeholder-stripe-2: rgb(255 255 255 / 55%);
+	--child-color-section-4-text: #f6cff4;
+}
+
+@supports (color: light-dark(#fff, #000)) {
+
+	:root {
+		color-scheme: light dark;
+		--child-color-card-surface: light-dark(#fff, #161513);
+		--child-color-elevated-surface: light-dark(#fbfaf3, #24231f);
+		--child-color-control-surface: light-dark(#dfe2e5, #2b2a27);
+		--child-color-text-muted: light-dark(#6b7280, #b8b4ac);
+		--child-color-text-subtle: light-dark(#374151, #e3e0d8);
+		--child-color-border-subtle: light-dark(rgb(15 23 42 / 12%), rgb(245 242 232 / 18%));
+		--child-color-image-outline: light-dark(rgb(0 0 0 / 10%), rgb(255 255 255 / 10%));
+		--child-color-shadow-soft: light-dark(rgb(15 23 42 / 10%), rgb(0 0 0 / 32%));
+		--child-color-shadow-medium: light-dark(rgb(0 0 0 / 15%), rgb(0 0 0 / 42%));
+		--child-color-placeholder-stripe-1: light-dark(rgb(220 211 196 / 55%), rgb(74 70 63 / 70%));
+		--child-color-placeholder-stripe-2: light-dark(rgb(255 255 255 / 55%), rgb(36 35 31 / 70%));
+		--child-color-section-4-text: light-dark(#f6cff4, #f1c8eb);
+	}
+}
+
+@supports not (color: light-dark(#fff, #000)) {
+
+	:root {
+		--wp--preset--color--base: #fff;
+		--wp--preset--color--contrast: #111;
+		--wp--preset--color--accent-1: #ffee58;
+		--wp--preset--color--accent-2: #f6cff4;
+		--wp--preset--color--accent-3: #503aa8;
+		--wp--preset--color--accent-4: #686868;
+		--wp--preset--color--accent-5: #fbfaf3;
+		--wp--preset--color--accent-6: color-mix(in srgb, currentcolor 20%, transparent);
+	}
+}
+
+@supports (color: light-dark(#fff, #000)) {
+
+	@media (prefers-color-scheme: dark) {
+
+		:is(.wp-block-group, .wp-block-columns, .wp-block-column).is-style-section-4 {
+			color: var(--child-color-section-4-text);
+		}
+
+		:is(.wp-block-group, .wp-block-columns, .wp-block-column).is-style-section-4 .wp-element-button {
+			background-color: var(--child-color-section-4-text);
+			color: var(--wp--preset--color--accent-3);
+		}
+
+		:is(.wp-block-group, .wp-block-columns, .wp-block-column).is-style-section-4 .wp-element-button:hover {
+			background-color: color-mix(in srgb, var(--child-color-section-4-text) 85%, transparent);
+			color: var(--wp--preset--color--accent-3);
+		}
+	}
+}
 
 .overflow-image {
 	overflow: hidden;

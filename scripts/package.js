@@ -95,6 +95,12 @@ function runArchive( command, args ) {
 }
 
 function validateBuild() {
+	assertPathExists( path.join( root, 'theme.json' ), 'theme.json' );
+	assertPathExists(
+		path.join( root, 'assets', 'editor.css' ),
+		'editor color-scheme stylesheet'
+	);
+
 	for ( const slug of blockSlugs ) {
 		const blockDir = path.join( root, 'build', slug );
 		assertPathExists(
@@ -127,8 +133,16 @@ async function main() {
 		path.join( root, 'functions.php' ),
 		path.join( outDir, 'functions.php' )
 	);
+	await safeCopy(
+		path.join( root, 'theme.json' ),
+		path.join( outDir, 'theme.json' )
+	);
 
 	// Runtime assets
+	await copyIfExists(
+		path.join( root, 'assets' ),
+		path.join( outDir, 'assets' )
+	);
 	await copyIfExists(
 		path.join( root, 'screenshot.png' ),
 		path.join( outDir, 'screenshot.png' )

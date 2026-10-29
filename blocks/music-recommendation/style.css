@@ -14,7 +14,7 @@
 	width: min(100%, clamp(160px, 65vw, 280px));
 	max-width: 100%;
 	border-radius: 12px;
-	background: #fff;
+	background: var(--child-color-card-surface, #fff);
 	display: flex;
 	justify-content: center;
 	overflow: hidden;
@@ -28,10 +28,10 @@
 	object-fit: cover;
 	border-radius: 10px;
 	display: block;
-	outline: 1px solid rgba(0, 0, 0, 0.1);
+	outline: 1px solid var(--child-color-image-outline, rgba(0, 0, 0, 0.1));
 	outline-offset: -1px;
 	box-shadow:
-		0 8px 24px rgba(0, 0, 0, 0.15),
+		0 8px 24px var(--child-color-shadow-medium, rgba(0, 0, 0, 0.15)),
 		0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -39,9 +39,9 @@
 	width: 100%;
 	aspect-ratio: 1;
 	border-radius: 10px;
-	background: repeating-linear-gradient(135deg, rgba(220, 211, 196, 0.55), rgba(220, 211, 196, 0.55) 12px, rgba(255, 255, 255, 0.55) 12px, rgba(255, 255, 255, 0.55) 24px);
+	background: repeating-linear-gradient(135deg, var(--child-color-placeholder-stripe-1, rgba(220, 211, 196, 0.55)), var(--child-color-placeholder-stripe-1, rgba(220, 211, 196, 0.55)) 12px, var(--child-color-placeholder-stripe-2, rgba(255, 255, 255, 0.55)) 12px, var(--child-color-placeholder-stripe-2, rgba(255, 255, 255, 0.55)) 24px);
 	box-shadow:
-		0 8px 24px rgba(0, 0, 0, 0.15),
+		0 8px 24px var(--child-color-shadow-medium, rgba(0, 0, 0, 0.15)),
 		0 2px 8px rgba(0, 0, 0, 0.1);
 	display: grid;
 	place-items: center;
