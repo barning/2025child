@@ -1,6 +1,6 @@
 {
   "name": "twentytwentyfive-child-blocks",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "Custom blocks for the TwentyTwentyFive child theme.",
   "engines": {
     "node": ">=24.0.0 <25"

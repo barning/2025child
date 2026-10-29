@@ -65,6 +65,8 @@ test('global styles provide semantic tokens, legacy fallback, and section 4 corr
     '--child-color-control-surface',
     '--child-color-text-muted',
     '--child-color-text-subtle',
+    '--child-color-link',
+    '--child-color-link-hover',
     '--child-color-border-subtle',
     '--child-color-image-outline',
     '--child-color-section-4-text',
@@ -74,6 +76,15 @@ test('global styles provide semantic tokens, legacy fallback, and section 4 corr
 
   assert.match(styles, /\.is-style-section-4[\s\S]*?--child-color-section-4-text/);
   assert.match(styles, /\.is-style-section-4 \.wp-element-button/);
+  assert.match(
+    styles,
+    /@media\s*\(prefers-color-scheme:\s*dark\)[\s\S]*?body\s*{[\s\S]*?--wp--preset--color--contrast/
+  );
+  assert.match(
+    styles,
+    /a:where\(:not\(\.wp-element-button\)\)[\s\S]*?--child-color-link/
+  );
+  assert.match(styles, /\.is-style-section-5 \.wp-element-button/);
 });
 
 test('custom block surfaces use the shared adaptive tokens', () => {
@@ -142,6 +153,9 @@ test('dark appearance foreground and background pairs exceed WCAG AA', () => {
     'section-4': ['#F1C8EB', '#2E2852'],
     'section-5': ['#161513', '#F5F2E8'],
     'focus-indicator': ['#A9A59E', '#161513'],
+    'global-link': ['#8CBDF4', '#161513'],
+    'global-link-hover': ['#C8DDF5', '#161513'],
+    'global-button': ['#161513', '#8CBDF4'],
   };
 
   for (const [name, [foreground, background]] of Object.entries(pairs)) {

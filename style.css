@@ -7,7 +7,7 @@ Author URI: https://github.com/barning
 Template: twentytwentyfive
 Requires at least: 6.7
 Requires PHP: 8.3
-Version: 1.8.0
+Version: 1.8.1
 */
 
 :root {
@@ -17,6 +17,8 @@ Version: 1.8.0
 	--child-color-control-surface: #dfe2e5;
 	--child-color-text-muted: #6b7280;
 	--child-color-text-subtle: #374151;
+	--child-color-link: #2f73c5;
+	--child-color-link-hover: #2b394e;
 	--child-color-border-subtle: rgb(15 23 42 / 12%);
 	--child-color-image-outline: rgb(0 0 0 / 10%);
 	--child-color-shadow-soft: rgb(15 23 42 / 10%);
@@ -35,6 +37,8 @@ Version: 1.8.0
 		--child-color-control-surface: light-dark(#dfe2e5, #2b2a27);
 		--child-color-text-muted: light-dark(#6b7280, #b8b4ac);
 		--child-color-text-subtle: light-dark(#374151, #e3e0d8);
+		--child-color-link: light-dark(#2f73c5, #8cbdf4);
+		--child-color-link-hover: light-dark(#2b394e, #c8ddf5);
 		--child-color-border-subtle: light-dark(rgb(15 23 42 / 12%), rgb(245 242 232 / 18%));
 		--child-color-image-outline: light-dark(rgb(0 0 0 / 10%), rgb(255 255 255 / 10%));
 		--child-color-shadow-soft: light-dark(rgb(15 23 42 / 10%), rgb(0 0 0 / 32%));
@@ -63,6 +67,38 @@ Version: 1.8.0
 
 	@media (prefers-color-scheme: dark) {
 
+		body {
+			color: var(--wp--preset--color--contrast);
+		}
+
+		:root :where(a:where(:not(.wp-element-button))) {
+			color: var(--child-color-link);
+		}
+
+		:root :where(a:where(:not(.wp-element-button)):hover) {
+			color: var(--child-color-link-hover);
+		}
+
+		:root :where(.wp-element-button, .wp-block-button__link) {
+			background-color: var(--child-color-link);
+			color: var(--wp--preset--color--base);
+		}
+
+		:root :where(.wp-element-button:hover, .wp-block-button__link:hover) {
+			background-color: var(--child-color-link-hover);
+			color: var(--wp--preset--color--base);
+		}
+
+		:is(.wp-block-group, .wp-block-columns, .wp-block-column):is(
+		.is-style-section-1,
+		.is-style-section-2,
+		.is-style-section-3,
+		.is-style-section-4,
+		.is-style-section-5
+	) a:where(:not(.wp-element-button)) {
+			color: currentcolor;
+		}
+
 		:is(.wp-block-group, .wp-block-columns, .wp-block-column).is-style-section-4 {
 			color: var(--child-color-section-4-text);
 		}
@@ -72,9 +108,19 @@ Version: 1.8.0
 			color: var(--wp--preset--color--accent-3);
 		}
 
+		:is(.wp-block-group, .wp-block-columns, .wp-block-column).is-style-section-5 .wp-element-button {
+			background-color: var(--wp--preset--color--base);
+			color: var(--wp--preset--color--contrast);
+		}
+
 		:is(.wp-block-group, .wp-block-columns, .wp-block-column).is-style-section-4 .wp-element-button:hover {
 			background-color: color-mix(in srgb, var(--child-color-section-4-text) 85%, transparent);
 			color: var(--wp--preset--color--accent-3);
+		}
+
+		:is(.wp-block-group, .wp-block-columns, .wp-block-column).is-style-section-5 .wp-element-button:hover {
+			background-color: color-mix(in srgb, var(--wp--preset--color--base) 80%, transparent);
+			color: var(--wp--preset--color--contrast);
 		}
 	}
 }
