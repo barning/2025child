@@ -15,8 +15,8 @@
 	height: 600px;
 	border: none;
 	border-radius: 12px;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-	background: #fff;
+	box-shadow: 0 4px 12px var(--child-color-shadow-soft, rgba(0, 0, 0, 0.1));
+	background: var(--child-color-card-surface, #fff);
 }
 
 /* Single Card Styles */
@@ -30,10 +30,10 @@
 .child-magic-card__media {
 	width: clamp(220px, 70vw, 340px);
 	border-radius: 12px;
-	background: #fff;
+	background: var(--child-color-card-surface, #fff);
 	display: flex;
 	justify-content: center;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	box-shadow: 0 4px 12px var(--child-color-shadow-medium, rgba(0, 0, 0, 0.15));
 	transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -53,7 +53,7 @@
 	width: 100%;
 	aspect-ratio: 5 / 7;
 	border-radius: 12px;
-	background: repeating-linear-gradient(135deg, rgba(220, 211, 196, 0.55), rgba(220, 211, 196, 0.55) 12px, rgba(255, 255, 255, 0.55) 12px, rgba(255, 255, 255, 0.55) 24px);
+	background: repeating-linear-gradient(135deg, var(--child-color-placeholder-stripe-1, rgba(220, 211, 196, 0.55)), var(--child-color-placeholder-stripe-1, rgba(220, 211, 196, 0.55)) 12px, var(--child-color-placeholder-stripe-2, rgba(255, 255, 255, 0.55)) 12px, var(--child-color-placeholder-stripe-2, rgba(255, 255, 255, 0.55)) 24px);
 	display: flex;
 	align-items: center;
 	justify-content: center;

@@ -1,6 +1,6 @@
 /**
  * Videogame Recommendation Block Styles
- * Light mode card design for game display
+ * Adaptive card design for game display
  */
 
 .wp-block-child-videogame-recommendation {
@@ -16,7 +16,7 @@
 	flex-direction: column;
 	width: min(100%, 520px);
 	max-width: 520px;
-	background: var(--wp--preset--color--base, #fff);
+	background: var(--child-color-card-surface, #fff);
 	border-radius: 16px;
 	overflow: hidden;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.05);
@@ -42,7 +42,7 @@
 	position: relative;
 	width: 100%;
 	aspect-ratio: 2 / 3;
-	background: var(--wp--preset--color--accent-5, #f5f5f5);
+	background: var(--child-color-elevated-surface, #f5f5f5);
 	overflow: hidden;
 }
 
@@ -60,7 +60,7 @@
 	height: 100%;
 	object-fit: cover;
 	display: block;
-	outline: 1px solid rgba(0, 0, 0, 0.1);
+	outline: 1px solid var(--child-color-image-outline, rgba(0, 0, 0, 0.1));
 	outline-offset: -1px;
 	transform: scale(1);
 	transition: transform 0.2s ease;
@@ -94,7 +94,7 @@
 .child-game-card__placeholder {
 	width: 100%;
 	height: 100%;
-	background: repeating-linear-gradient(135deg, rgba(220, 211, 196, 0.55), rgba(220, 211, 196, 0.55) 12px, rgba(255, 255, 255, 0.55) 12px, rgba(255, 255, 255, 0.55) 24px);
+	background: repeating-linear-gradient(135deg, var(--child-color-placeholder-stripe-1, rgba(220, 211, 196, 0.55)), var(--child-color-placeholder-stripe-1, rgba(220, 211, 196, 0.55)) 12px, var(--child-color-placeholder-stripe-2, rgba(255, 255, 255, 0.55)) 12px, var(--child-color-placeholder-stripe-2, rgba(255, 255, 255, 0.55)) 24px);
 }
 
 /* Meta Information Container */
@@ -104,7 +104,7 @@
 	align-items: flex-start;
 	gap: 0.35rem;
 	padding: 1.25rem 1.5rem 1.5rem;
-	background: var(--wp--preset--color--base, #fff);
+	background: var(--child-color-card-surface, #fff);
 }
 
 /* Platform Chips */

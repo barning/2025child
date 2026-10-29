@@ -1,0 +1,50 @@
+{
+	"$schema": "https://schemas.wp.org/wp/6.7/theme.json",
+	"version": 3,
+	"settings": {
+		"color": {
+			"palette": [
+				{
+					"color": "light-dark(#FFFFFF, #161513)",
+					"name": "Base",
+					"slug": "base"
+				},
+				{
+					"color": "light-dark(#111111, #F5F2E8)",
+					"name": "Contrast",
+					"slug": "contrast"
+				},
+				{
+					"color": "light-dark(#FFEE58, #433B13)",
+					"name": "Accent 1",
+					"slug": "accent-1"
+				},
+				{
+					"color": "light-dark(#F6CFF4, #3B293A)",
+					"name": "Accent 2",
+					"slug": "accent-2"
+				},
+				{
+					"color": "light-dark(#503AA8, #2E2852)",
+					"name": "Accent 3",
+					"slug": "accent-3"
+				},
+				{
+					"color": "light-dark(#686868, #A9A59E)",
+					"name": "Accent 4",
+					"slug": "accent-4"
+				},
+				{
+					"color": "light-dark(#FBFAF3, #24231F)",
+					"name": "Accent 5",
+					"slug": "accent-5"
+				},
+				{
+					"color": "color-mix(in srgb, currentColor 20%, transparent)",
+					"name": "Accent 6",
+					"slug": "accent-6"
+				}
+			]
+		}
+	}
+}

@@ -26,7 +26,29 @@ function readThemeVersion() {
 
 const packageJson = readJson( path.join( root, 'package.json' ) );
 const packageLock = readJson( path.join( root, 'package-lock.json' ) );
+const themeJson = readJson( path.join( root, 'theme.json' ) );
 const themeVersion = readThemeVersion();
+
+if (
+	themeJson &&
+	themeJson.$schema !== 'https://schemas.wp.org/wp/6.7/theme.json'
+) {
+	errors.push( 'theme.json: expected the WordPress 6.7 schema' );
+}
+
+if ( themeJson && themeJson.version !== 3 ) {
+	errors.push( 'theme.json: expected format version 3' );
+}
+
+if ( themeJson && themeJson.settings?.color?.palette?.length !== 8 ) {
+	errors.push(
+		'theme.json: expected the complete eight-color parent palette'
+	);
+}
+
+if ( ! fs.existsSync( path.join( root, 'assets', 'editor.css' ) ) ) {
+	errors.push( 'Missing assets/editor.css' );
+}
 
 if ( ! themeVersion ) {
 	errors.push( 'style.css: missing Version header' );

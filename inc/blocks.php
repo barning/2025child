@@ -87,6 +87,25 @@ function child_setup_editor_styles(): void {
 add_action( 'after_setup_theme', 'child_setup_editor_styles' );
 
 /**
+ * Keep WordPress color controls in sync with the active browser color scheme.
+ */
+function child_enqueue_color_scheme_editor_styles(): void {
+	$stylesheet_path = get_stylesheet_directory() . '/assets/editor.css';
+
+	if ( ! is_readable( $stylesheet_path ) ) {
+		return;
+	}
+
+	wp_enqueue_style(
+		'child-color-scheme-editor',
+		get_stylesheet_directory_uri() . '/assets/editor.css',
+		[],
+		(string) filemtime( $stylesheet_path )
+	);
+}
+add_action( 'enqueue_block_editor_assets', 'child_enqueue_color_scheme_editor_styles' );
+
+/**
  * Enqueue dynamic block styles inside the block editor so previews match the frontend.
  */
 function child_enqueue_dynamic_block_styles_in_editor(): void {
