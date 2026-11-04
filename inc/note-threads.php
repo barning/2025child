@@ -269,6 +269,32 @@ function child_note_thread_get_atmosphere_reply( int $post_id ): ?array {
 }
 
 /**
+ * Determine whether ATmosphere would automatically publish a saved Note.
+ *
+ * Current ATmosphere versions expose helpers that include the connection,
+ * connection-only mode, stored option, and filters. The option fallback keeps
+ * older compatible versions from blocking local publication when auto-publish
+ * is explicitly disabled.
+ */
+function child_note_thread_atmosphere_will_publish(): bool {
+	if ( ! defined( 'ATMOSPHERE_VERSION' ) ) {
+		return false;
+	}
+
+	$is_connected = '\\Atmosphere\\is_connected';
+	if ( function_exists( $is_connected ) && ! (bool) call_user_func( $is_connected ) ) {
+		return false;
+	}
+
+	$is_auto_publish_enabled = '\\Atmosphere\\is_auto_publish_enabled';
+	if ( function_exists( $is_auto_publish_enabled ) ) {
+		return (bool) call_user_func( $is_auto_publish_enabled );
+	}
+
+	return '1' === (string) get_option( 'atmosphere_auto_publish', '1' );
+}
+
+/**
  * Validate a proposed parent relationship.
  *
  * @return true|WP_Error
@@ -394,7 +420,7 @@ function child_note_thread_validate_rest_insert( stdClass $prepared_post, WP_RES
 		: ( '1' === (string) get_post_meta( $post_id, 'atmosphere_disabled', true ) );
 	$require_atmosphere = in_array( $status, [ 'publish', 'future' ], true )
 		&& $parent_id > 0
-		&& defined( 'ATMOSPHERE_VERSION' )
+		&& child_note_thread_atmosphere_will_publish()
 		&& ! $sharing_disabled;
 
 	$valid = child_note_thread_validate_parent( $post_id, $parent_id, $require_atmosphere );
@@ -538,7 +564,7 @@ function child_note_thread_rest_state( array $prepared ): array {
 		'root_id'            => child_note_thread_get_root_id( $post_id ),
 		'locked'             => child_note_thread_is_relationship_locked( $post_id ),
 		'appendable'         => 0 === $child_id,
-		'atmosphere_active'  => defined( 'ATMOSPHERE_VERSION' ),
+		'atmosphere_active'  => child_note_thread_atmosphere_will_publish(),
 		'atmosphere_ready'   => ! empty( child_note_thread_get_atmosphere_records( $post_id ) ),
 		'activitypub_active' => defined( 'ACTIVITYPUB_VERSION' ) || class_exists( '\\Activitypub\\Transformer\\Factory' ),
 		'permalink'          => (string) get_permalink( $post_id ),

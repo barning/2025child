@@ -11,6 +11,7 @@ final class NoteThreadsTest extends TestCase {
 	protected function setUp(): void {
 		$GLOBALS['child_test_posts']     = array();
 		$GLOBALS['child_test_post_meta'] = array();
+		$GLOBALS['child_test_options']   = array();
 		$GLOBALS['child_test_scheduled'] = array();
 	}
 
@@ -227,6 +228,27 @@ final class NoteThreadsTest extends TestCase {
 
 		self::assertInstanceOf( WP_Error::class, $result );
 		self::assertSame( 'note_thread_parent_not_on_bluesky', $result->get_error_code() );
+	}
+
+	public function test_disabled_atmosphere_auto_publish_does_not_block_local_publication(): void {
+		update_option( 'atmosphere_auto_publish', '0' );
+		$this->add_note( 1 );
+		$this->add_note( 2, 'future' );
+		$prepared = (object) array(
+			'ID'          => 2,
+			'post_status' => 'future',
+		);
+		$request  = new WP_REST_Request(
+			array(
+				'id'   => 2,
+				'meta' => array( CHILD_NOTE_THREAD_PARENT_META => 1 ),
+			)
+		);
+
+		$result = child_note_thread_validate_rest_insert( $prepared, $request );
+
+		self::assertSame( $prepared, $result );
+		self::assertFalse( child_note_thread_rest_state( array( 'id' => 1 ) )['atmosphere_active'] );
 	}
 
 	public function test_non_rest_updates_keep_a_non_tail_note_published(): void {
