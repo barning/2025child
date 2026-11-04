@@ -203,15 +203,19 @@ final class NoteThreadsTest extends TestCase {
 		}
 
 		$this->add_note( 1 );
-		$child   = $this->add_note( 2, 'future' );
-		$request = new WP_REST_Request(
+		$this->add_note( 2, 'future' );
+		$prepared = (object) array(
+			'ID'          => 2,
+			'post_status' => 'future',
+		);
+		$request  = new WP_REST_Request(
 			array(
 				'id'   => 2,
 				'meta' => array( CHILD_NOTE_THREAD_PARENT_META => 1 ),
 			)
 		);
 
-		$result = child_note_thread_validate_rest_insert( $child, $request );
+		$result = child_note_thread_validate_rest_insert( $prepared, $request );
 
 		self::assertInstanceOf( WP_Error::class, $result );
 		self::assertSame( 'note_thread_parent_not_on_bluesky', $result->get_error_code() );
@@ -237,12 +241,9 @@ final class NoteThreadsTest extends TestCase {
 		$this->add_note( 1 );
 		$this->add_note( 2 );
 		$this->connect( 2, 1 );
-		$prepared = new WP_Post(
-			array(
-				'ID'          => 1,
-				'post_type'   => CHILD_NOTE_POST_TYPE,
-				'post_status' => 'draft',
-			)
+		$prepared = (object) array(
+			'ID'          => 1,
+			'post_status' => 'draft',
 		);
 		$request  = new WP_REST_Request(
 			array(

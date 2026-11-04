@@ -337,12 +337,12 @@ function child_note_thread_validate_parent( int $post_id, int $parent_id, bool $
 /**
  * Validate the block editor's parent choice before WordPress writes the Note.
  *
- * @param WP_Post         $prepared_post Prepared post object.
+ * @param stdClass        $prepared_post Prepared post object.
  * @param WP_REST_Request $request       REST request.
- * @return WP_Post|WP_Error
+ * @return stdClass|WP_Error
  */
-function child_note_thread_validate_rest_insert( WP_Post $prepared_post, WP_REST_Request $request ) {
-	$post_id = absint( $request->get_param( 'id' ) ?: $prepared_post->ID );
+function child_note_thread_validate_rest_insert( stdClass $prepared_post, WP_REST_Request $request ) {
+	$post_id = absint( $request->get_param( 'id' ) ?: ( $prepared_post->ID ?? 0 ) );
 	$meta    = $request->get_param( 'meta' );
 	$meta    = is_array( $meta ) ? $meta : [];
 
@@ -350,7 +350,7 @@ function child_note_thread_validate_rest_insert( WP_Post $prepared_post, WP_REST
 		? absint( $meta[ CHILD_NOTE_THREAD_PARENT_META ] )
 		: child_note_thread_get_parent_id( $post_id );
 
-	$status = (string) ( $prepared_post->post_status ?: get_post_status( $post_id ) );
+	$status = (string) ( ( $prepared_post->post_status ?? '' ) ?: get_post_status( $post_id ) );
 
 	if (
 		$post_id > 0
