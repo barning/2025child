@@ -50,6 +50,17 @@ function child_note_thread_get_parent_id( int $post_id ): int {
 }
 
 /**
+ * Determine whether a Note's thread relationship is immutable.
+ *
+ * Published Notes created before thread support do not have lock metadata, but
+ * their existing relationship must still remain unchanged.
+ */
+function child_note_thread_is_relationship_locked( int $post_id ): bool {
+	return metadata_exists( 'post', $post_id, CHILD_NOTE_THREAD_LOCK_META )
+		|| 'publish' === get_post_status( $post_id );
+}
+
+/**
  * Get the immediate child Note ID.
  *
  * Drafts reserve their parent so two editors cannot intentionally create a
@@ -365,8 +376,10 @@ function child_note_thread_validate_rest_insert( stdClass $prepared_post, WP_RES
 		);
 	}
 
-	if ( $post_id > 0 && metadata_exists( 'post', $post_id, CHILD_NOTE_THREAD_LOCK_META ) ) {
-		$locked_parent = absint( get_post_meta( $post_id, CHILD_NOTE_THREAD_LOCK_META, true ) );
+	if ( $post_id > 0 && child_note_thread_is_relationship_locked( $post_id ) ) {
+		$locked_parent = metadata_exists( 'post', $post_id, CHILD_NOTE_THREAD_LOCK_META )
+			? absint( get_post_meta( $post_id, CHILD_NOTE_THREAD_LOCK_META, true ) )
+			: child_note_thread_get_parent_id( $post_id );
 		if ( $locked_parent !== $parent_id ) {
 			return new WP_Error(
 				'note_thread_relationship_locked',
@@ -523,7 +536,7 @@ function child_note_thread_rest_state( array $prepared ): array {
 		'parent_id'          => child_note_thread_get_parent_id( $post_id ),
 		'child_id'           => $child_id,
 		'root_id'            => child_note_thread_get_root_id( $post_id ),
-		'locked'             => metadata_exists( 'post', $post_id, CHILD_NOTE_THREAD_LOCK_META ),
+		'locked'             => child_note_thread_is_relationship_locked( $post_id ),
 		'appendable'         => 0 === $child_id,
 		'atmosphere_active'  => defined( 'ATMOSPHERE_VERSION' ),
 		'atmosphere_ready'   => ! empty( child_note_thread_get_atmosphere_records( $post_id ) ),

@@ -266,6 +266,28 @@ final class NoteThreadsTest extends TestCase {
 		self::assertSame( 'note_thread_parent_has_child', $result->get_error_code() );
 	}
 
+	public function test_legacy_published_notes_are_locked_to_their_existing_relationship(): void {
+		$this->add_note( 1 );
+		$this->add_note( 2 );
+		$prepared = (object) array(
+			'ID'          => 2,
+			'post_status' => 'publish',
+		);
+		$request  = new WP_REST_Request(
+			array(
+				'id'   => 2,
+				'meta' => array( CHILD_NOTE_THREAD_PARENT_META => 1 ),
+			)
+		);
+
+		$result = child_note_thread_validate_rest_insert( $prepared, $request );
+		$state  = child_note_thread_rest_state( array( 'id' => 2 ) );
+
+		self::assertInstanceOf( WP_Error::class, $result );
+		self::assertSame( 'note_thread_relationship_locked', $result->get_error_code() );
+		self::assertTrue( $state['locked'] );
+	}
+
 	public function test_atmosphere_event_is_deferred_and_resumed_after_parent_sync(): void {
 		$parent = $this->add_note( 1 );
 		$this->add_note( 2 );
