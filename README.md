@@ -30,8 +30,7 @@ A production-focused child theme for **Twenty Twenty-Five** that keeps customiza
 │   └── visual-link-preview-async.php
 ├── functions.php                # Thin entrypoint (version constant + bootstrap include).
 ├── package.json                 # Build, watch, and distribution scripts.
-├── style.css                    # Child theme metadata + adaptive global styles.
-└── theme.json                   # Paired light/dark Twenty Twenty-Five palette.
+└── style.css                    # Child theme metadata + minimal global styles.
 ```
 
 ## Architectural Decisions
@@ -41,12 +40,6 @@ A production-focused child theme for **Twenty Twenty-Five** that keeps customiza
 - **Minimal `functions.php`:** Startup logic is delegated to `inc/bootstrap.php` for maintainability.
 - **Minimal template overrides:** The child theme favors extensibility through block render callbacks and hooks.
 - **One project guide:** Setup, development, compatibility, and release highlights live in this README.
-
-## Automatic Color Scheme
-
-The child theme follows the visitor's operating-system light or dark preference without storing a separate setting. `theme.json` preserves Twenty Twenty-Five's palette slugs with paired colors, while `style.css` supplies shared semantic surface tokens and a light fallback for browsers without `light-dark()` support. The editor canvas and color controls use the same appearance, and compatible mobile browsers receive matching `theme-color` metadata.
-
-Saved Global Styles can override theme defaults. The child stylesheet supplies dark-mode safeguards for global text, links, and buttons, including older saved colors, while preserving the parent section styles. Site-specific colors applied to individual blocks still need their own paired light and dark values to preserve automatic switching.
 
 ## Dynamic Blocks Registered
 
@@ -208,8 +201,6 @@ The [release blueprint](https://playground.wordpress.net/?blueprint-url=https://
 ## Release Highlights
 
 - **1.9.0:** Linear Note threads, searchable parent selection, complete conversation permalinks, append-only safeguards, and optional ActivityPub/Bluesky reply federation. Existing Notes remain independent roots. Backfill an unsynced Bluesky parent before publishing its continuation.
-- **1.8.1:** Readable dark-mode text, links, and buttons with saved Global Styles overrides; contextual parent section colors preserved.
-- **1.8.0:** Automatic system light/dark appearance, adaptive block surfaces, editor styles, browser chrome colors, and legacy light fallback. Clear page and persistent object caches after updating so Global Styles regenerate.
 - **1.7.0:** Improved heading structure, image dimensions, reduced-motion support, German block controls, and conditional block styles.
 - **1.6.0:** Optional SteamGridDB portrait covers, cover variants, mixed-format grids, and mobile filter improvements.
 - **1.5.0:** Music recommendations, media filters, shared search controls, and safer cached link previews.
