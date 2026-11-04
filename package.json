@@ -1,6 +1,6 @@
 {
   "name": "twentytwentyfive-child-blocks",
-  "version": "1.8.1",
+  "version": "1.9.0",
   "description": "Custom blocks for the TwentyTwentyFive child theme.",
   "engines": {
     "node": ">=24.0.0 <25"
@@ -11,7 +11,7 @@
     "check:php": "find . -path './node_modules' -prune -o -path './vendor' -prune -o -path './build' -prune -o -path './dist' -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l",
     "check:json": "node scripts/validate-project.js --source",
     "check:build": "node scripts/validate-project.js --built",
-    "lint:js": "wp-scripts lint-js blocks scripts",
+    "lint:js": "wp-scripts lint-js blocks scripts assets/note-thread-editor.js",
     "lint:css": "wp-scripts lint-style 'assets/**/*.css' 'blocks/**/*.css' style.css",
     "lint": "npm run lint:js && npm run lint:css",
     "test": "node --test tests/js/*.test.cjs",

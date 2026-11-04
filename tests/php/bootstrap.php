@@ -16,6 +16,8 @@ define( 'COOKIE_DOMAIN', '' );
 $GLOBALS['child_test_options']    = array();
 $GLOBALS['child_test_transients'] = array();
 $GLOBALS['child_test_scheduled']  = array();
+$GLOBALS['child_test_posts']      = array();
+$GLOBALS['child_test_post_meta']  = array();
 $GLOBALS['child_test_post_status'] = array();
 $GLOBALS['child_test_is_feed']    = false;
 $GLOBALS['child_test_post_id']    = 0;
@@ -31,6 +33,7 @@ if ( ! class_exists( 'Child_Test_WPDB' ) ) {
 		public string $prefix = 'wp_';
 		public string $last_error = '';
 		public array $likes = array();
+		public array $locks = array();
 
 		public function prepare( string $query, ...$args ): string {
 			foreach ( $args as $arg ) {
@@ -42,6 +45,20 @@ if ( ! class_exists( 'Child_Test_WPDB' ) ) {
 		}
 
 		public function get_var( string $query ) {
+			if ( preg_match( "/GET_LOCK\\(\\s*'([^']+)'/", $query, $matches ) ) {
+				if ( isset( $this->locks[ $matches[1] ] ) ) {
+					return '0';
+				}
+
+				$this->locks[ $matches[1] ] = true;
+				return '1';
+			}
+
+			if ( preg_match( "/RELEASE_LOCK\\(\\s*'([^']+)'/", $query, $matches ) ) {
+				unset( $this->locks[ $matches[1] ] );
+				return '1';
+			}
+
 			if ( str_contains( $query, 'COUNT(*)' ) && preg_match( '/post_id = (\d+)/', $query, $matches ) ) {
 				$post_id = (int) $matches[1];
 				return count( array_filter( $this->likes, static fn( array $like ): bool => $like['post_id'] === $post_id ) );
@@ -95,6 +112,58 @@ if ( ! class_exists( 'WP_Error' ) ) {
 			public string $message = '',
 			public mixed $data = null
 		) {
+		}
+
+		public function get_error_code(): string {
+			return $this->code;
+		}
+
+		public function get_error_data(): mixed {
+			return $this->data;
+		}
+	}
+}
+
+if ( ! class_exists( 'WP_Post' ) ) {
+	class WP_Post {
+		public int $ID = 0;
+		public string $post_type = 'post';
+		public string $post_status = 'draft';
+		public string $post_title = '';
+		public string $post_content = '';
+		public string $post_excerpt = '';
+		public string $post_password = '';
+		public string $post_date = '2026-01-01 00:00:00';
+		public string $post_date_gmt = '2026-01-01 00:00:00';
+		public int $post_author = 1;
+
+		/**
+		 * @param array<string, mixed> $properties Post properties.
+		 */
+		public function __construct( array $properties = array() ) {
+			foreach ( $properties as $key => $value ) {
+				if ( property_exists( $this, $key ) ) {
+					$this->{$key} = $value;
+				}
+			}
+		}
+	}
+}
+
+if ( ! class_exists( 'WP_REST_Request' ) ) {
+	class WP_REST_Request {
+		/**
+		 * @param array<string, mixed> $params Request parameters.
+		 */
+		public function __construct( private array $params = array() ) {
+		}
+
+		public function get_param( string $key ) {
+			return $this->params[ $key ] ?? null;
+		}
+
+		public function set_param( string $key, $value ): void {
+			$this->params[ $key ] = $value;
 		}
 	}
 }
@@ -241,8 +310,50 @@ if ( ! function_exists( 'get_the_ID' ) ) {
 }
 
 if ( ! function_exists( 'get_permalink' ) ) {
-	function get_permalink(): string {
+	function get_permalink( $post = 0 ): string {
+		if ( $post instanceof WP_Post ) {
+			return 'https://example.com/notes/' . $post->ID;
+		}
+
+		if ( is_numeric( $post ) && isset( $GLOBALS['child_test_posts'][ (int) $post ] ) ) {
+			return 'https://example.com/notes/' . (int) $post;
+		}
+
 		return (string) $GLOBALS['child_test_permalink'];
+	}
+}
+
+if ( ! function_exists( 'get_the_date' ) ) {
+	function get_the_date( string $format = '', $post = null ): string {
+		$post = get_post( $post );
+		if ( ! $post instanceof WP_Post ) {
+			return '';
+		}
+
+		return gmdate( '' !== $format ? $format : 'F j, Y', strtotime( $post->post_date ) );
+	}
+}
+
+if ( ! function_exists( 'get_post_time' ) ) {
+	function get_post_time( string $format = 'U', bool $gmt = false, $post = null ) {
+		unset( $gmt );
+		$post = get_post( $post );
+		if ( ! $post instanceof WP_Post ) {
+			return false;
+		}
+
+		return gmdate( $format, strtotime( $post->post_date ) );
+	}
+}
+
+if ( ! function_exists( 'setup_postdata' ) ) {
+	function setup_postdata( $post ): bool {
+		return $post instanceof WP_Post;
+	}
+}
+
+if ( ! function_exists( 'wp_reset_postdata' ) ) {
+	function wp_reset_postdata(): void {
 	}
 }
 
@@ -278,6 +389,148 @@ if ( ! function_exists( 'absint' ) ) {
 
 if ( ! function_exists( 'add_action' ) ) {
 	function add_action(): void {
+	}
+}
+
+if ( ! function_exists( 'add_filter' ) ) {
+	function add_filter(): void {
+	}
+}
+
+if ( ! function_exists( 'apply_filters' ) ) {
+	function apply_filters( string $hook, $value ) {
+		unset( $hook );
+		return $value;
+	}
+}
+
+if ( ! function_exists( 'rest_sanitize_boolean' ) ) {
+	function rest_sanitize_boolean( $value ): bool {
+		return filter_var( $value, FILTER_VALIDATE_BOOLEAN );
+	}
+}
+
+if ( ! function_exists( 'get_post' ) ) {
+	function get_post( $post_id ) {
+		if ( $post_id instanceof WP_Post ) {
+			return $post_id;
+		}
+
+		return $GLOBALS['child_test_posts'][ (int) $post_id ] ?? null;
+	}
+}
+
+if ( ! function_exists( 'get_post_type' ) ) {
+	function get_post_type( $post_id ): string|false {
+		$post = get_post( $post_id );
+		return $post instanceof WP_Post ? $post->post_type : false;
+	}
+}
+
+if ( ! function_exists( 'post_password_required' ) ) {
+	function post_password_required( $post = null ): bool {
+		$post = get_post( $post );
+		return $post instanceof WP_Post && '' !== $post->post_password;
+	}
+}
+
+if ( ! function_exists( 'get_the_content' ) ) {
+	function get_the_content( $more_link_text = null, bool $strip_teaser = false, $post = null ): string {
+		unset( $more_link_text, $strip_teaser );
+		$post = get_post( $post );
+		if ( ! $post instanceof WP_Post ) {
+			return '';
+		}
+
+		return post_password_required( $post ) ? 'Password required.' : $post->post_content;
+	}
+}
+
+if ( ! function_exists( 'get_post_meta' ) ) {
+	function get_post_meta( int $post_id, string $key = '', bool $single = false ) {
+		if ( '' === $key ) {
+			return $GLOBALS['child_test_post_meta'][ $post_id ] ?? array();
+		}
+
+		if ( ! array_key_exists( $key, $GLOBALS['child_test_post_meta'][ $post_id ] ?? array() ) ) {
+			return $single ? '' : array();
+		}
+
+		$value = $GLOBALS['child_test_post_meta'][ $post_id ][ $key ];
+		return $single ? $value : array( $value );
+	}
+}
+
+if ( ! function_exists( 'metadata_exists' ) ) {
+	function metadata_exists( string $meta_type, int $post_id, string $key ): bool {
+		unset( $meta_type );
+		return array_key_exists( $key, $GLOBALS['child_test_post_meta'][ $post_id ] ?? array() );
+	}
+}
+
+if ( ! function_exists( 'update_post_meta' ) ) {
+	function update_post_meta( int $post_id, string $key, $value ): bool {
+		$GLOBALS['child_test_post_meta'][ $post_id ][ $key ] = $value;
+		return true;
+	}
+}
+
+if ( ! function_exists( 'add_post_meta' ) ) {
+	function add_post_meta( int $post_id, string $key, $value, bool $unique = false ): bool {
+		if ( $unique && metadata_exists( 'post', $post_id, $key ) ) {
+			return false;
+		}
+
+		$GLOBALS['child_test_post_meta'][ $post_id ][ $key ] = $value;
+		return true;
+	}
+}
+
+if ( ! function_exists( 'delete_post_meta' ) ) {
+	function delete_post_meta( int $post_id, string $key ): bool {
+		unset( $GLOBALS['child_test_post_meta'][ $post_id ][ $key ] );
+		return true;
+	}
+}
+
+if ( ! function_exists( 'get_posts' ) ) {
+	function get_posts( array $args = array() ): array {
+		$posts = array_filter(
+			$GLOBALS['child_test_posts'],
+			static function ( WP_Post $post ) use ( $args ): bool {
+				if ( isset( $args['post_type'] ) && $post->post_type !== $args['post_type'] ) {
+					return false;
+				}
+
+				$statuses = (array) ( $args['post_status'] ?? array( 'publish' ) );
+				if ( ! in_array( $post->post_status, $statuses, true ) ) {
+					return false;
+				}
+
+				if ( in_array( $post->ID, (array) ( $args['post__not_in'] ?? array() ), true ) ) {
+					return false;
+				}
+
+				if ( isset( $args['meta_key'] ) ) {
+					$value = get_post_meta( $post->ID, (string) $args['meta_key'], true );
+					if ( (string) $value !== (string) ( $args['meta_value'] ?? '' ) ) {
+						return false;
+					}
+				}
+
+				return true;
+			}
+		);
+
+		usort(
+			$posts,
+			static fn( WP_Post $left, WP_Post $right ): int => [ $left->post_date, $left->ID ] <=> [ $right->post_date, $right->ID ]
+		);
+
+		$posts = array_slice( $posts, 0, (int) ( $args['posts_per_page'] ?? count( $posts ) ) );
+		return 'ids' === ( $args['fields'] ?? '' )
+			? array_map( static fn( WP_Post $post ): int => $post->ID, $posts )
+			: array_values( $posts );
 	}
 }
 
@@ -322,10 +575,17 @@ if ( ! function_exists( 'is_ssl' ) ) {
 
 if ( ! function_exists( 'get_post_status' ) ) {
 	function get_post_status( int $post_id ): string|false {
+		$post = get_post( $post_id );
+		if ( $post instanceof WP_Post ) {
+			return $post->post_status;
+		}
+
 		return $GLOBALS['child_test_post_status'][ $post_id ] ?? false;
 	}
 }
 
+require_once dirname( __DIR__, 2 ) . '/inc/notes.php';
+require_once dirname( __DIR__, 2 ) . '/inc/note-threads.php';
 require_once dirname( __DIR__, 2 ) . '/inc/media-cover-grid-dedupe.php';
 require_once dirname( __DIR__, 2 ) . '/inc/media-cover-grid-normalizers.php';
 require_once dirname( __DIR__, 2 ) . '/inc/post-likes.php';

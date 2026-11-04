@@ -59,6 +59,64 @@ test('block registration and the WordPress smoke test are idempotent', () => {
   assert.doesNotMatch(workflow, /wp eval 'do_action\\?\(["']init["']\)/);
 });
 
+test('Note thread picker searches beyond its initial recent Notes page', () => {
+  const editor = fs.readFileSync(
+    path.join(root, 'assets', 'note-thread-editor.js'),
+    'utf8'
+  );
+
+  assert.match(editor, /onFilterValueChange:\s*setSearch/);
+  assert.match(editor, /query\.search\s*=\s*search\.trim\(\)/);
+  assert.match(editor, /\[\s*search\s*\]/);
+  assert.match(editor, /isLoading:\s*! Array\.isArray\( notes \)/);
+  assert.doesNotMatch(editor, /! Array\.isArray\( notes \)\s*\?\s*el\( Spinner \)/);
+  assert.match(editor, /note\.content\?\.rendered/);
+  assert.match(editor, /__experimentalRenderItem:\s*\( \{ item \} \)/);
+  assert.match(editor, /item\.displayLabel \|\| item\.label/);
+  assert.match(editor, /setSearch\( '' \)/);
+});
+
+test('published Note thread relationships render as read-only values', () => {
+  const editor = fs.readFileSync(
+    path.join(root, 'assets', 'note-thread-editor.js'),
+    'utf8'
+  );
+
+  assert.match(editor, /locked\s*\?\s*el\( TextControl/);
+  assert.match(editor, /readOnly:\s*true/);
+  assert.doesNotMatch(editor, /disabled:\s*locked/);
+});
+
+test('Note thread dates follow the site link treatment', () => {
+  const styles = fs.readFileSync(
+    path.join(root, 'assets', 'note-threads.css'),
+    'utf8'
+  );
+
+  assert.match(
+    styles,
+    /\.child-note-thread__date\s*\{[^}]*text-decoration:\s*none;/s
+  );
+  assert.match(
+    styles,
+    /\.child-note-thread__date:hover,\s*\.child-note-thread__date:focus-visible\s*\{[^}]*text-decoration:\s*underline;/s
+  );
+});
+
+test('Note permalinks use a dedicated minimal template', () => {
+  const template = fs.readFileSync(
+    path.join(root, 'templates', 'single-note.html'),
+    'utf8'
+  );
+  const packager = fs.readFileSync(path.join(root, 'scripts', 'package.js'), 'utf8');
+
+  assert.match(template, /<!-- wp:post-content/);
+  assert.doesNotMatch(template, /hidden-written-by/);
+  assert.doesNotMatch(template, /post-navigation/);
+  assert.doesNotMatch(template, /more-posts/);
+  assert.match(packager, /path\.join\( root, 'templates' \)/);
+});
+
 test('media grid music cards use an accessible portrait artwork stage', () => {
   const render = fs.readFileSync(
     path.join(root, 'blocks', 'media-cover-grid', 'render.php'),
