@@ -64,7 +64,7 @@
 }
 
 .child-note-thread__date {
-	color: var(--child-color-text-muted, #6b7280);
+	color: #6b7280;
 	font-size: 0.8125em;
 	text-decoration: none;
 }
@@ -93,13 +93,6 @@
 
 	.child-note-thread {
 		--child-note-thread-line: color-mix(in srgb, currentcolor 22%, transparent);
-	}
-}
-
-@supports (color: light-dark(#fff, #000)) {
-
-	.child-note-thread {
-		--child-note-thread-line: light-dark(color-mix(in srgb, #111 22%, transparent), color-mix(in srgb, #f5f2e8 28%, transparent));
 	}
 }
 

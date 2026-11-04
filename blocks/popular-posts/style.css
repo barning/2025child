@@ -69,19 +69,6 @@
 	font-style: italic;
 }
 
-@media (prefers-color-scheme: dark) {
-
-	.wp-block-child-popular-posts .child-popular-card {
-		box-shadow:
-			inset 0 0 0 1px color-mix(in srgb, currentcolor 20%, transparent),
-			0 14px 32px rgb(0 0 0 / 24%);
-	}
-
-	.child-popular-card__item {
-		border-top-color: color-mix(in srgb, currentcolor 20%, transparent);
-	}
-}
-
 @media (prefers-reduced-motion: reduce) {
 
 	.child-popular-card__link {
