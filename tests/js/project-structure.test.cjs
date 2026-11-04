@@ -59,6 +59,17 @@ test('block registration and the WordPress smoke test are idempotent', () => {
   assert.doesNotMatch(workflow, /wp eval 'do_action\\?\(["']init["']\)/);
 });
 
+test('Note thread picker searches beyond its initial recent Notes page', () => {
+  const editor = fs.readFileSync(
+    path.join(root, 'assets', 'note-thread-editor.js'),
+    'utf8'
+  );
+
+  assert.match(editor, /onFilterValueChange:\s*setSearch/);
+  assert.match(editor, /query\.search\s*=\s*search\.trim\(\)/);
+  assert.match(editor, /\[\s*search\s*\]/);
+});
+
 test('media grid music cards use an accessible portrait artwork stage', () => {
   const render = fs.readFileSync(
     path.join(root, 'blocks', 'media-cover-grid', 'render.php'),

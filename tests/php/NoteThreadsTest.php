@@ -186,6 +186,14 @@ final class NoteThreadsTest extends TestCase {
 		self::assertNull( child_note_thread_prevent_non_tail_removal( null, $child ) );
 	}
 
+	public function test_a_continuation_cannot_be_restored_without_a_published_parent(): void {
+		$this->add_note( 1, 'trash' );
+		$child = $this->add_note( 2, 'trash' );
+		$this->connect( 2, 1 );
+
+		self::assertFalse( child_note_thread_prevent_branching_restore( null, $child ) );
+	}
+
 	public function test_related_password_protected_notes_do_not_expose_their_content(): void {
 		$note                = $this->add_note( 1 );
 		$note->post_content  = 'Secret thread content';

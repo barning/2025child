@@ -493,8 +493,16 @@ function child_note_thread_prevent_branching_restore( $decision, WP_Post $post )
 	}
 
 	$parent_id = child_note_thread_get_parent_id( $post->ID );
-	if ( $parent_id > 0 && child_note_thread_get_child_id( $parent_id, false, $post->ID ) > 0 ) {
-		return false;
+	if ( $parent_id > 0 ) {
+		$parent = get_post( $parent_id );
+		if (
+			! $parent instanceof WP_Post
+			|| CHILD_NOTE_POST_TYPE !== $parent->post_type
+			|| 'publish' !== $parent->post_status
+			|| child_note_thread_get_child_id( $parent_id, false, $post->ID ) > 0
+		) {
+			return false;
+		}
 	}
 
 	return $decision;

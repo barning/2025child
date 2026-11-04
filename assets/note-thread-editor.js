@@ -6,7 +6,7 @@
 	const { ComboboxControl, Notice, Spinner } = wp.components;
 	const { useSelect, useDispatch } = wp.data;
 	const { PluginDocumentSettingPanel } = wp.editPost;
-	const { createElement: el } = wp.element;
+	const { createElement: el, useState } = wp.element;
 	const { __, sprintf } = wp.i18n;
 	const { registerPlugin } = wp.plugins;
 
@@ -31,6 +31,7 @@
 	}
 
 	function NoteThreadPanel() {
+		const [ search, setSearch ] = useState( '' );
 		const editor = useSelect( ( select ) => {
 			const editorStore = select( 'core/editor' );
 			const postId = editorStore.getCurrentPostId();
@@ -54,19 +55,26 @@
 		}, [] );
 
 		const notes = useSelect(
-			( select ) =>
-				select( 'core' ).getEntityRecords(
+			( select ) => {
+				const query = {
+					status: 'publish',
+					per_page: 100,
+					orderby: 'date',
+					order: 'desc',
+					context: 'edit',
+				};
+
+				if ( search.trim() ) {
+					query.search = search.trim();
+				}
+
+				return select( 'core' ).getEntityRecords(
 					'postType',
 					childNoteThreadSettings.postType,
-					{
-						status: 'publish',
-						per_page: 100,
-						orderby: 'date',
-						order: 'desc',
-						context: 'edit',
-					}
-				),
-			[]
+					query
+				);
+			},
+			[ search ]
 		);
 
 		const parentId = Number(
@@ -154,6 +162,7 @@
 						value: String( parentId ),
 						options,
 						disabled: locked,
+						onFilterValueChange: setSearch,
 						onChange: ( value ) => {
 							const nextParent = Number( value || 0 );
 							editPost( {
