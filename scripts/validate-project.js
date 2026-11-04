@@ -70,13 +70,6 @@ if (
 	);
 }
 
-if (
-	themeVersion &&
-	! fs.existsSync( path.join( root, 'releases', `v${ themeVersion }.md` ) )
-) {
-	errors.push( `Missing releases/v${ themeVersion }.md` );
-}
-
 const blocksRoot = path.join( root, 'blocks' );
 const blockSlugs = fs
 	.readdirSync( blocksRoot, { withFileTypes: true } )

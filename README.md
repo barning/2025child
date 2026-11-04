@@ -10,7 +10,6 @@ A production-focused child theme for **Twenty Twenty-Five** that keeps customiza
 ├── blocks/                      # Block source files (editor JS/CSS + render callbacks).
 │   └── shared/                  # Shared block-editor utilities used by multiple blocks.
 ├── build/                       # Compiled block assets used by register_block_type().
-├── releases/                    # Versioned release notes.
 ├── inc/
 │   ├── blocks.php               # Central dynamic block registration + shared styles.
 │   ├── bootstrap.php            # Child theme bootstrapping + module autoload.
@@ -41,7 +40,7 @@ A production-focused child theme for **Twenty Twenty-Five** that keeps customiza
 - **Hook-based behavior:** Settings pages, AJAX endpoints, and front-end enhancements use core WordPress actions/filters.
 - **Minimal `functions.php`:** Startup logic is delegated to `inc/bootstrap.php` for maintainability.
 - **Minimal template overrides:** The child theme favors extensibility through block render callbacks and hooks.
-- **README as project guide:** High-level project documentation now lives here, while release-specific details live in `releases/`.
+- **One project guide:** Setup, development, compatibility, and release highlights live in this README.
 
 ## Automatic Color Scheme
 
@@ -131,6 +130,8 @@ The grid intentionally keeps the recommendation block schemas unchanged and trea
 - Editor AJAX endpoint: `wp_ajax_child_igdb_search`.
 - Platform chip display helpers live in `blocks/videogame-recommendation/utils.php` for PHP rendering.
 
+Configure an optional SteamGridDB API key on the same settings page for portrait covers and selectable cover variants. The `STEAMGRIDDB_API_KEY` constant is a fallback; saved settings take precedence. New selections use `igdbId`; the legacy `rawgId` attribute remains supported for existing content.
+
 ## RSS Feed Footer
 
 `inc/rss-feed-footer.php` appends lightweight links to feed-only post content so RSS readers include a route back to the original post and a mail reply option.
@@ -194,9 +195,30 @@ composer analyse
 composer lint
 ```
 
-The release workflow gates the minimum supported PHP 8.3 release and PHP 8.5, audits production npm dependencies, validates generated block manifests, tests the ZIP, and activates the packaged child theme in a fresh WordPress installation.
+The release workflow checks PHP 8.3 and 8.5, audits production npm dependencies, validates generated block manifests, tests the ZIP, and activates the packaged child theme on WordPress 6.7 and latest. Both installations verify all ten blocks and their editor script dependencies. Tag pushes (`v*`) publish the built ZIP as a GitHub release.
 
-Release notes are tracked in `releases/` instead of a running devlog.
+Tests focus on executable behavior: cancellable search requests and stale responses in JavaScript; rendering, provider requests, security, caching, likes, feeds, and Note thread safeguards in PHP. A small dependency-policy test protects the WordPress 6.7 package baseline. `check:json` checks source metadata and matching theme/package versions; `check:build` verifies generated assets. Visual appearance, keyboard interaction, and editor save/reload behavior need a browser smoke test; source-text assertions are not substitutes for those checks.
+
+### WordPress Playground
+
+Run `npm run dist`, then upload `dist/twentytwentyfive-child.zip` through **Appearance → Themes → Add New Theme → Upload Theme** in [WordPress Playground](https://playground.wordpress.net). Install Twenty Twenty-Five first, activate the child theme, and insert, save, reload, and view the custom blocks. Raw repository installs omit the ignored `build/` assets and cannot fully test the blocks.
+
+The [release blueprint](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/barning/2025child/main/playground/blueprint.json) installs the parent theme and the latest published child-theme ZIP. It tests the latest release rather than unpublished local changes. For local iteration, build first and run `npx @wp-playground/cli server --auto-mount` from the repository root.
+
+## Release Highlights
+
+- **1.9.0:** Linear Note threads, searchable parent selection, complete conversation permalinks, append-only safeguards, and optional ActivityPub/Bluesky reply federation. Existing Notes remain independent roots. Backfill an unsynced Bluesky parent before publishing its continuation.
+- **1.8.1:** Readable dark-mode text, links, and buttons with saved Global Styles overrides; contextual parent section colors preserved.
+- **1.8.0:** Automatic system light/dark appearance, adaptive block surfaces, editor styles, browser chrome colors, and legacy light fallback. Clear page and persistent object caches after updating so Global Styles regenerate.
+- **1.7.0:** Improved heading structure, image dimensions, reduced-motion support, German block controls, and conditional block styles.
+- **1.6.0:** Optional SteamGridDB portrait covers, cover variants, mixed-format grids, and mobile filter improvements.
+- **1.5.0:** Music recommendations, media filters, shared search controls, and safer cached link previews.
+- **1.4.0:** Dynamic block discovery, media-grid deduplication, RSS footer improvements, configurable likes, and Node 24 tooling.
+- **1.3.0:** Anonymous post likes, `human.json`, and modular theme bootstrap.
+- **1.2.x:** Movie/series recommendations, Pixelfed feeds, rendering fixes, dependency maintenance, and release workflow improvements.
+- **1.1.x:** Curated Popular Posts and earlier link-preview and performance improvements.
+
+Detailed historical changes remain in Git history and [GitHub releases](https://github.com/barning/2025child/releases). Keep future release highlights here instead of creating separate Markdown files.
 
 ## Production Deployment Checklist
 
