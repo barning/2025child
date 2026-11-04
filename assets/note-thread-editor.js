@@ -30,6 +30,18 @@
 		return excerpt ? `${ date } — ${ excerpt.slice( 0, 90 ) }` : date;
 	}
 
+	function noteSearchText( note ) {
+		return plainText(
+			[
+				note.title?.rendered,
+				note.excerpt?.rendered,
+				note.content?.rendered,
+			]
+				.filter( Boolean )
+				.join( ' ' )
+		).replace( /\s+/g, ' ' );
+	}
+
 	function NoteThreadPanel() {
 		const [ search, setSearch ] = useState( '' );
 		const editor = useSelect( ( select ) => {
@@ -115,10 +127,17 @@
 				value: '0',
 				label: __( 'Start a new thread', 'child' ),
 			},
-			...candidates.map( ( note ) => ( {
-				value: String( note.id ),
-				label: noteLabel( note ),
-			} ) ),
+			...candidates.map( ( note ) => {
+				const displayLabel = noteLabel( note );
+
+				return {
+					value: String( note.id ),
+					label: search.trim()
+						? `${ displayLabel } — ${ noteSearchText( note ) }`
+						: displayLabel,
+					displayLabel,
+				};
+			} ),
 		];
 
 		if (
@@ -128,6 +147,7 @@
 			options.push( {
 				value: String( parentId ),
 				label: noteLabel( selectedParent ),
+				displayLabel: noteLabel( selectedParent ),
 			} );
 		}
 
@@ -168,8 +188,11 @@
 						options,
 						isLoading: ! Array.isArray( notes ),
 						onFilterValueChange: setSearch,
+						__experimentalRenderItem: ( { item } ) =>
+							item.displayLabel || item.label,
 						onChange: ( value ) => {
 							const nextParent = Number( value || 0 );
+							setSearch( '' );
 							editPost( {
 								meta: {
 									...editor.meta,

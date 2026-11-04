@@ -70,6 +70,10 @@ test('Note thread picker searches beyond its initial recent Notes page', () => {
   assert.match(editor, /\[\s*search\s*\]/);
   assert.match(editor, /isLoading:\s*! Array\.isArray\( notes \)/);
   assert.doesNotMatch(editor, /! Array\.isArray\( notes \)\s*\?\s*el\( Spinner \)/);
+  assert.match(editor, /note\.content\?\.rendered/);
+  assert.match(editor, /__experimentalRenderItem:\s*\( \{ item \} \)/);
+  assert.match(editor, /item\.displayLabel \|\| item\.label/);
+  assert.match(editor, /setSearch\( '' \)/);
 });
 
 test('published Note thread relationships render as read-only values', () => {
