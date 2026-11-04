@@ -273,6 +273,16 @@ final class NoteThreadsTest extends TestCase {
 		self::assertStringNotContainsString( 'child-note-thread__avatar', $content );
 	}
 
+	public function test_first_and_standalone_notes_render_their_publication_date(): void {
+		$note = $this->add_note( 1 );
+
+		$content = child_note_thread_render_date( $note );
+
+		self::assertStringContainsString( 'January 1, 2026', $content );
+		self::assertStringContainsString( 'https://example.com/notes/1', $content );
+		self::assertStringContainsString( '<time datetime=', $content );
+	}
+
 	public function test_scheduled_children_require_the_parent_to_be_ready_for_bluesky(): void {
 		if ( ! defined( 'ATMOSPHERE_VERSION' ) ) {
 			define( 'ATMOSPHERE_VERSION', '2.5.0-test' );

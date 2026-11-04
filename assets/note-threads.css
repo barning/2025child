@@ -1,12 +1,12 @@
 .child-note-thread {
 	--child-note-thread-line: rgb(15 23 42 / 22%);
 	display: grid;
-	gap: var(--wp--preset--spacing--40, 1.5rem);
+	gap: 0;
 }
 
 .child-note-thread__list {
 	display: grid;
-	gap: var(--wp--preset--spacing--30, 1rem);
+	gap: 0;
 	list-style: none;
 	margin: 0;
 	padding: 0;
@@ -15,6 +15,7 @@
 .child-note-thread__entry,
 .child-note-thread__current {
 	border-inline-start: 2px solid var(--child-note-thread-line);
+	padding-block: 0.5rem var(--wp--preset--spacing--40, 1.5rem);
 	padding-inline-start: var(--wp--preset--spacing--40, 1.5rem);
 	position: relative;
 }
@@ -31,10 +32,6 @@
 	inset-inline-start: -0.5rem;
 	position: absolute;
 	width: 0.875rem;
-}
-
-.child-note-thread__entry article {
-	padding-block: 0.5rem;
 }
 
 .child-note-thread__meta {

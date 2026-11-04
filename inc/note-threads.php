@@ -689,6 +689,18 @@ function child_note_thread_render_body( WP_Post $note ): string {
 }
 
 /**
+ * Render the linked publication date shared by every thought in a thread.
+ */
+function child_note_thread_render_date( WP_Post $note ): string {
+	return sprintf(
+		'<header class="child-note-thread__meta"><a class="child-note-thread__date" href="%1$s"><time datetime="%2$s">%3$s</time></a></header>',
+		esc_url( get_permalink( $note ) ),
+		esc_attr( get_post_time( DATE_W3C, false, $note ) ),
+		esc_html( get_the_date( '', $note ) )
+	);
+}
+
+/**
  * Render one related Note inside a thread list.
  */
 function child_note_thread_render_item( int $post_id ): string {
@@ -713,15 +725,9 @@ function child_note_thread_render_item( int $post_id ): string {
 		wp_reset_postdata();
 	}
 
-	$permalink = get_permalink( $note );
-	$published = get_the_date( '', $note );
-	$datetime  = get_post_time( DATE_W3C, false, $note );
-
 	return sprintf(
-		'<li class="child-note-thread__entry"><article><header class="child-note-thread__meta"><a class="child-note-thread__date" href="%1$s"><time datetime="%2$s">%3$s</time></a></header><div class="child-note-thread__body">%4$s</div></article></li>',
-		esc_url( $permalink ),
-		esc_attr( $datetime ),
-		esc_html( $published ),
+		'<li class="child-note-thread__entry"><article>%1$s<div class="child-note-thread__body">%2$s</div></article></li>',
+		child_note_thread_render_date( $note ),
 		$content
 	);
 }
@@ -771,8 +777,9 @@ function child_note_thread_render_content( string $content ): string {
 	$post_id     = get_the_ID();
 	$ancestors   = child_note_thread_get_ancestor_ids( $post_id );
 	$descendants = child_note_thread_get_descendant_ids( $post_id );
+	$current     = get_post( $post_id );
 
-	if ( empty( $ancestors ) && empty( $descendants ) ) {
+	if ( ! $current instanceof WP_Post ) {
 		return $content;
 	}
 
@@ -788,7 +795,9 @@ function child_note_thread_render_content( string $content ): string {
 	);
 
 	return '<div class="child-note-thread">' . $earlier
-		. '<div class="child-note-thread__current">' . $content . '</div>'
+		. '<div class="child-note-thread__current"><article>'
+		. child_note_thread_render_date( $current )
+		. '<div class="child-note-thread__body">' . $content . '</div></article></div>'
 		. $later . '</div>';
 }
 add_filter( 'the_content', 'child_note_thread_render_content', 20 );
