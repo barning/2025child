@@ -5,9 +5,10 @@
  * @package TwentyTwentyFiveChild
  */
 
-const CHILD_NOTE_THREAD_PARENT_META = '_child_note_thread_parent_id';
-const CHILD_NOTE_THREAD_LOCK_META   = '_child_note_thread_locked_parent_id';
-const CHILD_NOTE_THREAD_MAX_DEPTH   = 100;
+const CHILD_NOTE_THREAD_PARENT_META             = '_child_note_thread_parent_id';
+const CHILD_NOTE_THREAD_LOCK_META               = '_child_note_thread_locked_parent_id';
+const CHILD_NOTE_THREAD_ATMOSPHERE_PENDING_META = '_child_note_thread_atmosphere_pending_hook';
+const CHILD_NOTE_THREAD_MAX_DEPTH               = 100;
 
 /**
  * Allow editors to manage the thread parent through the REST API.
@@ -349,6 +350,21 @@ function child_note_thread_validate_rest_insert( WP_Post $prepared_post, WP_REST
 		? absint( $meta[ CHILD_NOTE_THREAD_PARENT_META ] )
 		: child_note_thread_get_parent_id( $post_id );
 
+	$status = (string) ( $prepared_post->post_status ?: get_post_status( $post_id ) );
+
+	if (
+		$post_id > 0
+		&& 'publish' === get_post_status( $post_id )
+		&& 'publish' !== $status
+		&& child_note_thread_get_child_id( $post_id ) > 0
+	) {
+		return new WP_Error(
+			'note_thread_parent_has_child',
+			__( 'A Note with a continuation must remain published.', 'child' ),
+			[ 'status' => 409 ]
+		);
+	}
+
 	if ( $post_id > 0 && metadata_exists( 'post', $post_id, CHILD_NOTE_THREAD_LOCK_META ) ) {
 		$locked_parent = absint( get_post_meta( $post_id, CHILD_NOTE_THREAD_LOCK_META, true ) );
 		if ( $locked_parent !== $parent_id ) {
@@ -360,11 +376,10 @@ function child_note_thread_validate_rest_insert( WP_Post $prepared_post, WP_REST
 		}
 	}
 
-	$status             = (string) ( $prepared_post->post_status ?: get_post_status( $post_id ) );
 	$sharing_disabled   = array_key_exists( 'atmosphere_disabled', $meta )
 		? rest_sanitize_boolean( $meta['atmosphere_disabled'] )
 		: ( '1' === (string) get_post_meta( $post_id, 'atmosphere_disabled', true ) );
-	$require_atmosphere = 'publish' === $status
+	$require_atmosphere = in_array( $status, [ 'publish', 'future' ], true )
 		&& $parent_id > 0
 		&& defined( 'ATMOSPHERE_VERSION' )
 		&& ! $sharing_disabled;
@@ -374,6 +389,34 @@ function child_note_thread_validate_rest_insert( WP_Post $prepared_post, WP_REST
 	return is_wp_error( $valid ) ? $valid : $prepared_post;
 }
 add_filter( 'rest_pre_insert_' . CHILD_NOTE_POST_TYPE, 'child_note_thread_validate_rest_insert', 10, 2 );
+
+/**
+ * Preserve a published parent outside REST when it has active continuations.
+ *
+ * REST callers receive an explicit error above. Classic editor, WP-CLI, and
+ * programmatic updates instead retain the published status so a child never
+ * becomes attached to an unavailable parent.
+ *
+ * @param array<string, mixed> $data    Sanitized post data.
+ * @param array<string, mixed> $postarr Raw post data.
+ * @return array<string, mixed>
+ */
+function child_note_thread_preserve_non_tail_status( array $data, array $postarr ): array {
+	$post_id = absint( $postarr['ID'] ?? 0 );
+
+	if (
+		$post_id > 0
+		&& CHILD_NOTE_POST_TYPE === ( $data['post_type'] ?? '' )
+		&& 'publish' === get_post_status( $post_id )
+		&& 'publish' !== ( $data['post_status'] ?? '' )
+		&& child_note_thread_get_child_id( $post_id ) > 0
+	) {
+		$data['post_status'] = 'publish';
+	}
+
+	return $data;
+}
+add_filter( 'wp_insert_post_data', 'child_note_thread_preserve_non_tail_status', 20, 2 );
 
 /**
  * Lock the relationship the first time a Note is published.
@@ -516,6 +559,13 @@ function child_register_note_thread_rest_field(): void {
 add_action( 'rest_api_init', 'child_register_note_thread_rest_field' );
 
 /**
+ * Render a related Note body through WordPress's password-aware content API.
+ */
+function child_note_thread_render_body( WP_Post $note ): string {
+	return (string) apply_filters( 'the_content', get_the_content( null, false, $note ) );
+}
+
+/**
  * Render one related Note inside a thread list.
  */
 function child_note_thread_render_item( int $post_id ): string {
@@ -529,7 +579,7 @@ function child_note_thread_render_item( int $post_id ): string {
 	$GLOBALS['post'] = $note;
 	setup_postdata( $note );
 	$GLOBALS['child_note_thread_rendering'] = true;
-	$content                                = apply_filters( 'the_content', $note->post_content );
+	$content                                = child_note_thread_render_body( $note );
 	$GLOBALS['child_note_thread_rendering'] = false;
 
 	if ( $previous_post instanceof WP_Post ) {
@@ -774,6 +824,81 @@ function child_note_thread_atmosphere_composition( string $strategy, WP_Post $po
 	return CHILD_NOTE_POST_TYPE === $post->post_type ? 'link-card' : $strategy;
 }
 add_filter( 'atmosphere_long_form_composition', 'child_note_thread_atmosphere_composition', 10, 2 );
+
+/**
+ * Defer ATmosphere publication until a child Note can carry native reply refs.
+ *
+ * This guards scheduled WordPress publication and lifecycle paths that enqueue
+ * ATmosphere jobs without REST validation. Returning false from schedule_event
+ * prevents a standalone Bluesky record. A successful parent publish resumes
+ * the deferred hook below.
+ *
+ * @param mixed $event Event object being scheduled.
+ * @return mixed
+ */
+function child_note_thread_defer_atmosphere_event( $event ) {
+	if ( ! is_object( $event ) ) {
+		return $event;
+	}
+
+	$hook = (string) ( $event->hook ?? '' );
+	if ( ! in_array( $hook, [ 'atmosphere_publish_post', 'atmosphere_update_post' ], true ) ) {
+		return $event;
+	}
+
+	$post_id = absint( $event->args[0] ?? 0 );
+	$post    = get_post( $post_id );
+	if ( ! $post instanceof WP_Post || CHILD_NOTE_POST_TYPE !== $post->post_type ) {
+		return $event;
+	}
+
+	$parent_id = child_note_thread_get_parent_id( $post_id );
+	if (
+		$parent_id <= 0
+		|| '1' === (string) get_post_meta( $post_id, 'atmosphere_disabled', true )
+	) {
+		delete_post_meta( $post_id, CHILD_NOTE_THREAD_ATMOSPHERE_PENDING_META );
+		return $event;
+	}
+
+	if ( null === child_note_thread_get_atmosphere_reply_for_parent( $parent_id ) ) {
+		$pending_hook = empty( child_note_thread_get_atmosphere_records( $post_id ) )
+			? 'atmosphere_publish_post'
+			: 'atmosphere_update_post';
+		update_post_meta( $post_id, CHILD_NOTE_THREAD_ATMOSPHERE_PENDING_META, $pending_hook );
+		return false;
+	}
+
+	delete_post_meta( $post_id, CHILD_NOTE_THREAD_ATMOSPHERE_PENDING_META );
+	return $event;
+}
+add_filter( 'schedule_event', 'child_note_thread_defer_atmosphere_event' );
+
+/**
+ * Resume a deferred child publication after its parent reaches Bluesky.
+ *
+ * @param WP_Post        $post   Parent Note that completed publication.
+ * @param array|WP_Error $result ATmosphere publication result.
+ */
+function child_note_thread_resume_atmosphere_child( WP_Post $post, $result ): void {
+	if ( is_wp_error( $result ) || CHILD_NOTE_POST_TYPE !== $post->post_type ) {
+		return;
+	}
+
+	$child_id = child_note_thread_get_child_id( $post->ID );
+	if ( $child_id <= 0 ) {
+		return;
+	}
+
+	$hook = (string) get_post_meta( $child_id, CHILD_NOTE_THREAD_ATMOSPHERE_PENDING_META, true );
+	if ( ! in_array( $hook, [ 'atmosphere_publish_post', 'atmosphere_update_post' ], true ) ) {
+		return;
+	}
+
+	delete_post_meta( $child_id, CHILD_NOTE_THREAD_ATMOSPHERE_PENDING_META );
+	wp_schedule_single_event( time(), $hook, [ $child_id ] );
+}
+add_action( 'atmosphere_publish_post_result', 'child_note_thread_resume_atmosphere_child', 10, 2 );
 
 /**
  * Add native Bluesky thread references to a child Note record.

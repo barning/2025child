@@ -117,6 +117,7 @@ if ( ! class_exists( 'WP_Post' ) ) {
 		public string $post_title = '';
 		public string $post_content = '';
 		public string $post_excerpt = '';
+		public string $post_password = '';
 		public string $post_date = '2026-01-01 00:00:00';
 		public string $post_date_gmt = '2026-01-01 00:00:00';
 		public int $post_author = 1;
@@ -130,6 +131,20 @@ if ( ! class_exists( 'WP_Post' ) ) {
 					$this->{$key} = $value;
 				}
 			}
+		}
+	}
+}
+
+if ( ! class_exists( 'WP_REST_Request' ) ) {
+	class WP_REST_Request {
+		/**
+		 * @param array<string, mixed> $params Request parameters.
+		 */
+		public function __construct( private array $params = array() ) {
+		}
+
+		public function get_param( string $key ) {
+			return $this->params[ $key ] ?? null;
 		}
 	}
 }
@@ -329,6 +344,19 @@ if ( ! function_exists( 'add_filter' ) ) {
 	}
 }
 
+if ( ! function_exists( 'apply_filters' ) ) {
+	function apply_filters( string $hook, $value ) {
+		unset( $hook );
+		return $value;
+	}
+}
+
+if ( ! function_exists( 'rest_sanitize_boolean' ) ) {
+	function rest_sanitize_boolean( $value ): bool {
+		return filter_var( $value, FILTER_VALIDATE_BOOLEAN );
+	}
+}
+
 if ( ! function_exists( 'get_post' ) ) {
 	function get_post( $post_id ) {
 		if ( $post_id instanceof WP_Post ) {
@@ -343,6 +371,25 @@ if ( ! function_exists( 'get_post_type' ) ) {
 	function get_post_type( $post_id ): string|false {
 		$post = get_post( $post_id );
 		return $post instanceof WP_Post ? $post->post_type : false;
+	}
+}
+
+if ( ! function_exists( 'post_password_required' ) ) {
+	function post_password_required( $post = null ): bool {
+		$post = get_post( $post );
+		return $post instanceof WP_Post && '' !== $post->post_password;
+	}
+}
+
+if ( ! function_exists( 'get_the_content' ) ) {
+	function get_the_content( $more_link_text = null, bool $strip_teaser = false, $post = null ): string {
+		unset( $more_link_text, $strip_teaser );
+		$post = get_post( $post );
+		if ( ! $post instanceof WP_Post ) {
+			return '';
+		}
+
+		return post_password_required( $post ) ? 'Password required.' : $post->post_content;
 	}
 }
 

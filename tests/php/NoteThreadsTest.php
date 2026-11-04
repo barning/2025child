@@ -11,6 +11,7 @@ final class NoteThreadsTest extends TestCase {
 	protected function setUp(): void {
 		$GLOBALS['child_test_posts']     = array();
 		$GLOBALS['child_test_post_meta'] = array();
+		$GLOBALS['child_test_scheduled'] = array();
 	}
 
 	private function add_note( int $post_id, string $status = 'publish' ): WP_Post {
@@ -183,5 +184,100 @@ final class NoteThreadsTest extends TestCase {
 
 		self::assertFalse( child_note_thread_prevent_non_tail_removal( null, $root ) );
 		self::assertNull( child_note_thread_prevent_non_tail_removal( null, $child ) );
+	}
+
+	public function test_related_password_protected_notes_do_not_expose_their_content(): void {
+		$note                = $this->add_note( 1 );
+		$note->post_content  = 'Secret thread content';
+		$note->post_password = 'secret';
+
+		$content = child_note_thread_render_body( $note );
+
+		self::assertSame( 'Password required.', $content );
+		self::assertStringNotContainsString( 'Secret thread content', $content );
+	}
+
+	public function test_scheduled_children_require_the_parent_to_be_ready_for_bluesky(): void {
+		if ( ! defined( 'ATMOSPHERE_VERSION' ) ) {
+			define( 'ATMOSPHERE_VERSION', '2.5.0-test' );
+		}
+
+		$this->add_note( 1 );
+		$child   = $this->add_note( 2, 'future' );
+		$request = new WP_REST_Request(
+			array(
+				'id'   => 2,
+				'meta' => array( CHILD_NOTE_THREAD_PARENT_META => 1 ),
+			)
+		);
+
+		$result = child_note_thread_validate_rest_insert( $child, $request );
+
+		self::assertInstanceOf( WP_Error::class, $result );
+		self::assertSame( 'note_thread_parent_not_on_bluesky', $result->get_error_code() );
+	}
+
+	public function test_non_rest_updates_keep_a_non_tail_note_published(): void {
+		$this->add_note( 1 );
+		$this->add_note( 2 );
+		$this->connect( 2, 1 );
+
+		$data = child_note_thread_preserve_non_tail_status(
+			array(
+				'post_type'   => CHILD_NOTE_POST_TYPE,
+				'post_status' => 'draft',
+			),
+			array( 'ID' => 1 )
+		);
+
+		self::assertSame( 'publish', $data['post_status'] );
+	}
+
+	public function test_rest_updates_reject_unpublishing_a_non_tail_note(): void {
+		$this->add_note( 1 );
+		$this->add_note( 2 );
+		$this->connect( 2, 1 );
+		$prepared = new WP_Post(
+			array(
+				'ID'          => 1,
+				'post_type'   => CHILD_NOTE_POST_TYPE,
+				'post_status' => 'draft',
+			)
+		);
+		$request  = new WP_REST_Request(
+			array(
+				'id'   => 1,
+				'meta' => array(),
+			)
+		);
+
+		$result = child_note_thread_validate_rest_insert( $prepared, $request );
+
+		self::assertInstanceOf( WP_Error::class, $result );
+		self::assertSame( 'note_thread_parent_has_child', $result->get_error_code() );
+	}
+
+	public function test_atmosphere_event_is_deferred_and_resumed_after_parent_sync(): void {
+		$parent = $this->add_note( 1 );
+		$this->add_note( 2 );
+		$this->connect( 2, 1 );
+		$event = (object) array(
+			'hook' => 'atmosphere_publish_post',
+			'args' => array( 2 ),
+		);
+
+		self::assertFalse( child_note_thread_defer_atmosphere_event( $event ) );
+		self::assertSame(
+			'atmosphere_publish_post',
+			get_post_meta( 2, CHILD_NOTE_THREAD_ATMOSPHERE_PENDING_META, true )
+		);
+
+		update_post_meta( 1, '_atmosphere_bsky_uri', 'at://did:plc:test/post/root' );
+		update_post_meta( 1, '_atmosphere_bsky_cid', 'root-cid' );
+		child_note_thread_resume_atmosphere_child( $parent, array( 'success' => true ) );
+
+		self::assertFalse( metadata_exists( 'post', 2, CHILD_NOTE_THREAD_ATMOSPHERE_PENDING_META ) );
+		self::assertNotFalse( wp_next_scheduled( 'atmosphere_publish_post', array( 2 ) ) );
+		self::assertSame( $event, child_note_thread_defer_atmosphere_event( $event ) );
 	}
 }
