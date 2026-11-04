@@ -137,6 +137,10 @@ async function main() {
 		path.join( root, 'theme.json' ),
 		path.join( outDir, 'theme.json' )
 	);
+	await copyIfExists(
+		path.join( root, 'templates' ),
+		path.join( outDir, 'templates' )
+	);
 
 	// Runtime assets
 	await copyIfExists(

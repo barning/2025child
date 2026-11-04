@@ -691,12 +691,19 @@ function child_note_thread_render_body( WP_Post $note ): string {
 /**
  * Render the linked publication date shared by every thought in a thread.
  */
-function child_note_thread_render_date( WP_Post $note ): string {
+function child_note_thread_render_date( WP_Post $note, bool $is_current = false ): string {
+	$current_attribute = $is_current ? ' aria-current="page"' : '';
+	$current_label     = $is_current
+		? '<span class="screen-reader-text"> — ' . esc_html( __( 'Current Note', 'child' ) ) . '</span>'
+		: '';
+
 	return sprintf(
-		'<header class="child-note-thread__meta"><a class="child-note-thread__date" href="%1$s"><time datetime="%2$s">%3$s</time></a></header>',
+		'<header class="child-note-thread__meta"><a class="child-note-thread__date" href="%1$s"%4$s><time datetime="%2$s">%3$s</time>%5$s</a></header>',
 		esc_url( get_permalink( $note ) ),
 		esc_attr( get_post_time( DATE_W3C, false, $note ) ),
-		esc_html( get_the_date( '', $note ) )
+		esc_html( get_the_date( '', $note ) ),
+		$current_attribute,
+		$current_label
 	);
 }
 
@@ -796,7 +803,7 @@ function child_note_thread_render_content( string $content ): string {
 
 	return '<div class="child-note-thread">' . $earlier
 		. '<div class="child-note-thread__current"><article>'
-		. child_note_thread_render_date( $current )
+		. child_note_thread_render_date( $current, true )
 		. '<div class="child-note-thread__body">' . $content . '</div></article></div>'
 		. $later . '</div>';
 }

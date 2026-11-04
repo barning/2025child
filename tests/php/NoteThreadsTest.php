@@ -283,6 +283,15 @@ final class NoteThreadsTest extends TestCase {
 		self::assertStringContainsString( '<time datetime=', $content );
 	}
 
+	public function test_current_note_date_identifies_the_active_permalink(): void {
+		$note = $this->add_note( 1 );
+
+		$content = child_note_thread_render_date( $note, true );
+
+		self::assertStringContainsString( 'aria-current="page"', $content );
+		self::assertStringContainsString( 'Current Note', $content );
+	}
+
 	public function test_scheduled_children_require_the_parent_to_be_ready_for_bluesky(): void {
 		if ( ! defined( 'ATMOSPHERE_VERSION' ) ) {
 			define( 'ATMOSPHERE_VERSION', '2.5.0-test' );

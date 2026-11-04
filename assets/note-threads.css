@@ -14,10 +14,19 @@
 
 .child-note-thread__entry,
 .child-note-thread__current {
-	border-inline-start: 2px solid var(--child-note-thread-line);
 	padding-block: 0.5rem var(--wp--preset--spacing--40, 1.5rem);
 	padding-inline-start: var(--wp--preset--spacing--40, 1.5rem);
 	position: relative;
+}
+
+.child-note-thread__entry::after,
+.child-note-thread__current::after {
+	background: var(--child-note-thread-line);
+	content: "";
+	inset-block: 0;
+	inset-inline-start: -1px;
+	position: absolute;
+	width: 2px;
 }
 
 .child-note-thread__entry::before,
@@ -29,9 +38,25 @@
 	content: "";
 	height: 0.875rem;
 	inset-block-start: 0.75rem;
-	inset-inline-start: -0.5rem;
+	inset-inline-start: -0.4375rem;
 	position: absolute;
 	width: 0.875rem;
+	z-index: 1;
+}
+
+.child-note-thread__section--ancestors .child-note-thread__entry:first-child::after,
+.child-note-thread > .child-note-thread__current:first-child::after {
+	inset-block-start: 1.1875rem;
+}
+
+.child-note-thread__section--replies .child-note-thread__entry:last-child::after,
+.child-note-thread > .child-note-thread__current:last-child::after {
+	inset-block-end: calc(100% - 1.1875rem);
+}
+
+.child-note-thread__current::before {
+	box-shadow: 0 0 0 0.125rem currentcolor;
+	transform: scale(1.2);
 }
 
 .child-note-thread__meta {
@@ -43,6 +68,11 @@
 	font-size: 0.8125em;
 	text-decoration-thickness: 0.0625rem;
 	text-underline-offset: 0.2em;
+}
+
+.child-note-thread__current .child-note-thread__date {
+	color: inherit;
+	font-weight: 600;
 }
 
 .child-note-thread__body > :first-child,

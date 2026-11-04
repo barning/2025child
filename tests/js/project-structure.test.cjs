@@ -87,6 +87,20 @@ test('published Note thread relationships render as read-only values', () => {
   assert.doesNotMatch(editor, /disabled:\s*locked/);
 });
 
+test('Note permalinks use a dedicated minimal template', () => {
+  const template = fs.readFileSync(
+    path.join(root, 'templates', 'single-note.html'),
+    'utf8'
+  );
+  const packager = fs.readFileSync(path.join(root, 'scripts', 'package.js'), 'utf8');
+
+  assert.match(template, /<!-- wp:post-content/);
+  assert.doesNotMatch(template, /hidden-written-by/);
+  assert.doesNotMatch(template, /post-navigation/);
+  assert.doesNotMatch(template, /more-posts/);
+  assert.match(packager, /path\.join\( root, 'templates' \)/);
+});
+
 test('media grid music cards use an accessible portrait artwork stage', () => {
   const render = fs.readFileSync(
     path.join(root, 'blocks', 'media-cover-grid', 'render.php'),
