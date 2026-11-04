@@ -3,7 +3,7 @@
 ( function () {
 	'use strict';
 
-	const { ComboboxControl, Notice, Spinner } = wp.components;
+	const { ComboboxControl, Notice, TextControl } = wp.components;
 	const { useSelect, useDispatch } = wp.data;
 	const { PluginDocumentSettingPanel } = wp.editPost;
 	const { createElement: el, useState } = wp.element;
@@ -146,22 +146,27 @@
 				title: __( 'Thread', 'child' ),
 				className: 'child-note-thread-panel',
 			},
-			! Array.isArray( notes )
-				? el( Spinner )
+			locked
+				? el( TextControl, {
+						label: __( 'Previous Note', 'child' ),
+						help: __(
+							'The thread relationship is locked after publication.',
+							'child'
+						),
+						value: selectedParent
+							? noteLabel( selectedParent )
+							: __( 'Start a new thread', 'child' ),
+						readOnly: true,
+				  } )
 				: el( ComboboxControl, {
 						label: __( 'Previous Note', 'child' ),
-						help: locked
-							? __(
-									'The thread relationship is locked after publication.',
-									'child'
-							  )
-							: __(
-									'Choose the latest published Note in a thread, or start a new one.',
-									'child'
-							  ),
+						help: __(
+							'Choose the latest published Note in a thread, or start a new one.',
+							'child'
+						),
 						value: String( parentId ),
 						options,
-						disabled: locked,
+						isLoading: ! Array.isArray( notes ),
 						onFilterValueChange: setSearch,
 						onChange: ( value ) => {
 							const nextParent = Number( value || 0 );

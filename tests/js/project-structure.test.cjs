@@ -68,6 +68,19 @@ test('Note thread picker searches beyond its initial recent Notes page', () => {
   assert.match(editor, /onFilterValueChange:\s*setSearch/);
   assert.match(editor, /query\.search\s*=\s*search\.trim\(\)/);
   assert.match(editor, /\[\s*search\s*\]/);
+  assert.match(editor, /isLoading:\s*! Array\.isArray\( notes \)/);
+  assert.doesNotMatch(editor, /! Array\.isArray\( notes \)\s*\?\s*el\( Spinner \)/);
+});
+
+test('published Note thread relationships render as read-only values', () => {
+  const editor = fs.readFileSync(
+    path.join(root, 'assets', 'note-thread-editor.js'),
+    'utf8'
+  );
+
+  assert.match(editor, /locked\s*\?\s*el\( TextControl/);
+  assert.match(editor, /readOnly:\s*true/);
+  assert.doesNotMatch(editor, /disabled:\s*locked/);
 });
 
 test('media grid music cards use an accessible portrait artwork stage', () => {
