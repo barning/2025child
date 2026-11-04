@@ -13,6 +13,8 @@ final class NoteThreadsTest extends TestCase {
 		$GLOBALS['child_test_post_meta'] = array();
 		$GLOBALS['child_test_options']   = array();
 		$GLOBALS['child_test_scheduled'] = array();
+		$GLOBALS['child_note_thread_restore_locks'] = array();
+		$GLOBALS['wpdb']->locks = array();
 	}
 
 	private function add_note( int $post_id, string $status = 'publish' ): WP_Post {
@@ -58,6 +60,35 @@ final class NoteThreadsTest extends TestCase {
 		self::assertInstanceOf( WP_Error::class, $result );
 		self::assertSame( 'note_thread_parent_has_child', $result->get_error_code() );
 		self::assertSame( 409, $result->get_error_data()['status'] );
+	}
+
+	public function test_concurrent_rest_saves_cannot_claim_the_same_parent(): void {
+		$this->add_note( 1 );
+		$first = $this->add_note( 2, 'draft' );
+		$this->add_note( 3, 'draft' );
+		$first_prepared  = (object) array( 'ID' => 2, 'post_status' => 'draft' );
+		$second_prepared = (object) array( 'ID' => 3, 'post_status' => 'draft' );
+		$first_request   = new WP_REST_Request(
+			array( 'id' => 2, 'meta' => array( CHILD_NOTE_THREAD_PARENT_META => 1 ) )
+		);
+		$second_request  = new WP_REST_Request(
+			array( 'id' => 3, 'meta' => array( CHILD_NOTE_THREAD_PARENT_META => 1 ) )
+		);
+
+		$first_result  = child_note_thread_validate_rest_insert( $first_prepared, $first_request );
+		$second_result = child_note_thread_validate_rest_insert( $second_prepared, $second_request );
+
+		self::assertSame( $first_prepared, $first_result );
+		self::assertInstanceOf( WP_Error::class, $second_result );
+		self::assertSame( 'note_thread_parent_has_child', $second_result->get_error_code() );
+
+		$this->connect( 2, 1 );
+		child_note_thread_after_rest_insert( $first, $first_request );
+		self::assertSame( array(), $GLOBALS['wpdb']->locks );
+
+		$retry = child_note_thread_validate_rest_insert( $second_prepared, $second_request );
+		self::assertInstanceOf( WP_Error::class, $retry );
+		self::assertSame( 'note_thread_parent_has_child', $retry->get_error_code() );
 	}
 
 	public function test_rejects_a_parent_that_would_create_a_cycle(): void {
@@ -193,6 +224,29 @@ final class NoteThreadsTest extends TestCase {
 		$this->connect( 2, 1 );
 
 		self::assertFalse( child_note_thread_prevent_branching_restore( null, $child ) );
+	}
+
+	public function test_restoring_a_continuation_atomically_reserves_its_parent(): void {
+		$this->add_note( 1 );
+		$restored = $this->add_note( 2, 'trash' );
+		$this->add_note( 3, 'draft' );
+		$this->connect( 2, 1 );
+
+		self::assertNull( child_note_thread_prevent_branching_restore( null, $restored ) );
+		self::assertNotSame( array(), $GLOBALS['wpdb']->locks );
+
+		$competing = child_note_thread_validate_rest_insert(
+			(object) array( 'ID' => 3, 'post_status' => 'draft' ),
+			new WP_REST_Request(
+				array( 'id' => 3, 'meta' => array( CHILD_NOTE_THREAD_PARENT_META => 1 ) )
+			)
+		);
+		self::assertInstanceOf( WP_Error::class, $competing );
+		self::assertSame( 'note_thread_parent_has_child', $competing->get_error_code() );
+
+		$restored->post_status = 'publish';
+		child_note_thread_release_restore_lock( 2 );
+		self::assertSame( array(), $GLOBALS['wpdb']->locks );
 	}
 
 	public function test_related_password_protected_notes_do_not_expose_their_content(): void {

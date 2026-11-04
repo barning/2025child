@@ -33,6 +33,7 @@ if ( ! class_exists( 'Child_Test_WPDB' ) ) {
 		public string $prefix = 'wp_';
 		public string $last_error = '';
 		public array $likes = array();
+		public array $locks = array();
 
 		public function prepare( string $query, ...$args ): string {
 			foreach ( $args as $arg ) {
@@ -44,6 +45,20 @@ if ( ! class_exists( 'Child_Test_WPDB' ) ) {
 		}
 
 		public function get_var( string $query ) {
+			if ( preg_match( "/GET_LOCK\\(\\s*'([^']+)'/", $query, $matches ) ) {
+				if ( isset( $this->locks[ $matches[1] ] ) ) {
+					return '0';
+				}
+
+				$this->locks[ $matches[1] ] = true;
+				return '1';
+			}
+
+			if ( preg_match( "/RELEASE_LOCK\\(\\s*'([^']+)'/", $query, $matches ) ) {
+				unset( $this->locks[ $matches[1] ] );
+				return '1';
+			}
+
 			if ( str_contains( $query, 'COUNT(*)' ) && preg_match( '/post_id = (\d+)/', $query, $matches ) ) {
 				$post_id = (int) $matches[1];
 				return count( array_filter( $this->likes, static fn( array $like ): bool => $like['post_id'] === $post_id ) );
@@ -145,6 +160,10 @@ if ( ! class_exists( 'WP_REST_Request' ) ) {
 
 		public function get_param( string $key ) {
 			return $this->params[ $key ] ?? null;
+		}
+
+		public function set_param( string $key, $value ): void {
+			$this->params[ $key ] = $value;
 		}
 	}
 }

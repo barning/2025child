@@ -8,6 +8,7 @@
 const CHILD_NOTE_THREAD_PARENT_META             = '_child_note_thread_parent_id';
 const CHILD_NOTE_THREAD_LOCK_META               = '_child_note_thread_locked_parent_id';
 const CHILD_NOTE_THREAD_ATMOSPHERE_PENDING_META = '_child_note_thread_atmosphere_pending_hook';
+const CHILD_NOTE_THREAD_LOCK_REQUEST_PARAM      = '_child_note_thread_parent_lock';
 const CHILD_NOTE_THREAD_MAX_DEPTH               = 100;
 
 /**
@@ -295,6 +296,37 @@ function child_note_thread_atmosphere_will_publish(): bool {
 }
 
 /**
+ * Acquire a database advisory lock for a parent Note.
+ *
+ * The lock is connection-scoped, so the database releases it automatically if
+ * persistence aborts before the normal REST or restore completion hook.
+ */
+function child_note_thread_acquire_parent_lock( int $parent_id ): ?string {
+	global $wpdb;
+
+	$database  = defined( 'DB_NAME' ) ? DB_NAME : '';
+	$lock_name = 'child-note-thread-' . md5( $database . ':' . $wpdb->prefix . ':' . $parent_id );
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+	$acquired = $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK( %s, 0 )', $lock_name ) );
+
+	return '1' === (string) $acquired ? $lock_name : null;
+}
+
+/**
+ * Release a parent Note's database advisory lock.
+ */
+function child_note_thread_release_parent_lock( string $lock_name ): void {
+	global $wpdb;
+
+	if ( '' === $lock_name ) {
+		return;
+	}
+
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+	$wpdb->get_var( $wpdb->prepare( 'SELECT RELEASE_LOCK( %s )', $lock_name ) );
+}
+
+/**
  * Validate a proposed parent relationship.
  *
  * @return true|WP_Error
@@ -379,6 +411,8 @@ function child_note_thread_validate_parent( int $post_id, int $parent_id, bool $
  * @return stdClass|WP_Error
  */
 function child_note_thread_validate_rest_insert( stdClass $prepared_post, WP_REST_Request $request ) {
+	$request->set_param( CHILD_NOTE_THREAD_LOCK_REQUEST_PARAM, '' );
+
 	$post_id = absint( $request->get_param( 'id' ) ?: ( $prepared_post->ID ?? 0 ) );
 	$meta    = $request->get_param( 'meta' );
 	$meta    = is_array( $meta ) ? $meta : [];
@@ -423,9 +457,27 @@ function child_note_thread_validate_rest_insert( stdClass $prepared_post, WP_RES
 		&& child_note_thread_atmosphere_will_publish()
 		&& ! $sharing_disabled;
 
-	$valid = child_note_thread_validate_parent( $post_id, $parent_id, $require_atmosphere );
+	$lock_name = null;
+	if ( $parent_id > 0 ) {
+		$lock_name = child_note_thread_acquire_parent_lock( $parent_id );
+		if ( null === $lock_name ) {
+			return new WP_Error(
+				'note_thread_parent_has_child',
+				__( 'That Note is being claimed by another continuation. Try again.', 'child' ),
+				[ 'status' => 409 ]
+			);
+		}
+		$request->set_param( CHILD_NOTE_THREAD_LOCK_REQUEST_PARAM, $lock_name );
+	}
 
-	return is_wp_error( $valid ) ? $valid : $prepared_post;
+	$valid = child_note_thread_validate_parent( $post_id, $parent_id, $require_atmosphere );
+	if ( is_wp_error( $valid ) ) {
+		child_note_thread_release_parent_lock( (string) $lock_name );
+		$request->set_param( CHILD_NOTE_THREAD_LOCK_REQUEST_PARAM, '' );
+		return $valid;
+	}
+
+	return $prepared_post;
 }
 add_filter( 'rest_pre_insert_' . CHILD_NOTE_POST_TYPE, 'child_note_thread_validate_rest_insert', 10, 2 );
 
@@ -478,12 +530,18 @@ function child_note_thread_lock_relationship( WP_Post $post ): void {
 }
 
 /**
- * Lock relationships after REST meta has been persisted.
+ * Release the parent lock after REST meta has been persisted.
  */
-function child_note_thread_after_rest_insert( WP_Post $post ): void {
-	child_note_thread_lock_relationship( $post );
+function child_note_thread_after_rest_insert( WP_Post $post, WP_REST_Request $request ): void {
+	try {
+		child_note_thread_lock_relationship( $post );
+	} finally {
+		child_note_thread_release_parent_lock(
+			(string) $request->get_param( CHILD_NOTE_THREAD_LOCK_REQUEST_PARAM )
+		);
+	}
 }
-add_action( 'rest_after_insert_' . CHILD_NOTE_POST_TYPE, 'child_note_thread_after_rest_insert' );
+add_action( 'rest_after_insert_' . CHILD_NOTE_POST_TYPE, 'child_note_thread_after_rest_insert', 10, 2 );
 
 /**
  * Lock relationships created outside the REST API.
@@ -527,12 +585,17 @@ add_filter( 'pre_delete_post', 'child_note_thread_prevent_non_tail_removal', 10,
  * @return mixed
  */
 function child_note_thread_prevent_branching_restore( $decision, WP_Post $post ) {
-	if ( CHILD_NOTE_POST_TYPE !== $post->post_type ) {
+	if ( CHILD_NOTE_POST_TYPE !== $post->post_type || null !== $decision ) {
 		return $decision;
 	}
 
 	$parent_id = child_note_thread_get_parent_id( $post->ID );
 	if ( $parent_id > 0 ) {
+		$lock_name = child_note_thread_acquire_parent_lock( $parent_id );
+		if ( null === $lock_name ) {
+			return false;
+		}
+
 		$parent = get_post( $parent_id );
 		if (
 			! $parent instanceof WP_Post
@@ -540,13 +603,26 @@ function child_note_thread_prevent_branching_restore( $decision, WP_Post $post )
 			|| 'publish' !== $parent->post_status
 			|| child_note_thread_get_child_id( $parent_id, false, $post->ID ) > 0
 		) {
+			child_note_thread_release_parent_lock( $lock_name );
 			return false;
 		}
+
+		$GLOBALS['child_note_thread_restore_locks'][ $post->ID ] = $lock_name;
 	}
 
 	return $decision;
 }
 add_filter( 'pre_untrash_post', 'child_note_thread_prevent_branching_restore', 10, 2 );
+
+/**
+ * Release the parent lock after WordPress restores the continuation.
+ */
+function child_note_thread_release_restore_lock( int $post_id ): void {
+	$lock_name = (string) ( $GLOBALS['child_note_thread_restore_locks'][ $post_id ] ?? '' );
+	unset( $GLOBALS['child_note_thread_restore_locks'][ $post_id ] );
+	child_note_thread_release_parent_lock( $lock_name );
+}
+add_action( 'untrashed_post', 'child_note_thread_release_restore_lock' );
 
 /**
  * Return computed thread state for REST clients.
