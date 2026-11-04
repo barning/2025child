@@ -260,6 +260,19 @@ final class NoteThreadsTest extends TestCase {
 		self::assertStringNotContainsString( 'Secret thread content', $content );
 	}
 
+	public function test_related_notes_render_as_date_only_train_of_thought_entries(): void {
+		$note               = $this->add_note( 1 );
+		$note->post_content = '<p>A continued thought.</p>';
+
+		$content = child_note_thread_render_item( 1 );
+
+		self::assertStringContainsString( 'child-note-thread__date', $content );
+		self::assertStringContainsString( '<time datetime=', $content );
+		self::assertStringContainsString( 'A continued thought.', $content );
+		self::assertStringNotContainsString( 'child-note-thread__author', $content );
+		self::assertStringNotContainsString( 'child-note-thread__avatar', $content );
+	}
+
 	public function test_scheduled_children_require_the_parent_to_be_ready_for_bluesky(): void {
 		if ( ! defined( 'ATMOSPHERE_VERSION' ) ) {
 			define( 'ATMOSPHERE_VERSION', '2.5.0-test' );

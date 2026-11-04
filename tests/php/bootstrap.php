@@ -323,6 +323,40 @@ if ( ! function_exists( 'get_permalink' ) ) {
 	}
 }
 
+if ( ! function_exists( 'get_the_date' ) ) {
+	function get_the_date( string $format = '', $post = null ): string {
+		$post = get_post( $post );
+		if ( ! $post instanceof WP_Post ) {
+			return '';
+		}
+
+		return gmdate( '' !== $format ? $format : 'F j, Y', strtotime( $post->post_date ) );
+	}
+}
+
+if ( ! function_exists( 'get_post_time' ) ) {
+	function get_post_time( string $format = 'U', bool $gmt = false, $post = null ) {
+		unset( $gmt );
+		$post = get_post( $post );
+		if ( ! $post instanceof WP_Post ) {
+			return false;
+		}
+
+		return gmdate( $format, strtotime( $post->post_date ) );
+	}
+}
+
+if ( ! function_exists( 'setup_postdata' ) ) {
+	function setup_postdata( $post ): bool {
+		return $post instanceof WP_Post;
+	}
+}
+
+if ( ! function_exists( 'wp_reset_postdata' ) ) {
+	function wp_reset_postdata(): void {
+	}
+}
+
 if ( ! function_exists( 'wp_parse_url' ) ) {
 	function wp_parse_url( string $url, int $component = -1 ) {
 		return parse_url( $url, $component );

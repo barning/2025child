@@ -713,15 +713,12 @@ function child_note_thread_render_item( int $post_id ): string {
 		wp_reset_postdata();
 	}
 
-	$author_name = get_the_author_meta( 'display_name', (int) $note->post_author );
-	$permalink   = get_permalink( $note );
-	$published   = get_the_date( '', $note );
-	$datetime    = get_post_time( DATE_W3C, false, $note );
+	$permalink = get_permalink( $note );
+	$published = get_the_date( '', $note );
+	$datetime  = get_post_time( DATE_W3C, false, $note );
 
 	return sprintf(
-		'<li class="child-note-thread__entry"><article><header class="child-note-thread__meta">%1$s<div><span class="child-note-thread__author">%2$s</span><a class="child-note-thread__date" href="%3$s"><time datetime="%4$s">%5$s</time></a></div></header><div class="child-note-thread__body">%6$s</div></article></li>',
-		get_avatar( (int) $note->post_author, 40, '', $author_name, [ 'class' => 'child-note-thread__avatar' ] ),
-		esc_html( $author_name ),
+		'<li class="child-note-thread__entry"><article><header class="child-note-thread__meta"><a class="child-note-thread__date" href="%1$s"><time datetime="%2$s">%3$s</time></a></header><div class="child-note-thread__body">%4$s</div></article></li>',
 		esc_url( $permalink ),
 		esc_attr( $datetime ),
 		esc_html( $published ),
