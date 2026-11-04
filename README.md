@@ -46,7 +46,7 @@ A production-focused child theme for **Twenty Twenty-Five** that keeps customiza
 
 The child theme follows the visitor's operating-system light or dark preference without storing a separate setting. `theme.json` preserves Twenty Twenty-Five's palette slugs with paired colors, while `style.css` supplies shared semantic surface tokens and a light fallback for browsers without `light-dark()` support. The editor canvas and color controls use the same appearance, and compatible mobile browsers receive matching `theme-color` metadata.
 
-Saved Global Styles colors override theme defaults. Site-specific palette changes therefore need their own paired light and dark values to preserve automatic switching.
+Saved Global Styles can override theme defaults. The child stylesheet supplies dark-mode safeguards for global text, links, and buttons, including older saved colors, while preserving the parent section styles. Site-specific colors applied to individual blocks still need their own paired light and dark values to preserve automatic switching.
 
 ## Dynamic Blocks Registered
 
