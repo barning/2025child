@@ -37,6 +37,31 @@ test('theme, package, lockfile, and release note versions match', () => {
   assert.ok(fs.existsSync(path.join(root, 'releases', `v${themeVersion}.md`)));
 });
 
+test('WordPress runtime packages match the WordPress 6.7 package set', () => {
+  const packageJson = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
+  const runtimePackages = {
+    '@wordpress/api-fetch': '7.8.2',
+    '@wordpress/block-editor': '14.3.16',
+    '@wordpress/blocks': '13.8.6',
+    '@wordpress/components': '28.8.12',
+    '@wordpress/core-data': '7.8.16',
+    '@wordpress/data': '10.8.4',
+    '@wordpress/element': '6.8.1',
+    '@wordpress/html-entities': '4.8.1',
+    '@wordpress/i18n': '5.8.2',
+    '@wordpress/server-side-render': '5.8.12',
+    '@wordpress/url': '4.8.1',
+  };
+
+  for (const [packageName, version] of Object.entries(runtimePackages)) {
+    assert.equal(
+      packageJson.devDependencies[packageName] ?? packageJson.dependencies[packageName],
+      version,
+      `${packageName} must remain pinned to the version shipped for WordPress 6.7`
+    );
+  }
+});
+
 test('block registration and the WordPress smoke test are idempotent', () => {
   const registration = fs.readFileSync(path.join(root, 'inc', 'blocks.php'), 'utf8');
   const workflow = fs.readFileSync(

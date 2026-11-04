@@ -148,7 +148,7 @@ function Edit( { attributes, setAttributes } ) {
 													'child'
 												),
 												searchResults.length
-										  )
+											)
 										: ''
 								}
 							/>

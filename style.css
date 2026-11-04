@@ -90,12 +90,12 @@ Version: 1.9.0
 		}
 
 		:is(.wp-block-group, .wp-block-columns, .wp-block-column):is(
-		.is-style-section-1,
-		.is-style-section-2,
-		.is-style-section-3,
-		.is-style-section-4,
-		.is-style-section-5
-	) a:where(:not(.wp-element-button)) {
+			.is-style-section-1,
+			.is-style-section-2,
+			.is-style-section-3,
+			.is-style-section-4,
+			.is-style-section-5
+		) a:where(:not(.wp-element-button)) {
 			color: currentcolor;
 		}
 

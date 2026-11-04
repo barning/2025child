@@ -21,7 +21,7 @@
 			? new Intl.DateTimeFormat( undefined, {
 					dateStyle: 'medium',
 					timeStyle: 'short',
-			  } ).format( new Date( note.date ) )
+				} ).format( new Date( note.date ) )
 			: __( 'Undated Note', 'child' );
 		const excerpt = plainText(
 			note.excerpt?.rendered || note.content?.rendered || ''
@@ -54,7 +54,7 @@
 						childNoteThreadSettings.postType,
 						postId,
 						{ context: 'edit' }
-				  )
+					)
 				: null;
 
 			return {
@@ -100,7 +100,7 @@
 							childNoteThreadSettings.postType,
 							parentId,
 							{ context: 'edit' }
-					  )
+						)
 					: null,
 			[ parentId ]
 		);
@@ -120,7 +120,7 @@
 					return Boolean(
 						state?.appendable || state?.child_id === editor.postId
 					);
-			  } )
+				} )
 			: [];
 		const options = [
 			{
@@ -155,8 +155,8 @@
 		const parentState = selectedParent?.child_note_thread;
 		const atmospherePending = Boolean(
 			parentId &&
-				parentState?.atmosphere_active &&
-				! parentState?.atmosphere_ready
+			parentState?.atmosphere_active &&
+			! parentState?.atmosphere_ready
 		);
 
 		return el(
@@ -177,7 +177,7 @@
 							? noteLabel( selectedParent )
 							: __( 'Start a new thread', 'child' ),
 						readOnly: true,
-				  } )
+					} )
 				: el( ComboboxControl, {
 						label: __( 'Previous Note', 'child' ),
 						help: __(
@@ -201,7 +201,7 @@
 								},
 							} );
 						},
-				  } ),
+					} ),
 			atmospherePending
 				? el(
 						Notice,
@@ -217,7 +217,7 @@
 							),
 							'Bluesky'
 						)
-				  )
+					)
 				: null,
 			editor.thread?.child_id
 				? el(
@@ -230,7 +230,7 @@
 							'This Note already has a continuation, so it is not the end of its thread.',
 							'child'
 						)
-				  )
+					)
 				: null
 		);
 	}

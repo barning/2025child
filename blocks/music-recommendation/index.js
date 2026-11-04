@@ -209,7 +209,7 @@ function Edit( { attributes, setAttributes } ) {
 										'child'
 									),
 									results.length
-							  )
+								)
 							: ''
 					}
 				/>
