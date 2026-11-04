@@ -22,6 +22,7 @@ A production-focused child theme for **Twenty Twenty-Five** that keeps customiza
 │   ├── media-cover-grid-normalizers.php
 │   ├── media-recommendation.php
 │   ├── music-recommendation.php
+│   ├── note-threads.php
 │   ├── notes.php
 │   ├── post-likes.php
 │   ├── provider-http.php         # Shared bounded provider cache + HTTP validation.
@@ -144,6 +145,19 @@ Dynamic child-theme blocks render compact, feed-safe cards when full post conten
 - generated internal titles for title-less notes
 - hidden `core/post-title` output on the front end for notes
 - guarded rewrite flush logic for reliable `/notes` routing
+
+`inc/note-threads.php` adds optional, linear conversations between Notes:
+
+- select the previous published Note from the editor's Thread panel
+- render the complete conversation on every Note permalink
+- lock relationships after publication and allow deletion only from the tail
+- federate replies through ActivityPub 9.4.2+ and ATmosphere 2.5.0+
+
+The integrations remain optional. When ActivityPub is active, child Notes use
+the parent object's canonical ID as `inReplyTo`. When ATmosphere is active,
+child Notes publish with native Bluesky `reply.root` and `reply.parent`
+references. A parent must finish syncing to Bluesky before its child can be
+published; existing Notes can be prepared with `wp atmosphere backfill --ids=<id>`.
 
 ## Development
 

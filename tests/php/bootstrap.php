@@ -16,6 +16,8 @@ define( 'COOKIE_DOMAIN', '' );
 $GLOBALS['child_test_options']    = array();
 $GLOBALS['child_test_transients'] = array();
 $GLOBALS['child_test_scheduled']  = array();
+$GLOBALS['child_test_posts']      = array();
+$GLOBALS['child_test_post_meta']  = array();
 $GLOBALS['child_test_post_status'] = array();
 $GLOBALS['child_test_is_feed']    = false;
 $GLOBALS['child_test_post_id']    = 0;
@@ -95,6 +97,39 @@ if ( ! class_exists( 'WP_Error' ) ) {
 			public string $message = '',
 			public mixed $data = null
 		) {
+		}
+
+		public function get_error_code(): string {
+			return $this->code;
+		}
+
+		public function get_error_data(): mixed {
+			return $this->data;
+		}
+	}
+}
+
+if ( ! class_exists( 'WP_Post' ) ) {
+	class WP_Post {
+		public int $ID = 0;
+		public string $post_type = 'post';
+		public string $post_status = 'draft';
+		public string $post_title = '';
+		public string $post_content = '';
+		public string $post_excerpt = '';
+		public string $post_date = '2026-01-01 00:00:00';
+		public string $post_date_gmt = '2026-01-01 00:00:00';
+		public int $post_author = 1;
+
+		/**
+		 * @param array<string, mixed> $properties Post properties.
+		 */
+		public function __construct( array $properties = array() ) {
+			foreach ( $properties as $key => $value ) {
+				if ( property_exists( $this, $key ) ) {
+					$this->{$key} = $value;
+				}
+			}
 		}
 	}
 }
@@ -241,7 +276,15 @@ if ( ! function_exists( 'get_the_ID' ) ) {
 }
 
 if ( ! function_exists( 'get_permalink' ) ) {
-	function get_permalink(): string {
+	function get_permalink( $post = 0 ): string {
+		if ( $post instanceof WP_Post ) {
+			return 'https://example.com/notes/' . $post->ID;
+		}
+
+		if ( is_numeric( $post ) && isset( $GLOBALS['child_test_posts'][ (int) $post ] ) ) {
+			return 'https://example.com/notes/' . (int) $post;
+		}
+
 		return (string) $GLOBALS['child_test_permalink'];
 	}
 }
@@ -278,6 +321,116 @@ if ( ! function_exists( 'absint' ) ) {
 
 if ( ! function_exists( 'add_action' ) ) {
 	function add_action(): void {
+	}
+}
+
+if ( ! function_exists( 'add_filter' ) ) {
+	function add_filter(): void {
+	}
+}
+
+if ( ! function_exists( 'get_post' ) ) {
+	function get_post( $post_id ) {
+		if ( $post_id instanceof WP_Post ) {
+			return $post_id;
+		}
+
+		return $GLOBALS['child_test_posts'][ (int) $post_id ] ?? null;
+	}
+}
+
+if ( ! function_exists( 'get_post_type' ) ) {
+	function get_post_type( $post_id ): string|false {
+		$post = get_post( $post_id );
+		return $post instanceof WP_Post ? $post->post_type : false;
+	}
+}
+
+if ( ! function_exists( 'get_post_meta' ) ) {
+	function get_post_meta( int $post_id, string $key = '', bool $single = false ) {
+		if ( '' === $key ) {
+			return $GLOBALS['child_test_post_meta'][ $post_id ] ?? array();
+		}
+
+		if ( ! array_key_exists( $key, $GLOBALS['child_test_post_meta'][ $post_id ] ?? array() ) ) {
+			return $single ? '' : array();
+		}
+
+		$value = $GLOBALS['child_test_post_meta'][ $post_id ][ $key ];
+		return $single ? $value : array( $value );
+	}
+}
+
+if ( ! function_exists( 'metadata_exists' ) ) {
+	function metadata_exists( string $meta_type, int $post_id, string $key ): bool {
+		unset( $meta_type );
+		return array_key_exists( $key, $GLOBALS['child_test_post_meta'][ $post_id ] ?? array() );
+	}
+}
+
+if ( ! function_exists( 'update_post_meta' ) ) {
+	function update_post_meta( int $post_id, string $key, $value ): bool {
+		$GLOBALS['child_test_post_meta'][ $post_id ][ $key ] = $value;
+		return true;
+	}
+}
+
+if ( ! function_exists( 'add_post_meta' ) ) {
+	function add_post_meta( int $post_id, string $key, $value, bool $unique = false ): bool {
+		if ( $unique && metadata_exists( 'post', $post_id, $key ) ) {
+			return false;
+		}
+
+		$GLOBALS['child_test_post_meta'][ $post_id ][ $key ] = $value;
+		return true;
+	}
+}
+
+if ( ! function_exists( 'delete_post_meta' ) ) {
+	function delete_post_meta( int $post_id, string $key ): bool {
+		unset( $GLOBALS['child_test_post_meta'][ $post_id ][ $key ] );
+		return true;
+	}
+}
+
+if ( ! function_exists( 'get_posts' ) ) {
+	function get_posts( array $args = array() ): array {
+		$posts = array_filter(
+			$GLOBALS['child_test_posts'],
+			static function ( WP_Post $post ) use ( $args ): bool {
+				if ( isset( $args['post_type'] ) && $post->post_type !== $args['post_type'] ) {
+					return false;
+				}
+
+				$statuses = (array) ( $args['post_status'] ?? array( 'publish' ) );
+				if ( ! in_array( $post->post_status, $statuses, true ) ) {
+					return false;
+				}
+
+				if ( in_array( $post->ID, (array) ( $args['post__not_in'] ?? array() ), true ) ) {
+					return false;
+				}
+
+				if ( isset( $args['meta_key'] ) ) {
+					$value = get_post_meta( $post->ID, (string) $args['meta_key'], true );
+					if ( (string) $value !== (string) ( $args['meta_value'] ?? '' ) ) {
+						return false;
+					}
+				}
+
+				return true;
+			}
+		);
+
+		usort(
+			$posts,
+			static fn( WP_Post $left, WP_Post $right ): int => [ $left->post_date, $left->ID ] <=> [ $right->post_date, $right->ID ]
+		);
+
+		$posts = array_slice( $posts, 0, (int) ( $args['posts_per_page'] ?? count( $posts ) ) );
+		return 'ids' === ( $args['fields'] ?? '' )
+			? array_map( static fn( WP_Post $post ): int => $post->ID, $posts )
+			: array_values( $posts );
 	}
 }
 
@@ -322,10 +475,17 @@ if ( ! function_exists( 'is_ssl' ) ) {
 
 if ( ! function_exists( 'get_post_status' ) ) {
 	function get_post_status( int $post_id ): string|false {
+		$post = get_post( $post_id );
+		if ( $post instanceof WP_Post ) {
+			return $post->post_status;
+		}
+
 		return $GLOBALS['child_test_post_status'][ $post_id ] ?? false;
 	}
 }
 
+require_once dirname( __DIR__, 2 ) . '/inc/notes.php';
+require_once dirname( __DIR__, 2 ) . '/inc/note-threads.php';
 require_once dirname( __DIR__, 2 ) . '/inc/media-cover-grid-dedupe.php';
 require_once dirname( __DIR__, 2 ) . '/inc/media-cover-grid-normalizers.php';
 require_once dirname( __DIR__, 2 ) . '/inc/post-likes.php';

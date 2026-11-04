@@ -31,6 +31,7 @@ function child_load_modules(): void {
 		'media-recommendation.php',
 		'music-recommendation.php',
 		'notes.php',
+		'note-threads.php',
 		'post-likes.php',
 		'rss-block-fallbacks.php',
 		'rss-feed-footer.php',
