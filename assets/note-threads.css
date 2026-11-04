@@ -66,8 +66,12 @@
 .child-note-thread__date {
 	color: var(--child-color-text-muted, #6b7280);
 	font-size: 0.8125em;
-	text-decoration-thickness: 0.0625rem;
-	text-underline-offset: 0.2em;
+	text-decoration: none;
+}
+
+.child-note-thread__date:hover,
+.child-note-thread__date:focus-visible {
+	text-decoration: underline;
 }
 
 .child-note-thread__current .child-note-thread__date {

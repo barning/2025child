@@ -87,6 +87,22 @@ test('published Note thread relationships render as read-only values', () => {
   assert.doesNotMatch(editor, /disabled:\s*locked/);
 });
 
+test('Note thread dates follow the site link treatment', () => {
+  const styles = fs.readFileSync(
+    path.join(root, 'assets', 'note-threads.css'),
+    'utf8'
+  );
+
+  assert.match(
+    styles,
+    /\.child-note-thread__date\s*\{[^}]*text-decoration:\s*none;/s
+  );
+  assert.match(
+    styles,
+    /\.child-note-thread__date:hover,\s*\.child-note-thread__date:focus-visible\s*\{[^}]*text-decoration:\s*underline;/s
+  );
+});
+
 test('Note permalinks use a dedicated minimal template', () => {
   const template = fs.readFileSync(
     path.join(root, 'templates', 'single-note.html'),
