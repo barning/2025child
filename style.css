@@ -10,11 +10,6 @@ Requires PHP: 8.3
 Version: 1.9.0
 */
 
-.home .wp-block-post-template > .type-note {
-	border-inline-start: 2px solid #ddd;
-	padding-inline-start: 20px;
-}
-
 .child-note-stream-parent {
 	color: var(--wp--preset--color--accent-4, #686868);
 	font-size: 0.8em;
