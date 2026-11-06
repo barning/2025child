@@ -37,6 +37,7 @@ function child_register_note_post_type() {
 				'excerpt',
 				'author',
 				'revisions',
+				'comments',
 				'custom-fields',
 				'activitypub',
 				'atmosphere',
