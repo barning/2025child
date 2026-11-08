@@ -190,6 +190,71 @@ jobs:
             }
           ' --path=/tmp/child-theme-smoke
 
+  deploy:
+    name: Update built theme on deploy branch
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: [ build, wordpress-smoke ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout the source commit
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Download tested package
+        uses: actions/download-artifact@v7
+        with:
+          name: twentytwentyfive-child-zip
+          path: ${{ runner.temp }}/theme-package
+
+      - name: Publish theme files
+        env:
+          PACKAGE_DIR: ${{ runner.temp }}/theme-package
+        shell: bash
+        run: |
+          set -euo pipefail
+          unpack_dir="$(mktemp -d)"
+          trap 'rm -rf "$unpack_dir"' EXIT
+          unzip -q "$PACKAGE_DIR/twentytwentyfive-child.zip" -d "$unpack_dir"
+          theme_dir="$unpack_dir/twentytwentyfive-child"
+          test -f "$theme_dir/style.css"
+          test -f "$theme_dir/functions.php"
+          test -d "$theme_dir/build"
+
+          # A rerun of an older successful build must not roll deploy back.
+          main_sha="$(git ls-remote origin refs/heads/main | cut -f1)"
+          if [[ "$main_sha" != "$GITHUB_SHA" ]]; then
+            echo "main has moved; leaving deployment to its newer build."
+            exit 0
+          fi
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if git ls-remote --exit-code --heads origin deploy; then
+            git fetch --no-tags origin refs/heads/deploy
+            git checkout -B deploy FETCH_HEAD
+          else
+            status=$?
+            if [[ "$status" -ne 2 ]]; then
+              exit "$status"
+            fi
+            git checkout --orphan deploy
+          fi
+
+          # Replace tracked runtime files while retaining Git history and authentication.
+          git rm -rf --ignore-unmatch .
+          cp -a "$theme_dir/." .
+          git add --all
+          if git diff --cached --quiet; then
+            echo "Built theme is unchanged."
+            exit 0
+          fi
+          git commit -m "Deploy theme from main ($GITHUB_SHA)"
+          git push origin HEAD:refs/heads/deploy
+
   release:
     # Tag pushes are the single release path. Published-release events are intentionally
     # not handled here to avoid duplicate builds/uploads for the same version.

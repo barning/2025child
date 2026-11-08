@@ -218,6 +218,38 @@ The [release blueprint](https://playground.wordpress.net/?blueprint-url=https://
 
 Detailed historical changes remain in Git history and [GitHub releases](https://github.com/barning/2025child/releases). Keep future release highlights here instead of creating separate Markdown files.
 
+## Install the built theme with Git
+
+After the build and WordPress smoke checks succeed for a push to `main`, GitHub
+Actions publishes the contents of the tested theme ZIP to the `deploy` branch.
+The branch contains the installable theme at its root, including `build/`, without
+Node/Composer dependencies, tests, or workflow files.
+PRs and tags do not update it. A manual run on `main` can initialize or refresh it.
+The workflow uses the built-in GitHub token with write access only for publishing;
+no personal access token is required.
+
+After this workflow has been merged into `main` and its first run succeeds:
+
+```bash
+cd /path/to/wordpress/wp-content/themes
+git clone --branch deploy --single-branch https://github.com/barning/2025child.git twentytwentyfive-child
+```
+
+Install the Twenty Twenty-Five parent theme separately and activate the child theme.
+Use an empty destination directory for the clone; back up an existing installation
+before replacing it.
+
+Update the checked-out theme with:
+
+```bash
+git -C /path/to/wordpress/wp-content/themes/twentytwentyfive-child pull --ff-only
+```
+
+Keep server customizations outside this checkout. Deployment commits retain branch
+history; removed package files are removed on the next Git update, and failed
+builds leave the last successful deployment available. Older reruns are skipped
+when their source commit is no longer the head of `main`.
+
 ## Production Deployment Checklist
 
 The theme covers document structure, responsive rendering, reduced motion, intrinsic image sizing, and conditional block assets. Verify these hosting-level requirements separately before release:
