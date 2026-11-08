@@ -136,8 +136,8 @@ Dynamic child-theme blocks render compact, feed-safe cards when full post conten
 
 Notes also appear alongside posts in default homepage Query Loops and the general
 RSS/Atom feed. Each entry keeps its own publication date and permalink; unrelated
-posts may appear between continuations. Homepage Notes use a subtle left border,
-a “Notiz” date label, and a link to the published, unprotected preceding Note.
+posts may appear between continuations. Homepage Notes align with regular posts and use
+a “Notiz” date label and a link to the published, unprotected preceding Note.
 Explicit post-type feeds and filtered homepage queries keep their existing scope.
 The feed contains each Note individually rather than repeating its entire thread.
 
