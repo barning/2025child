@@ -1,0 +1,271 @@
+# TwentyTwentyFive Child Theme
+
+A production-focused child theme for **Twenty Twenty-Five** that keeps customization logic modular, minimizes parent-theme duplication, and prefers WordPress hooks/filters over template overrides.
+
+## Project Structure
+
+```text
+.
+├── assets/                      # Theme-wide editor and static assets.
+├── blocks/                      # Block source files (editor JS/CSS + render callbacks).
+│   └── shared/                  # Shared block-editor utilities used by multiple blocks.
+├── build/                       # Compiled block assets used by register_block_type().
+├── inc/
+│   ├── blocks.php               # Central dynamic block registration + shared styles.
+│   ├── bootstrap.php            # Child theme bootstrapping + module autoload.
+│   ├── book-rating.php
+│   ├── head-footer-injections.php
+│   ├── human-json.php
+│   ├── media-cover-grid.php
+│   ├── media-cover-grid-dedupe.php
+│   ├── media-cover-grid-normalizers.php
+│   ├── media-recommendation.php
+│   ├── music-recommendation.php
+│   ├── note-threads.php
+│   ├── notes.php
+│   ├── post-likes.php
+│   ├── provider-http.php         # Shared bounded provider cache + HTTP validation.
+│   ├── rss-feed-footer.php
+│   ├── videogame-recommendation.php
+│   └── visual-link-preview-async.php
+├── functions.php                # Thin entrypoint (version constant + bootstrap include).
+├── package.json                 # Build, watch, and distribution scripts.
+└── style.css                    # Child theme metadata + minimal global styles.
+```
+
+## Architectural Decisions
+
+- **Single block registry:** Dynamic blocks are registered in one place (`inc/blocks.php`) to reduce repeated boilerplate.
+- **Hook-based behavior:** Settings pages, AJAX endpoints, and front-end enhancements use core WordPress actions/filters.
+- **Minimal `functions.php`:** Startup logic is delegated to `inc/bootstrap.php` for maintainability.
+- **Minimal template overrides:** The child theme favors extensibility through block render callbacks and hooks.
+- **One project guide:** Setup, development, compatibility, and release highlights live in this README.
+
+## Dynamic Blocks Registered
+
+- `child/book-rating`
+- `child/magic-cards`
+- `child/media-cover-grid`
+- `child/media-recommendation`
+- `child/music-recommendation`
+- `child/pixelfed-feed`
+- `child/popular-posts`
+- `child/post-likes`
+- `child/videogame-recommendation`
+- `child/visual-link-preview`
+
+Each block:
+
+- registers from `build/<slug>`
+- uses a server-side render callback from `blocks/<slug>/render.php` (where applicable)
+- loads its generated assets from block metadata only when WordPress renders the block
+
+
+### Dynamic Block Feature Structure
+
+When adding or changing a dynamic block, mirror the existing examples in `blocks/post-likes`, `blocks/media-cover-grid`, and `blocks/media-recommendation`:
+
+- Put block-owned assets under `blocks/{slug}/`. A feature should include `block.json` and `index.js`, then add `render.php` for dynamic output, `style.css` for front-end styles, `editor.css` for editor-only styles, and `view.js` only when the front end needs interactive behavior.
+- Put shared editor-only helpers under `blocks/shared/` when multiple block editors need the same state or UI primitive. Current shared media helpers cover search state, search feedback, and reusable search-result row rendering.
+- Put server-side helper modules in `inc/{slug}.php`. Keep `blocks/{slug}/render.php` focused on rendering sanitized markup and delegate reusable queries, REST/AJAX handlers, settings, cache helpers, and data normalization to the matching `inc/` file.
+- Expose render-time behavior through stable, public `child_*` functions instead of anonymous helper logic that other blocks cannot reuse. For example, `blocks/media-cover-grid/render.php` calls the public helpers from `inc/media-cover-grid.php`, while `blocks/post-likes/render.php` reads counts through the post-likes helper API.
+- Localize editor data from `inc/blocks.php` with `child_localize_block_editor_script( $block_name, $object_name, $data )` on `enqueue_block_editor_assets`, as `inc/media-recommendation.php` does for the Media Recommendation editor AJAX URL and nonce.
+- Name cache keys with a `child_{slug}_{purpose}_v{n}` convention, define them as constants in the owning `inc/{slug}.php`, and bump the version when the cached shape changes. Invalidate through explicit `child_flush_{slug}_cache()` helpers on all relevant write hooks, following `inc/media-cover-grid.php`; modules with write paths such as `inc/post-likes.php` should clear any future cached counts or aggregates immediately after inserts/deletes so REST responses and render callbacks stay consistent.
+
+## API-Backed Features
+
+### Media Recommendation Blocks
+
+The recommendation blocks keep their saved attribute schemas independent, but share editor primitives where possible:
+
+- `blocks/shared/media/useSearchState.js` centralizes search term, loading, result, selection, and error state.
+- `blocks/shared/media/SearchFeedback.js` centralizes loading/error output.
+- `blocks/shared/media/SearchResultsList.js` centralizes result row button rendering while each block keeps its own result markup and CSS classes.
+- `blocks/shared/media/recommendation-card.css` centralizes the visual card primitives used by the recommendation blocks.
+- Provider-specific search and mapping stays in each feature block so Books, TMDB, Apple/iTunes, and RAWG can evolve independently.
+- Searches are cancellable and ignore stale responses, so a slower earlier request cannot overwrite a newer result.
+
+All provider requests use `inc/provider-http.php` for bounded transient registries, timeouts, status validation, safe JSON decoding, and user-safe errors. API responses are cached according to provider volatility. Visual link previews use a cache-only front-end render path; authorized editor/save activity queues the protected background refresh.
+
+### Media Cover Grid
+
+`child/media-cover-grid` auto-builds a cover grid from published recommendation blocks. It uses:
+
+- `inc/media-cover-grid.php` for post scanning, caching, and shared grid helpers.
+- `inc/media-cover-grid-normalizers.php` to normalize book, movie/series, videogame, and music block attributes into a shared media item contract.
+- `inc/media-cover-grid-dedupe.php` to merge duplicate recommendations while preserving source-post metadata.
+- `blocks/media-cover-grid/view.js` for front-end filtering. The default filter state is **Alle**, individual media type filters hide empty year sections automatically, and year separators are rendered from each item’s source post year.
+
+The grid intentionally keeps the recommendation block schemas unchanged and treats the grid item shape as a derived view model.
+
+### Book Recommendation (Google Books)
+
+- Admin settings page under **Settings → Book Rating**.
+- API key lookup order: option `child_google_books_api_key`, then `CHILD_GOOGLE_BOOKS_API_KEY` constant fallback.
+- Editor REST endpoint: `/child/v1/books`.
+
+### Media Recommendation (TMDB)
+
+- Admin settings page under **Settings → Media Recommendation**.
+- API key lookup order: option `child_tmdb_api_key`, then `TMDB_API_KEY` constant fallback.
+- Editor AJAX endpoint: `wp_ajax_child_tmdb_search`.
+
+### Music Recommendation (Apple/iTunes)
+
+- Editor REST endpoint: `/child/v1/music`.
+- Supports songs and albums while only loading audio previews on explicit front-end interaction.
+- Keeps legal/privacy messaging in the block editor.
+
+### Videogame Recommendation (IGDB)
+
+- Admin settings page under **Settings → Videogame Recommendation**.
+- IGDB credential lookup order: options `child_igdb_client_id` and `child_igdb_client_secret`, then `IGDB_CLIENT_ID` and `IGDB_CLIENT_SECRET` constants.
+- Editor AJAX endpoint: `wp_ajax_child_igdb_search`.
+- Platform chip display helpers live in `blocks/videogame-recommendation/utils.php` for PHP rendering.
+
+Configure an optional SteamGridDB API key on the same settings page for portrait covers and selectable cover variants. The `STEAMGRIDDB_API_KEY` constant is a fallback; saved settings take precedence. New selections use `igdbId`; the legacy `rawgId` attribute remains supported for existing content.
+
+## RSS Feed Footer
+
+`inc/rss-feed-footer.php` appends lightweight links to feed-only post content so RSS readers include a route back to the original post and a mail reply option.
+Posts can include a custom RSS footer message via a post editor metabox.
+
+Dynamic child-theme blocks render compact, feed-safe cards when full post content is published in RSS. Interactive controls become normal links, media collections are capped at four items, and Pixelfed contributes at most one image.
+
+## Notes Custom Post Type
+
+Notes also appear alongside posts in default homepage Query Loops and the general
+RSS/Atom feed. Each entry keeps its own publication date and permalink; unrelated
+posts may appear between continuations. Homepage Notes use a subtle left border,
+a “Notiz” date label, and a link to the published, unprotected preceding Note.
+Explicit post-type feeds and filtered homepage queries keep their existing scope.
+The feed contains each Note individually rather than repeating its entire thread.
+
+`inc/notes.php` provides a `note` post type for short-form posts, with:
+
+- generated internal titles for title-less notes
+- hidden `core/post-title` output on the front end for notes
+- guarded rewrite flush logic for reliable `/notes` routing
+
+`inc/note-threads.php` adds optional, linear conversations between Notes:
+
+- select the previous published Note from the editor's Thread panel
+- render the complete conversation on every Note permalink
+- lock relationships after publication and allow deletion only from the tail
+- federate replies through ActivityPub 9.4.2+ and ATmosphere 2.5.0+
+
+The integrations remain optional. When ActivityPub is active, child Notes use
+the parent object's canonical ID as `inReplyTo`. When ATmosphere is active,
+child Notes publish with native Bluesky `reply.root` and `reply.parent`
+references. A parent must finish syncing to Bluesky before its child can be
+published; existing Notes can be prepared with `wp atmosphere backfill --ids=<id>`.
+
+## Development
+
+Install dependencies and build compiled block assets:
+
+Frontend development requires Node 24; `.nvmrc` selects the project's tested
+version. npm installs enforce the supported Node 24 release line.
+
+```bash
+npm ci
+composer install
+npm run build
+```
+
+Watch block sources during development:
+
+```bash
+npm run start
+```
+
+Create a distribution package with a fresh build:
+
+```bash
+npm run dist
+```
+
+Run the local quality suite:
+
+```bash
+npm run check
+npm run lint
+composer test
+composer analyse
+composer lint
+```
+
+The release workflow checks PHP 8.3 and 8.5, audits production npm dependencies, validates generated block manifests, tests the ZIP, and activates the packaged child theme on WordPress 6.7 and latest. Both installations verify all ten blocks and their editor script dependencies. Tag pushes (`v*`) publish the built ZIP as a GitHub release.
+
+Tests focus on executable behavior: cancellable search requests and stale responses in JavaScript; rendering, provider requests, security, caching, likes, feeds, and Note thread safeguards in PHP. A small dependency-policy test protects the WordPress 6.7 package baseline. `check:json` checks source metadata and matching theme/package versions; `check:build` verifies generated assets. Visual appearance, keyboard interaction, and editor save/reload behavior need a browser smoke test; source-text assertions are not substitutes for those checks.
+
+### WordPress Playground
+
+Run `npm run dist`, then upload `dist/twentytwentyfive-child.zip` through **Appearance → Themes → Add New Theme → Upload Theme** in [WordPress Playground](https://playground.wordpress.net). Install Twenty Twenty-Five first, activate the child theme, and insert, save, reload, and view the custom blocks. Raw repository installs omit the ignored `build/` assets and cannot fully test the blocks.
+
+The [release blueprint](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/barning/2025child/main/playground/blueprint.json) installs the parent theme and the latest published child-theme ZIP. It tests the latest release rather than unpublished local changes. For local iteration, build first and run `npx @wp-playground/cli server --auto-mount` from the repository root.
+
+## Release Highlights
+
+- **1.9.0:** Linear Note threads, searchable parent selection, complete conversation permalinks, append-only safeguards, and optional ActivityPub/Bluesky reply federation. Existing Notes remain independent roots. Backfill an unsynced Bluesky parent before publishing its continuation.
+- **1.7.0:** Improved heading structure, image dimensions, reduced-motion support, German block controls, and conditional block styles.
+- **1.6.0:** Optional SteamGridDB portrait covers, cover variants, mixed-format grids, and mobile filter improvements.
+- **1.5.0:** Music recommendations, media filters, shared search controls, and safer cached link previews.
+- **1.4.0:** Dynamic block discovery, media-grid deduplication, RSS footer improvements, configurable likes, and Node 24 tooling.
+- **1.3.0:** Anonymous post likes, `human.json`, and modular theme bootstrap.
+- **1.2.x:** Movie/series recommendations, Pixelfed feeds, rendering fixes, dependency maintenance, and release workflow improvements.
+- **1.1.x:** Curated Popular Posts and earlier link-preview and performance improvements.
+
+Detailed historical changes remain in Git history and [GitHub releases](https://github.com/barning/2025child/releases). Keep future release highlights here instead of creating separate Markdown files.
+
+## Install the built theme with Git
+
+After the build and WordPress smoke checks succeed for a push to `main`, GitHub
+Actions publishes the contents of the tested theme ZIP to the `deploy` branch.
+The branch contains the installable theme at its root, including `build/`, without
+Node/Composer dependencies, tests, or workflow files.
+PRs and tags do not update it. A manual run on `main` can initialize or refresh it.
+The workflow uses the built-in GitHub token with write access only for publishing;
+no personal access token is required.
+
+After this workflow has been merged into `main` and its first run succeeds:
+
+```bash
+cd /path/to/wordpress/wp-content/themes
+git clone --branch deploy --single-branch https://github.com/barning/2025child.git twentytwentyfive-child
+```
+
+Install the Twenty Twenty-Five parent theme separately and activate the child theme.
+Use an empty destination directory for the clone; back up an existing installation
+before replacing it.
+
+Update the checked-out theme with:
+
+```bash
+git -C /path/to/wordpress/wp-content/themes/twentytwentyfive-child pull --ff-only
+```
+
+Keep server customizations outside this checkout. Deployment commits retain branch
+history; removed package files are removed on the next Git update, and failed
+builds leave the last successful deployment available. Older reruns are skipped
+when their source commit is no longer the head of `main`.
+
+## Production Deployment Checklist
+
+The theme covers document structure, responsive rendering, reduced motion, intrinsic image sizing, and conditional block assets. Verify these hosting-level requirements separately before release:
+
+- Serve the site exclusively over HTTPS with a valid certificate and redirect HTTP to HTTPS.
+- Send an appropriate `Content-Type` and UTF-8 charset for HTML, CSS, JavaScript, JSON, feeds, and manifests.
+- Enable Brotli or gzip compression for text assets and long-lived caching for versioned static assets.
+- Keep HTML and personalized responses on a cache policy that cannot expose private content.
+- Return accurate HTTP status codes, including a real `404` response for missing pages and `5xx` responses for server failures.
+- Provide a usable WordPress 404 template and host-level fallback error pages for failures where WordPress cannot render.
+- Confirm canonical URLs, robots directives, sitemap discovery, security headers, and redirects against the production domain.
+- Run the release test suite and a mobile/desktop browser smoke test with JavaScript disabled, keyboard-only navigation, forced zoom, and reduced motion.
+
+## Compatibility and Maintenance
+
+- Keeps child-theme overrides intentionally minimal.
+- Uses consistent prefixed function names (`child_*`) to avoid collisions.
+- Consolidates duplicated registration/enqueue logic to simplify future parent-theme updates.
+- Requires WordPress 6.7+, PHP 8.3+, and Node 24 for development.

@@ -1,0 +1,45 @@
+{
+  "apiVersion": 3,
+  "name": "child/magic-cards",
+  "title": "Magic-Karten",
+  "category": "widgets",
+  "icon": "images-alt2",
+  "description": "Zeigt Magic:-The-Gathering-Karten oder eingebettete Moxfield-Decks an.",
+  "supports": {
+    "html": false
+  },
+  "attributes": {
+    "displayType": {
+      "type": "string",
+      "default": "single",
+      "enum": [
+        "single",
+        "moxfield"
+      ]
+    },
+    "moxfieldUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "cardName": {
+      "type": "string",
+      "default": ""
+    },
+    "cardImageUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "selectedPrint": {
+      "type": "object",
+      "default": {}
+    },
+    "scryfallId": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "textdomain": "child",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css"
+}

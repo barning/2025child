@@ -1,0 +1,152 @@
+<?php
+/**
+ * Render Videogame Recommendation Block
+ *
+ * @param array  $attributes The block attributes
+ * @return string Returns the block content
+ */
+
+return function ( $attributes ) {
+	$utils_file = __DIR__ . '/utils.php';
+	if ( is_readable( $utils_file ) ) {
+		require_once $utils_file;
+	}
+
+	$wrapper_attributes = get_block_wrapper_attributes();
+	$game_title         = $attributes['gameTitle'] ?? '';
+	$cover_url          = $attributes['coverUrl'] ?? '';
+	$cover_format       = 'portrait' === ( $attributes['coverFormat'] ?? '' ) ? 'portrait' : 'landscape';
+	$cover_width        = 'portrait' === $cover_format ? 600 : 1600;
+	$release_date       = $attributes['releaseDate'] ?? '';
+	$platforms          = $attributes['platforms'] ?? [];
+	$genres             = $attributes['genres'] ?? [];
+	$shop_url           = $attributes['shopUrl'] ?? '';
+	$card_variant       = 'portrait' === $cover_format ? 'portrait' : 'landscape';
+
+	if ( empty( $game_title ) ) {
+		return '';
+	}
+
+	// Format release date
+	$formatted_date = '';
+	if ( ! empty( $release_date ) ) {
+		$timestamp = strtotime( $release_date );
+		if ( $timestamp ) {
+			$formatted_date = date_i18n( 'j. M Y', $timestamp );
+		}
+	}
+
+	if ( child_is_feed_render() ) {
+		$post_url = child_get_feed_post_url();
+		$meta     = [];
+		if ( $formatted_date ) {
+			/* translators: %s: formatted videogame release date. */
+			$meta[] = sprintf( __( 'Veröffentlichung: %s', 'child' ), $formatted_date );
+		}
+		if ( is_array( $platforms ) && [] !== $platforms ) {
+			/* translators: %s: comma-separated videogame platform names. */
+			$meta[] = sprintf( __( 'Plattformen: %s', 'child' ), implode( ', ', array_slice( $platforms, 0, 5 ) ) );
+		}
+		if ( is_array( $genres ) && [] !== $genres ) {
+			/* translators: %s: comma-separated videogame genres. */
+			$meta[] = sprintf( __( 'Genres: %s', 'child' ), implode( ', ', array_slice( $genres, 0, 3 ) ) );
+		}
+
+		return child_render_feed_card(
+			[
+				'title'        => (string) $game_title,
+				'url'          => $shop_url ?: $post_url,
+				'image'        => (string) $cover_url,
+				'image_width'  => $cover_width,
+				'image_height' => 900,
+				'meta'         => $meta,
+				'links'        => $post_url ? [
+					[
+						'url'   => $post_url,
+						'label' => __( 'Beitrag auf der Website ansehen', 'child' ),
+					],
+				] : [],
+			]
+		);
+	}
+
+	ob_start(); ?>
+	<div
+	<?php
+    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by get_block_wrapper_attributes().
+	echo $wrapper_attributes;
+	?>
+	>
+		<div class="child-game-card child-game-card--<?php echo esc_attr( $card_variant ); ?>" aria-label="<?php echo esc_attr( __( 'Videospiel', 'child' ) ); ?>">
+			<div class="child-game-card__media child-game-card__media--<?php echo esc_attr( $cover_format ); ?>">
+				<?php if ( ! empty( $cover_url ) ) : ?>
+					<?php if ( ! empty( $shop_url ) ) : ?>
+						<a class="child-game-card__cover-link" href="<?php echo esc_url( $shop_url ); ?>" target="_blank" rel="noopener noreferrer">
+							<img
+								src="<?php echo esc_url( $cover_url ); ?>"
+								alt="<?php echo esc_attr( $game_title ); ?>"
+								class="child-game-card__cover"
+								loading="lazy"
+								width="<?php echo esc_attr( (string) $cover_width ); ?>"
+								height="900"
+							/>
+						</a>
+					<?php else : ?>
+						<img
+							src="<?php echo esc_url( $cover_url ); ?>"
+							alt="<?php echo esc_attr( $game_title ); ?>"
+							class="child-game-card__cover"
+							loading="lazy"
+							width="<?php echo esc_attr( (string) $cover_width ); ?>"
+							height="900"
+						/>
+					<?php endif; ?>
+				<?php else : ?>
+					<div class="child-game-card__placeholder" aria-hidden="true"></div>
+				<?php endif; ?>
+			</div>
+
+			<div class="child-game-card__meta">
+				<?php if ( ! empty( $platforms ) && is_array( $platforms ) ) : ?>
+					<div class="child-game-card__platforms" aria-label="<?php echo esc_attr( __( 'Plattformen', 'child' ) ); ?>">
+						<?php
+						foreach ( array_slice( $platforms, 0, 5 ) as $platform ) :
+							$platform_info = function_exists( 'child_get_platform_info' )
+								? child_get_platform_info( $platform )
+								: [
+									'name'  => $platform,
+									'color' => '#666666',
+								];
+							?>
+							<span
+								class="child-game-card__platform-chip child-game-card__platform-chip--<?php echo esc_attr( $platform_info['key'] ?? 'default' ); ?>"
+								title="<?php echo esc_attr( $platform ); ?>"
+							>
+								<?php echo esc_html( $platform_info['name'] ); ?>
+							</span>
+						<?php endforeach; ?>
+					</div>
+				<?php endif; ?>
+
+				<p class="child-game-card__title"><?php echo esc_html( $game_title ); ?></p>
+
+				<?php if ( ! empty( $formatted_date ) ) : ?>
+					<div class="child-game-card__info-row">
+						<span class="child-game-card__label"><?php echo esc_html( __( 'Veröffentlichung:', 'child' ) ); ?></span>
+						<span class="child-game-card__value"><?php echo esc_html( $formatted_date ); ?></span>
+					</div>
+				<?php endif; ?>
+
+				<?php if ( ! empty( $genres ) && is_array( $genres ) ) : ?>
+					<div class="child-game-card__info-row">
+						<span class="child-game-card__label"><?php echo esc_html( __( 'Genres:', 'child' ) ); ?></span>
+						<span class="child-game-card__value"><?php echo esc_html( implode( ', ', array_slice( $genres, 0, 3 ) ) ); ?></span>
+					</div>
+				<?php endif; ?>
+
+			</div>
+		</div>
+	</div>
+	<?php
+	return ob_get_clean();
+};

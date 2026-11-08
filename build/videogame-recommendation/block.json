@@ -1,0 +1,61 @@
+{
+  "apiVersion": 3,
+  "name": "child/videogame-recommendation",
+  "title": "Videospiel",
+  "category": "widgets",
+  "icon": "games",
+  "description": "Ein Block zur Anzeige von Videospielen",
+  "supports": {
+    "html": false
+  },
+  "attributes": {
+    "gameTitle": {
+      "type": "string",
+      "default": ""
+    },
+    "coverUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "coverFormat": {
+      "type": "string",
+      "default": "landscape"
+    },
+    "coverVariants": {
+      "type": "array",
+      "default": []
+    },
+    "releaseYear": {
+      "type": "string",
+      "default": ""
+    },
+    "releaseDate": {
+      "type": "string",
+      "default": ""
+    },
+    "platforms": {
+      "type": "array",
+      "default": []
+    },
+    "genres": {
+      "type": "array",
+      "default": []
+    },
+    "igdbId": {
+      "type": "number",
+      "default": 0
+    },
+    "rawgId": {
+      "type": "number",
+      "default": 0
+    },
+    "shopUrl": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "textdomain": "child",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css"
+}

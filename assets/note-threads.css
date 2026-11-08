@@ -1,0 +1,106 @@
+.child-note-thread {
+	--child-note-thread-line: rgb(15 23 42 / 22%);
+	display: grid;
+	gap: 0;
+}
+
+.child-note-thread__list {
+	display: grid;
+	gap: 0;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.child-note-thread__entry,
+.child-note-thread__current {
+	padding-block: 0.5rem var(--wp--preset--spacing--40, 1.5rem);
+	padding-inline-start: var(--wp--preset--spacing--40, 1.5rem);
+	position: relative;
+}
+
+.child-note-thread__entry::after,
+.child-note-thread__current::after {
+	background: var(--child-note-thread-line);
+	content: "";
+	inset-block: 0;
+	inset-inline-start: -1px;
+	position: absolute;
+	width: 2px;
+}
+
+.child-note-thread__entry::before,
+.child-note-thread__current::before {
+	background: currentcolor;
+	border: 4px solid var(--wp--preset--color--base, #fff);
+	border-radius: 50%;
+	box-sizing: border-box;
+	content: "";
+	height: 0.875rem;
+	inset-block-start: 0.75rem;
+	inset-inline-start: -0.4375rem;
+	position: absolute;
+	width: 0.875rem;
+	z-index: 1;
+}
+
+.child-note-thread__section--ancestors .child-note-thread__entry:first-child::after,
+.child-note-thread > .child-note-thread__current:first-child::after {
+	inset-block-start: 1.1875rem;
+}
+
+.child-note-thread__section--replies .child-note-thread__entry:last-child::after,
+.child-note-thread > .child-note-thread__current:last-child::after {
+	inset-block-end: calc(100% - 1.1875rem);
+}
+
+.child-note-thread__current::before {
+	box-shadow: 0 0 0 0.125rem currentcolor;
+	transform: scale(1.2);
+}
+
+.child-note-thread__meta {
+	margin-block-end: 0.5rem;
+}
+
+.child-note-thread__date {
+	color: #6b7280;
+	font-size: 0.8125em;
+	text-decoration: none;
+}
+
+.child-note-thread__date:hover,
+.child-note-thread__date:focus-visible {
+	text-decoration: underline;
+}
+
+.child-note-thread__current .child-note-thread__date {
+	color: inherit;
+	font-weight: 600;
+}
+
+.child-note-thread__body > :first-child,
+.child-note-thread__current > :first-child {
+	margin-block-start: 0;
+}
+
+.child-note-thread__body > :last-child,
+.child-note-thread__current > :last-child {
+	margin-block-end: 0;
+}
+
+@supports (color: color-mix(in srgb, black, transparent)) {
+
+	.child-note-thread {
+		--child-note-thread-line: color-mix(in srgb, currentcolor 22%, transparent);
+	}
+}
+
+@media (max-width: 600px) {
+
+	.child-note-thread__entry,
+	.child-note-thread__current {
+		padding-inline-start: 1rem;
+	}
+
+}

@@ -1,0 +1,62 @@
+{
+  "apiVersion": 3,
+  "name": "child/post-likes",
+  "title": "Beitrags-Likes",
+  "category": "widgets",
+  "icon": "heart",
+  "description": "Anonyme Gefällt-mir-Schaltfläche mit serverseitig gespeicherter Anzahl.",
+  "attributes": {
+    "buttonBackground": {
+      "type": "string",
+      "default": "#14060f"
+    },
+    "buttonBorder": {
+      "type": "string",
+      "default": "#4f1630"
+    },
+    "buttonText": {
+      "type": "string",
+      "default": "#ff5a8b"
+    },
+    "buttonHoverBorder": {
+      "type": "string",
+      "default": "#ff5a8b"
+    },
+    "buttonSize": {
+      "type": "string",
+      "default": "md"
+    },
+    "buttonAlign": {
+      "type": "string",
+      "default": "left"
+    },
+    "buttonLikedBackground": {
+      "type": "string",
+      "default": "#2a0a1b"
+    },
+    "buttonFocusOutline": {
+      "type": "string",
+      "default": "#ff5a8b"
+    },
+    "buttonErrorBorder": {
+      "type": "string",
+      "default": "#ff9ab6"
+    },
+    "ctaText": {
+      "type": "string",
+      "default": "Do you like this?"
+    },
+    "reactionEmoji": {
+      "type": "string",
+      "default": "❤️"
+    }
+  },
+  "supports": {
+    "html": false
+  },
+  "textdomain": "child",
+  "editorScript": "file:./index.js",
+  "viewScript": "file:./view.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css"
+}

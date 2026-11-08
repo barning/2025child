@@ -1,0 +1,56 @@
+/*
+Theme Name: TwentyTwentyFive Child
+Theme URI: https://github.com/barning/2025child
+Description: Child theme for TwentyTwentyFive with plugin replacements.
+Author: Niklas Barning
+Author URI: https://github.com/barning
+Template: twentytwentyfive
+Requires at least: 6.7
+Requires PHP: 8.3
+Version: 1.9.0
+*/
+
+.home .wp-block-post-template > .type-note {
+	border-inline-start: 2px solid #ddd;
+	padding-inline-start: 20px;
+}
+
+.child-note-stream-parent {
+	color: var(--wp--preset--color--accent-4, #686868);
+	font-size: 0.8em;
+	margin-block: 0.5rem 1rem;
+}
+
+.child-note-stream-parent a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.child-note-stream-parent a:hover,
+.child-note-stream-parent a:focus-visible {
+	text-decoration: underline;
+}
+
+.overflow-image {
+	overflow: hidden;
+}
+
+.is-clickable {
+	transition: box-shadow 0.2s, translate 0.2s;
+}
+
+.is-clickable:hover {
+	box-shadow: var(--wp--preset--shadow--deep);
+	translate: 0 -2px 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.is-clickable {
+		transition: none;
+	}
+
+	.is-clickable:hover {
+		translate: none;
+	}
+}
